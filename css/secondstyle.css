@@ -1,0 +1,328 @@
+/* Styling Umum Laman */
+body {
+    font-family: 'Inter', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8fafc;
+    box-sizing: border-box;
+}
+
+/* --- NAVBAR & HERO SUB-MENU --- */
+.hero-section {
+    /* REMOVED: Dark gradient background from here so it doesn't leak into the bottom section */
+    color: white;
+    position: relative;
+    width: 100%;
+}
+
+.navbar {
+    /* MOVED: Dark gradient background goes directly onto the navbar instead */
+    background: linear-gradient(135deg, #001233 0%, #001f4d 100%);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    /* Updated border-bottom to match the yellow line style under the navbar */
+    border-bottom: 3px solid #ffb703; 
+}
+
+.brand-container {
+    display: flex;
+    align-items: center;
+}
+
+.logo-text {
+    display: flex;
+    flex-direction: column;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: 0.5px;
+}
+
+.malaysia-logo-img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+}
+
+.unit-latihan {
+    color: #ffb703;
+    font-weight: bold;
+}
+
+.divider {
+    width: 1px;
+    height: 40px;
+    background-color: rgba(255, 255, 255, 0.3);
+    margin: 0 20px;
+}
+
+.main-title h1 {
+    font-size: 24px;
+    margin: 0;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.main-title p {
+    font-size: 10px;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.7);
+    letter-spacing: 0.5px;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.profile-icon {
+    font-size: 28px;
+    color: #ffffff; /* Turned to white to let the gold accents elsewhere stand out */
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+    font-size: 11px;
+}
+
+.username {
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* --- HERO SUB-MENU CONTENT --- */
+.hero-content-sub {
+    /* FIXED: Changed to white background with a soft gray-blue gradient effect on the right */
+    background: linear-gradient(90deg, #ffffff 50%, #e2e8f0 100%); 
+    padding: 40px 60px;
+    position: relative;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.breadcrumb {
+    font-size: 13px;
+    color: #64748b; /* Darkened text color so it is readable on a white background */
+    margin-bottom: 15px;
+}
+
+.breadcrumb .current {
+    color: #94a3b8; /* Grayed out the sub-item font slightly to emphasize the main category */
+    font-weight: 500;
+}
+
+.hero-text-sub h2 {
+    font-size: 32px;
+    margin: 0;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #001233; /* Darkened title text color for white background readability */
+}
+
+.orange-bar {
+    width: 40px;
+    height: 4px;
+    background-color: #ffb703;
+    margin: 10px 0 15px 0;
+}
+
+.hero-text-sub p {
+    font-size: 14px;
+    color: #334155; /* Darkened paragraph description text for clear readability */
+    max-width: 600px;
+}
+
+/* Gambar Kanan Header (Buku & Tukul) */
+.sub-header-bg {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 55%;
+    z-index: 1;
+    background: linear-gradient(to right, #ffffff 0%, #ffffff 15%, rgba(234, 240, 246, 0.4) 45%, rgba(234, 240, 246, 0) 70%), no-repeat right center;
+    background-size: cover;
+    background-image: url('image/tukulpanjang.png');
+    opacity: 0.95;
+}
+
+/* --- CONTAINER GRID KAD (4 KAD) --- */
+.cards-container-sub {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+    padding: 40px 60px;
+    margin-top: -20px; /* Overlap sedikit dengan header gelap */
+    position: relative;
+    z-index: 5;
+}
+
+.card-sub {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.3s ease;
+}
+
+.card-sub:hover {
+    transform: translateY(-5px);
+}
+
+.card-image-sub {
+    height: 140px;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Mengisi imej berasingan bagi setiap kad */
+.img-myppsm { background-image: url('../image/ppsm.png'); }
+.img-treasury { background-image: url('../image/treasury.png'); }
+.img-pekeliling-kkm { background-image: url('../image/pekeling.png'); }
+.img-akta-kkm { background-image: url('../image/akta.png'); }
+
+.badge-number-sub {
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 30px;
+    background-color: #001233;
+    color: white;
+    border: 2px solid white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 13px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.card-body-sub {
+    padding: 30px 20px 20px 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.card-body-sub h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #001233;
+    margin: 0 0 10px 0;
+}
+
+.card-body-sub p {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.5;
+    margin: 0 0 20px 0;
+    flex-grow: 1;
+}
+
+/* --- BUTTON GAYA INDIVIDU (ASING HTML & CSS) --- */
+.btn-sub {
+    display: inline-block;
+    padding: 10px 15px;
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    text-align: center;
+    transition: background-color 0.2s ease;
+}
+
+.btn-sub i {
+    margin: 0 4px;
+}
+
+/* Variasi Warna Butang mengikut Gambar */
+.btn-darkblue { background-color: #001233; }
+.btn-darkblue:hover { background-color: #001f4d; }
+
+.btn-blue-ocean { background-color: #004b87; }
+.btn-blue-ocean:hover { background-color: #005fa3; }
+
+.btn-purple-sub { background-color: #4a154b; }
+.btn-purple-sub:hover { background-color: #611f62; }
+
+.btn-gold-sub { background-color: #b57c1e; }
+.btn-gold-sub:hover { background-color: #cf8f24; }
+
+/* --- FOOTER VALUES --- */
+.footer-values {
+    background-color: #001233;
+    color: white;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    border-top: 3px solid #ffb703;
+}
+
+.value-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.value-item i {
+    font-size: 24px;
+    color: #ffb703;
+}
+
+.value-item strong {
+    font-size: 12px;
+    display: block;
+    letter-spacing: 0.5px;
+}
+
+.value-item p {
+    margin: 0;
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.footer-tagline {
+    font-size: 12px;
+    font-weight: 500;
+    color: #ffb703;
+    width: 100%;
+    text-align: center;
+    margin-top: 10px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 10px;
+}
+
+/* --- RESPONSIVE ADJUSTMENTS --- */
+@media (max-width: 900px) {
+    .main-header, .stats-bar, .footer-values {
+        flex-direction: column;
+        text-align: center;
+        align-items: center;
+    }
+    .stat-divider, .value-divider {
+        display: none;
+    }
+    .logo-area {
+        flex-direction: column;
+    }
+}
+

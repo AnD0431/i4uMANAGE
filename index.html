@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>i4uManage - Sistem Pengurusan Dokumen & Latihan</title>
+    <meta name="description" content="i4uManage adalah platform sehenti untuk mengakses dokumen, bahan kursus dan kertas kerja dengan mudah, teratur dan selamat.">
+    <meta name="keywords" content="i4uManage, dokumen, latihan, kursus, kertas kerja, pengurusan dokumen, Kementerian Kesihatan Malaysia, Jabatan Kesihatan Negeri Terengganu">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/chatbot.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+</head>
+<body>
+
+    <header class="hero-section">
+        <nav class="navbar">
+            <div class="brand-container">
+                <div class="malaysia-logo">
+                    <div class="logo-box"><img src="image/jata.png" alt="malaysia-logo" class="malaysia-logo"></div>
+                </div>
+                <div class="logo-text">
+                    <span>KEMENTERIAN KESIHATAN MALAYSIA</span>
+                    <span>JABATAN KESIHATAN NEGERI TERENGGANU</span>
+                    <span class="unit-latihan">UNIT LATIHAN</span>
+                </div>
+                <div class="divider"></div>
+                <div class="main-title">
+                    <h1>i4uManage</h1>
+                    <p>SISTEM PENGURUSAN DOKUMEN & LATIHAN</p>
+                </div>
+            </div>
+            <!--
+            <div class="user-profile">
+                <div class="profile-icon"><i class="fa-solid fa-circle-user"></i></div>
+                <div class="profile-info">
+                    <span class="welcome">Selamat Datang,</span>
+                    <span class="username">Pengguna <i class="fa-solid fa-chevron-down"></i></span>
+                </div>
+            </div>-->
+        </nav>
+
+        <div class="hero-content">
+            <div class="hero-text">
+                <h2>Selamat Datang ke <br><span class="highlight">i4uManage</span></h2>
+                <div class="orange-bar"></div>
+                <p>Platform sehenti untuk mengakses dokumen, bahan kursus dan kertas kerja dengan mudah, teratur dan selamat.</p>
+            </div>
+            <div class="building-preview">
+                <div class="building-tag">JABATAN KESIHATAN NEGERI TERENGGANU</div>
+            </div>
+        </div>
+    </header>
+
+    <main class="cards-container">
+        <div class="card card-blue">
+            <div class="card-image img-punca">
+                <div class="badge-number"></div>
+            </div>
+            <div class="card-body">
+                <h3>PUNCA KUASA</h3>
+                <p>Dokumen berkaitan punca kuasa, pekeliling, arahan dan peraturan yang berkaitan.</p>
+                <a href="puncakuasa.html" class="btn btn-blue">
+                    <i class="fa-regular fa-file-lines"></i> Lihat Dokumen <i class="fa-solid fa-chevron-right"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="card card-blue">
+            <div class="card-image img-slide">
+               
+                <div class="badge-number"></div>
+            </div>
+            <div class="card-body">
+                <h3>SLIDE KURSUS</h3>
+                <p>Slide pembentangan dan bahan kursus yang digunakan dalam latihan.</p>
+                <a href="slaid.html" class="btn btn-blue">
+                    <i class="fa-solid fa-laptop-code"></i> Lihat Slide <i class="fa-solid fa-chevron-right"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="card card-purple">
+            <div class="card-image img-kertas">
+                <div class=""></div>
+            </div>
+            <div class="card-body">
+                <h3>KERTAS KERJA</h3>
+                <p>Kertas kerja program, latihan dan dokumen sokongan yang berkaitan.</p>
+                <a href="kerja.html" class="btn btn-purple">
+                    <i class="fa-solid fa-folder-open"></i> Lihat Kertas Kerja <i class="fa-solid fa-chevron-right"></i>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer-values">
+        <div class="value-item">
+            <i class="fa-solid fa-users"></i>
+            <div><strong>SELAMAT</strong><p>Utamakan Keselamatan</p></div>
+        </div>
+        <div class="value-item">
+            <i class="fa-solid fa-gauge-high"></i>
+            <div><strong>EFISIEN</strong><p>Laksanakan Tugas Secara Efisien</p></div>
+        </div>
+        <div class="value-item">
+            <i class="fa-solid fa-handshake"></i>
+            <div><strong>INTEGRITI</strong><p>Bertindak Dengan Jujur</p></div>
+        </div>
+        <div class="value-item">
+            <i class="fa-solid fa-gem"></i>
+            <div><strong>KUALITI</strong><p>Komited Kepada Kecemerlangan</p></div>
+        </div>
+        <div class="footer-tagline">Bersama Membangun Kesihatan Yang Lebih Baik</div>
+    </footer>
+
+<!--SARAH CHATBOT-->
+<button id="chatbot-toggle">
+    <img src="image/sarah.png" alt="Sarah">
+</button>
+
+<div class="chatbot-popup">
+
+    <!-- Chatbot Header -->
+    <div class="chat-header">
+        <div class="header-info">
+            <div class="chatbot-avatar">
+                <img src="image/sarah.png" alt="Chatbot-logo" class="Chatbot-logo">
+            </div>
+            <h2 class="logo-text">Sarah</h2>
+        </div>
+        <button id="close-chatbot" class="material-symbols-rounded">keyboard_arrow_down</button>
+    </div>
+
+    <!-- Chatbot Body -->
+    <div class="chat-body">
+        <div class="message bot-message">
+            <div class="chatbot-avatar">
+                <img src="image/sarah.png" alt="Chatbot-logo" class="Chatbot-logo">
+            </div>
+            <div class="message-text">Hi, Saya Sarah <br /> Apa saya boleh bantu anda?</div>
+        </div>
+    </div>
+
+<div class="quick-replies-bar" id="quick-replies-bar"></div>
+
+    <!-- Chatbot Footer -->
+    <div class="chat-footer">
+        <form action="#" class="chat-form">
+            <textarea placeholder="Message..." class="message-input" required></textarea>
+            <div class="chat-controls">
+                <button type="button" id="emoji-picker" class="material-symbols-rounded">sentiment_satisfied</button>
+                <div class="file-upload-wrapper">
+                    <input type="file" accept="images/*" id="file-input" hidden>
+                    <img src="#">
+                    <button type="button" id="file-upload" class="material-symbols-rounded">attach_file</button>
+                    <button type="button" id="file-cancel" class="material-symbols-rounded">close</button>
+                </div>
+                <button type="submit" id="send-message" class="material-symbols-rounded">keyboard_arrow_up</button>
+            </div>
+        </form>
+    </div>
+</div>
+<!--SARAH CHATBOT-->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+
+<!-- link emoji script -->
+<script src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js"></script>
+
+<!-- link custom script -->
+<script src="js/scripts.js"></script>
+
+</body>
+</html>

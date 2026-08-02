@@ -1,0 +1,667 @@
+/* CHATBOT*/
+/* Importing google fonts - inter */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:wght@100..900&family=Roboto:wght@100..900&display=swap');
+
+body {
+    min-height: 100vh;
+}
+
+#chatbot-toggle {
+    position: fixed;
+    bottom: 30px;
+    right: 35px;
+    border: none;
+    height: 60px;
+    width: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 50%;
+    background: transparent; /* Biru Korporat Utama */
+    padding: 0;
+    transition: all 0.2s ease;
+    /* FIXED: no z-index meant this defaulted to z-index: auto and could be
+       outranked by any other element on the page that sets a z-index
+       (e.g. .cards-container-sub's z-index: 5), causing card badge
+       numbers to render on top of it. */
+    z-index: 1000;
+}
+
+#chatbot-toggle:hover {
+    transform: scale(1.05);
+}
+
+#chatbot-toggle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+    background: transparent;
+}
+
+.chatbot-popup {
+    position: fixed;
+    right: 35px;
+    bottom: 90px;
+    width: 50vw;
+    max-width: 720px;
+    min-width: 380px;
+    height: 80vh;
+    max-height: 780px;
+    /* Subtle gradient backdrop so the glass bubbles have something to catch light off of */
+    background: linear-gradient(160deg, #EAF1FF 0%, #F7F9FF 45%, #FDF2F8 100%);
+    display: flex;
+    flex-direction: column;   /* header, body, footer stack vertically */
+    overflow: visible;
+    border-radius: 15px;
+    opacity: 0;
+    transform: scale(0.2);
+    transform-origin: bottom right;
+    pointer-events: none;
+    box-shadow: 0 0 128px rgba(0, 0, 0, 0.1),
+    0 32px 64px -48px rgba(0, 0, 0, 0.5);
+    transition: all 0.1s ease;
+    /* FIXED: same stacking-order bug as #chatbot-toggle — without a
+       z-index, elements like .cards-container-sub (z-index: 5) could
+       render on top of the open chat popup. Set higher than the toggle
+       so the popup still wins if they ever overlap. */
+    z-index: 1001;
+}
+
+body.show-chatbot .chatbot-popup {
+    opacity: 1;
+    pointer-events: auto;
+    transform: scale(1);
+}
+
+.chat-header {
+    display: flex;
+    align-items: center;
+    background: rgba(26, 86, 219, 0.85); /* Biru Korporat Utama, tinted glass */
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    padding: 15px 22px;
+    justify-content: space-between;
+    flex-shrink: 0;
+    border-radius: 15px 15px 0 0;
+}
+
+.chat-header .header-info {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.header-info .Chatbot-logo {
+    height: 35px;
+    width: 35px;
+    border-radius: 50%;
+}
+
+.header-info .logo-text {
+    color: #fff;
+    font-size: 1.31rem;
+    font-weight: 600;
+}
+
+.chat-header #close-chatbot {
+    border: none;
+    color: #fff;
+    height: 40px;
+    width: 40px;
+    font-size: 1.9rem;
+    margin-right: -10px;
+    padding-top: 2px;
+    cursor: pointer;
+    border-radius: 50%;
+    background: none;
+    transition: 0.3s ease;
+}
+
+.chat-header #close-chatbot:hover {
+    background: #1E40AF; /* Biru Gelap (Hover) */
+}
+
+.chat-body {
+    padding: 25px 20px;
+    display: flex;
+    gap: 10px;
+    flex: 1;              /* takes all space left after header + footer */
+    min-height: 0;        /* CRITICAL: without this, overflow-y:auto won't scroll — it'll push footer out instead */
+    margin-bottom: 0;     /* remove old 82px hack entirely */
+    overflow-y: auto;
+    overflow-x: hidden;
+    flex-direction: column;
+    scrollbar-width: thin;
+    scrollbar-color: #D1E2FF transparent;
+}
+
+.chat-body .message {
+    display: flex;
+    /* FIXED (jarak diminta): dinaikkan dari 11px ke 14px supaya avatar
+       dan bubble mesej ada ruang nafas dan tak nampak overflow/bertindih. */
+    gap: 14px;
+    align-items: center;
+}
+
+.chat-body .bot-message .chatbot-avatar {
+    height: 35px;
+    width: 35px;
+    padding: 6px;
+    /* FIXED: without this, padding was added on top of the 35px
+       width/height (default content-box), making the real rendered
+       size 47px — bigger than the 35px avatar in the chat header. */
+    box-sizing: border-box;
+    flex-shrink: 0;
+    /* FIXED (jarak diminta): jarak tambahan di sebelah kanan avatar, di
+       atas gap 14px dari .message, supaya bubble mesej lagi jauh dari
+       avatar dan tak nampak overflow. */
+    margin-right: 4px;
+    margin-bottom: 2px;
+    align-self: flex-end;
+    border-radius: 50%;
+    /* FIXED: the <img> inside inherits the fixed 60px size from
+       .Chatbot-logo, which is bigger than this 35px wrapper. Without
+       overflow: hidden, the image spilled out past the circle instead
+       of being clipped to it — that's the oval/oversized avatar bug. */
+    overflow: hidden;
+}
+
+.chat-body .bot-message .chatbot-avatar img {
+    /* FIXED: override the fixed 60x60 from .Chatbot-logo so the image
+       actually fills this smaller avatar slot and gets cropped to a
+       clean circle instead of overflowing it. */
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* FIXED: default object-position (50% 50%, dead center) was cropping
+       from the middle of the source photo, cutting off most of the face
+       since it sits near the top of sarah.png. Anchoring the crop to the
+       top keeps the face in frame. */
+    object-position: top;
+}
+
+.chat-body .user-message {
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.chat-body .message .message-text {
+    padding: 12px 16px;
+    max-width: 75%;
+    font-size: 0.95rem;
+}
+
+.chat-body .bot-message.thinking .message-text {
+    padding: 2px 16px;
+    background: rgba(255, 255, 255, 0.55);
+}
+
+/* --- Glass tint: bot bubble --- */
+.chat-body .bot-message .message-text {
+    background: rgba(255, 255, 255, 0.55);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+    backdrop-filter: blur(10px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 4px 16px rgba(31, 41, 55, 0.06);
+    border-radius: 13px 13px 13px 3px;
+}
+
+/* --- Glass tint: user bubble (blue-tinted glass) --- */
+.chat-body .user-message .message-text {
+    color: #0B2559;
+    background: rgba(96, 165, 250, 0.28); /* Biru Cerah, translucent */
+    -webkit-backdrop-filter: blur(10px) saturate(160%);
+    backdrop-filter: blur(10px) saturate(160%);
+    border: 1px solid rgba(26, 86, 219, 0.35);
+    box-shadow: 0 4px 16px rgba(26, 86, 219, 0.15);
+    border-radius: 13px 13px 3px 13px;
+}
+
+.chat-body .bot-message .thinking-indicator {
+    display: flex;
+    gap: 4px;
+    padding-block: 15px;
+}
+
+.chat-body .bot-message .thinking-indicator .dot {
+    height: 7px;
+    width: 7px;
+    opacity: 0.7;
+    border-radius: 50%;
+    background: #60A5FA; /* Biru Cerah (Thinking Dot) */
+    animation: dotPulse 1.8s ease-in-out infinite;
+}
+
+.chat-body .bot-message .thinking-indicator .dot:nth-child(1) {
+    animation-delay: 0.2s;
+}
+
+.chat-body .bot-message .thinking-indicator .dot:nth-child(2) {
+    animation-delay: 0.3s;
+}
+
+.chat-body .bot-message .thinking-indicator .dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes dotPulse {
+    0%, 44% {
+        transform: translateY(0);
+    }
+
+    28% {
+        opacity: 0.4;
+        transform: translateY(-4px);
+    }
+
+    44% {
+        opacity: 0.2;
+    }
+}
+
+.chat-footer {
+    position: relative;    /* moved here instead of .chat-form */
+    flex-shrink: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.6);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    padding: 8px 22px 20px;
+    box-sizing: border-box;
+}
+
+.chat-footer .chat-form {
+    display: flex;
+    align-items: center;
+    background: rgba(250, 249, 250, 0.7);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    border-radius: 32px;
+    outline: 1px solid #CCCCE5;
+    overflow: hidden;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+.chat-footer .chat-form:focus-within {
+    outline: 2px solid #1A56DB; /* Biru Korporat Utama */
+}
+
+.chat-form .message-input {
+    border: none;
+    outline: none;
+    height: 47px;
+    flex: 1;                 /* Mengambil baki ruang kosong dengan adil */
+    resize: none;
+    font-size: 0.95rem;
+    border-radius: inherit;
+    
+    /* --- DIBAIKI: Padding atas bawah disamakan untuk flex alignment --- */
+    padding: 12px 0 12px 18px; 
+    line-height: 23px;       /* Memberi ketinggian yang cukup untuk huruf berkaki seperti 'g' */
+    box-sizing: border-box;
+    background: transparent;
+}
+
+.chat-form .chat-controls {
+    display: flex;
+    height: 47px;
+    gap: 3px;
+    align-items: center;
+    padding-right: 14px;
+    flex-shrink: 0;          /* Menghalang ikon daripada mengecil atau terkeluar */
+}
+
+.chat-form .chat-controls button {
+    height: 35px;
+    width: 35px;
+    border: none;
+    font-size: 1.15rem;
+    cursor: pointer;
+    color: #2563EB; /* Biru Ikon */
+    background: none;
+    border-radius: 50%;
+    transition: 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-form .chat-controls #send-message {
+    background: #1A56DB; /* Biru Korporat Utama */
+    display: none;
+    color: #fff;
+}
+
+.chat-form .message-input:valid~.chat-controls #send-message {
+    display: block;
+}
+
+.chat-form .chat-controls #send-message:hover {
+    background: #1E40AF; /* Biru Gelap (Hover) */
+}
+
+.chat-form .chat-controls button:hover {
+    background: #F0F5FF; /* Biru Sangat Cair (Hover Ikon) */
+}
+
+.chat-form .file-upload-wrapper {
+    height: 35px;
+    width: 35px;
+    position: relative;
+}
+
+.chat-form .file-upload-wrapper :where(img, button) {
+    position: absolute;
+}
+
+.chat-form .file-upload-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.chat-form .file-upload-wrapper #file-cancel {
+    color: #ff0000;
+    background: #fff;
+}
+
+/* --- BAHAGIAN YANG DIBAIKI (LOGIK DISPLAY) --- */
+
+.chat-form .file-upload-wrapper img,
+.chat-form .file-upload-wrapper #file-cancel {
+    display: none;
+}
+
+.chat-form .file-upload-wrapper.file-uploaded #file-upload {
+    display: none;
+}
+
+.chat-form .file-upload-wrapper.file-uploaded img {
+    display: block;
+}
+
+.chat-form .file-upload-wrapper.file-uploaded:hover #file-cancel {
+    display: block;
+}
+
+em-emoji-picker {
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    margin-bottom: 12px;
+    width: 100%;
+    max-width: 350px;
+    max-height: 330px;
+    visibility: hidden;
+}
+
+body.show-emoji-picker em-emoji-picker {
+    visibility: visible;
+}
+
+.Chatbot-logo {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/*download button*/
+.message-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+ 
+.download-btn {
+    font-size: 12px;
+    padding: 4px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: rgba(250, 249, 250, 0.7);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+ 
+.download-btn:hover {
+    background: #f0f0f0;
+}
+ 
+.download-docx {
+    border-color: #2b579a;
+    color: #2b579a;
+}
+ 
+.download-pdf {
+    border-color: #d93025;
+    color: #d93025;
+}
+
+/* --- QUICK REPLY CHIPS --- */
+/* Bar tetap antara .chat-body dan .chat-footer — tak scroll bersama mesej */
+.quick-replies-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 20px 6px;
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.4);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    border-top: 1px solid rgba(26, 86, 219, 0.12);
+}
+
+/* Elak ruang kosong terpapar bila takde chip (selepas dibuang) */
+.quick-replies-bar:empty {
+    display: none;
+    padding: 0;
+    border-top: none;
+}
+
+.quick-reply-btn {
+    background: rgba(255, 255, 255, 0.55);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+    backdrop-filter: blur(10px) saturate(140%);
+    border: 1px solid rgba(26, 86, 219, 0.35);
+    color: #1A56DB; /* Biru Korporat Utama */
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    box-shadow: 0 4px 16px rgba(31, 41, 55, 0.06);
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.quick-reply-btn:hover {
+    background: #1A56DB;
+    color: #fff;
+    border-color: #1A56DB;
+}
+
+.quick-reply-btn:focus-visible {
+    outline: 2px solid #1A56DB;
+    outline-offset: 2px;
+}
+
+/* ============================================================
+   RESPONSIVE — TABLET & PHONE
+   ============================================================ */
+
+/* --- TABLET (<=992px) --- */
+@media (max-width: 992px) {
+    .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .brand-container {
+        flex-wrap: wrap;
+        row-gap: 10px;
+    }
+
+    .divider {
+        display: none;
+    }
+
+    .user-profile {
+        align-self: flex-end;
+    }
+
+    /* FIXED: retargeted from the pre-refactor class names (.hero-content,
+       .hero-text, .building-preview), which no longer exist in the markup
+       after the "-sub" rename, to the real ones. .building-preview and
+       .highlight had no matching elements anywhere in the stylesheet, so
+       they were dropped — tell me if they still exist in your HTML and
+       I'll wire them back in. */
+    .hero-content-sub {
+        flex-direction: column;
+        align-items: flex-start;
+        margin-top: 25px;
+        padding: 25px 30px;
+    }
+
+    .hero-text-sub {
+        max-width: 100%;
+    }
+
+    .hero-text-sub h2 {
+        font-size: 2rem;
+    }
+
+    .sub-header-bg {
+        position: relative;
+        width: 100%;
+        height: 200px;
+        margin-top: 15px;
+    }
+
+    .cards-container-sub {
+        padding: 30px 5%;
+        gap: 20px;
+    }
+
+    .chatbot-popup {
+        width: 60vw;
+        min-width: 320px;
+    }
+}
+
+/* --- PHONE (<=600px) --- */
+@media (max-width: 600px) {
+    .hero-section {
+        padding: 15px 5% 30px 5%;
+    }
+
+    .main-title h1 {
+        font-size: 1.6rem;
+    }
+
+    .main-title p {
+        font-size: 0.6rem;
+        letter-spacing: 1px;
+    }
+
+    .logo-text {
+        font-size: 0.55rem;
+    }
+
+    .hero-content-sub {
+        padding: 20px;
+    }
+
+    .hero-text-sub h2 {
+        font-size: 1.6rem;
+    }
+
+    .hero-text-sub p {
+        font-size: 0.85rem;
+    }
+
+    .cards-container-sub {
+        padding: 30px 5%;
+        gap: 20px;
+    }
+
+    .footer-values {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    /* Chatbot toggle button — kecilkan sikit & tarik masuk dari tepi */
+    #chatbot-toggle {
+        bottom: 18px;
+        right: 18px;
+        height: 52px;
+        width: 52px;
+    }
+
+    /* Chatbot popup — fullscreen di phone, bukan floating box kecil yang overflow */
+    .chatbot-popup {
+        right: 0;
+        bottom: 0;
+        width: 100vw;
+        height: 100dvh;
+        max-width: 100vw;
+        max-height: 100dvh;
+        min-width: 0;
+        border-radius: 0;
+        transform-origin: bottom center;
+    }
+
+    .chat-header {
+        border-radius: 0;
+    }
+
+    .quick-replies-bar {
+        padding: 10px 14px 6px;
+    }
+
+    .quick-reply-btn {
+        font-size: 0.78rem;
+        padding: 7px 12px;
+    }
+
+    .chat-body {
+        padding: 20px 14px;
+    }
+
+    .chat-footer {
+        padding: 8px 14px 16px;
+    }
+
+    /* Sembunyikan bubble toggle bila chat fullscreen dibuka — elak nampak bertindih */
+    body.show-chatbot #chatbot-toggle {
+        display: none;
+    }
+
+    /* Kunci scroll belakang bila chat fullscreen terbuka di phone */
+    body.show-chatbot {
+        overflow: hidden;
+    }
+}
+
+/* Link (tel:/mailto:) dalam bubble mesej bot — cth. maklumat hubungi JKNT */
+.chat-body .bot-message .message-text a {
+    color: #1A56DB;
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(26, 86, 219, 0.35);
+}
+
+.chat-body .bot-message .message-text a:hover {
+    border-bottom-color: #1A56DB;
+}
