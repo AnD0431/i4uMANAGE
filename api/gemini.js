@@ -9,15 +9,24 @@ export default async function handler(req, res) {
 
   // API_KEY diambil dari Environment Variable di Vercel — TIDAK ditulis dalam kod.
   const API_KEY = process.env.GEMINI_API_KEY;
-  const MODEL = "gemini-3.6-flash"; // tukar ikut model sah semasa awak nak guna
+  const MODEL = "gemini-3.6-flash"; // model Flash terkini (GA) — lebih efisien & murah dari 3.5 Flash
 
   const GOOGLE_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
 
   try {
+    // FIXED (ditambah): suntik "tools: googleSearch" ke dalam payload dari
+    // scripts.js sebelum forward ke Google. Ini enable Google Search
+    // grounding — Gemini akan search web sebenar bila soalan perlukan
+    // maklumat terkini, dan bukan jawab semata-mata dari knowledge lama dia.
+    const payload = {
+      ...req.body,
+      tools: [{ google_search: {} }],
+    };
+
     const googleResponse = await fetch(GOOGLE_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(req.body), // hantar terus payload yang sama dari scripts.js
+      body: JSON.stringify(payload),
     });
 
     const data = await googleResponse.json();
