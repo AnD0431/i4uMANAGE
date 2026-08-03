@@ -9,7 +9,7 @@ export default async function handler(req, res) {
 
   // API_KEY diambil dari Environment Variable di Vercel — TIDAK ditulis dalam kod.
   const API_KEY = process.env.GEMINI_API_KEY;
-  const MODEL = "gemini-3.5-flash"; // tukar ikut model sah semasa awak nak guna
+  const MODEL = "gemini-3.6-flash"; // tukar ikut model sah semasa awak nak guna
 
   const GOOGLE_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
 
