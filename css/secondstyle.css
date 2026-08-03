@@ -1,10 +1,23 @@
 /* Styling Umum Laman */
+
+/* FIXED: added universal box-sizing + overflow-x lockdown on html/body.
+   Without this, elements (e.g. .sub-header-bg width:55% absolute) could
+   push the page wider than the viewport, causing horizontal scroll and
+   content appearing to shift/overlap out of place. */
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
 body {
     font-family: 'Inter', Arial, sans-serif;
     margin: 0;
     padding: 0;
     background-color: #f8fafc;
-    box-sizing: border-box;
 }
 
 /* --- NAVBAR & HERO SUB-MENU --- */
@@ -148,7 +161,11 @@ body {
     z-index: 1;
     background: linear-gradient(to right, #ffffff 0%, #ffffff 15%, rgba(234, 240, 246, 0.4) 45%, rgba(234, 240, 246, 0) 70%), no-repeat right center;
     background-size: cover;
-    background-image: url('image/tukulpanjang.png');
+    /* FIXED: was url('image/tukulpanjang.png') — this CSS file lives in
+       css/, so that path resolved to css/image/tukulpanjang.png (wrong),
+       leaving the hero background image missing. Other rules in this same
+       file correctly use "../image/..." — this one was missing the "../". */
+    background-image: url('../image/tukulpanjang.png');
     opacity: 0.95;
 }
 
@@ -313,7 +330,13 @@ body {
 
 /* --- RESPONSIVE ADJUSTMENTS --- */
 @media (max-width: 900px) {
-    .main-header, .stats-bar, .footer-values {
+    /* FIXED: ".main-header" and ".stats-bar" don't exist anywhere in
+       index.html — this rule never actually applied to the hero/breadcrumb
+       section, which is really ".hero-content-sub". Only ".footer-values"
+       was a real match. Retargeted so the hero section actually gets a
+       mobile layout, and added the cards grid + hero text sizing so this
+       page degrades properly on small screens (previously had none). */
+    .hero-content-sub, .footer-values {
         flex-direction: column;
         text-align: center;
         align-items: center;
@@ -324,5 +347,17 @@ body {
     .logo-area {
         flex-direction: column;
     }
+    .sub-header-bg {
+        position: relative;
+        width: 100%;
+        height: 200px;
+        margin-top: 15px;
+    }
+    .cards-container-sub {
+        padding: 30px 5%;
+        gap: 20px;
+    }
+    .hero-text-sub h2 {
+        font-size: 1.8rem;
+    }
 }
-
