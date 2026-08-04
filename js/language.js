@@ -49,6 +49,10 @@ const translations = {
         card1_desc: "Documents related to sources of authority, circulars, directives and related regulations.",
         card1_btn: "View Documents",
 
+        text1:"MINISTRY OF HEALTH MALAYSIA",
+        text2:"TERENGGANU STATE HEALTH DEPARTMENT",
+        text3:"TRAINING UNIT",
+
         card2_title: "COURSE SLIDES",
         card2_desc: "Presentation slides and course materials used in training.",
         card2_btn: "View Slides",
