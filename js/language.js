@@ -13,6 +13,10 @@ const translations = {
         card1_desc: "Dokumen berkaitan punca kuasa, pekeliling, arahan dan peraturan yang berkaitan.",
         card1_btn: "Lihat Dokumen",
 
+        text1:"KEMENTERIAN KESIHATAN MALAYSIA",
+        text2:"JABATAN KESIHATAN NEGERI TERENGGANU",
+        text3:"UNIT LATIHAN",
+
         card2_title: "SLIDE KURSUS",
         card2_desc: "Slide pembentangan dan bahan kursus yang digunakan dalam latihan.",
         card2_btn: "Lihat Slide",
