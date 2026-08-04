@@ -157,7 +157,7 @@ body {
 .building-preview {
     flex: 1;
     height: 250px;
-    background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop') center/cover;
+    background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.4)), url('../image/KKM.jpg') center/cover;
     border-radius: 8px;
     position: relative;
     box-shadow: 0 10px 20px rgba(0,0,0,0.3);
