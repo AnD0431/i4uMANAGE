@@ -116,6 +116,42 @@ body {
     font-weight: bold;
 }
 
+/* LANGUAGE SWITCHER */
+.lang-switcher {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 20px;
+    padding: 6px 14px;
+}
+
+.lang-switcher .lang-sep {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 0.75rem;
+}
+
+.lang-switcher .lang-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    padding: 2px 4px;
+    transition: color 0.2s ease;
+}
+
+.lang-switcher .lang-btn:hover {
+    color: var(--text-white);
+}
+
+.lang-switcher .lang-btn.active {
+    color: var(--orange-highlight);
+}
+
 /* HERO MAIN SPLIT */
 .hero-content {
     display: flex;
@@ -320,5 +356,12 @@ body {
     }
     .logo-area {
         flex-direction: column;
+    }
+    .navbar {
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    .lang-switcher {
+        order: 3;
     }
 }
