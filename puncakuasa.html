@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:wght@100..900&family=Roboto:wght@100..900&display=swap">
+    <link rel="stylesheet" href="css/lang-switcher.css">
 </head>
 <body>
 
@@ -28,9 +29,18 @@
                 <div class="divider"></div>
                 <div class="main-title">
                     <h1>i4uManage</h1>
-                    <p>SISTEM PENGURUSAN DOKUMEN & LATIHAN</p>
+                    <p data-i18n="main_title_sub">SISTEM PENGURUSAN DOKUMEN & LATIHAN</p>
                 </div>
             </div>
+
+            <!-- LANGUAGE SWITCHER -->
+            <div class="lang-switcher" id="lang-switcher">
+                <button type="button" class="lang-btn active" data-lang="ms">BM</button>
+                <span class="lang-sep">|</span>
+                <button type="button" class="lang-btn" data-lang="en">EN</button>
+            </div>
+            <!-- LANGUAGE SWITCHER -->
+
             <!--<div class="user-profile">
                 <div class="profile-icon"><i class="fa-solid fa-circle-user"></i></div>
                 <div class="profile-info">
@@ -42,12 +52,12 @@
 
         <div class="hero-content-sub">
             <div class="breadcrumb">
-                <span>Utama</span> / <span class="current">Punca Kuasa</span>
+                <span data-i18n="breadcrumb_home">Utama</span> / <span class="current" data-i18n="punca_title">Punca Kuasa</span>
             </div>
             <div class="hero-text-sub">
-                <h2>PUNCA KUASA</h2>
+                <h2 data-i18n="punca_heading">PUNCA KUASA</h2>
                 <div class="orange-bar"></div>
-                <p>Pautan ke sumber punca kuasa rasmi bagi rujukan dan pelaksanaan.</p>
+                <p data-i18n="punca_desc">Pautan ke sumber punca kuasa rasmi bagi rujukan dan pelaksanaan.</p>
             </div>
             <div class="sub-header-bg"></div>
         </div>
@@ -61,9 +71,9 @@
             </div>
             <div class="card-body-sub">
                 <h3>MyPPSM (JPA)</h3>
-                <p>Sistem Pekeliling Perkhidmatan Sumber Manusia (MyPPSM) Jabatan Perkhidmatan Awam.</p>
+                <p data-i18n="punca1_desc">Sistem Pekeliling Perkhidmatan Sumber Manusia (MyPPSM) Jabatan Perkhidmatan Awam.</p>
                 <a href="https://myppsm.jpa.gov.my/" target="_blank" class="btn-sub btn-darkblue">
-                    <i class="fa-solid fa-globe"></i> Layari Laman <i class="fa-solid fa-chevron-right"></i>
+                    <i class="fa-solid fa-globe"></i> <span data-i18n="visit_site_btn">Layari Laman</span> <i class="fa-solid fa-chevron-right"></i>
                 </a>
             </div>
         </div>
@@ -74,9 +84,9 @@
             </div>
             <div class="card-body-sub">
                 <h3>Treasury</h3>
-                <p>Portal Pekeliling Perbendaharaan Kementerian Kewangan Malaysia untuk rujukan perbendaharaan.</p>
+                <p data-i18n="punca2_desc">Portal Pekeliling Perbendaharaan Kementerian Kewangan Malaysia untuk rujukan perbendaharaan.</p>
                 <a href="https://ppp.treasury.gov.my/arkib/frontend" target="_blank" class="btn-sub btn-blue-ocean">
-                    <i class="fa-solid fa-globe"></i> Layari Laman <i class="fa-solid fa-chevron-right"></i>
+                    <i class="fa-solid fa-globe"></i> <span data-i18n="visit_site_btn">Layari Laman</span> <i class="fa-solid fa-chevron-right"></i>
                 </a>
             </div>
         </div>
@@ -86,10 +96,10 @@
                 <div class="badge-number-sub">3</div>
             </div>
             <div class="card-body-sub">
-                <h3>Surat Pekeliling KKM</h3>
-                <p>Senarai dan carian surat pekeliling Kementerian Kesihatan Malaysia mengikut tajuk dan tarikh.</p>
+                <h3 data-i18n="punca3_title">Surat Pekeliling KKM</h3>
+                <p data-i18n="punca3_desc">Senarai dan carian surat pekeliling Kementerian Kesihatan Malaysia mengikut tajuk dan tarikh.</p>
                 <a href="https://www.moh.gov.my/penerbitan-dan-laporan/pekeliling" target="_blank" class="btn-sub btn-purple-sub">
-                    <i class="fa-solid fa-globe"></i> Layari Laman <i class="fa-solid fa-chevron-right"></i>
+                    <i class="fa-solid fa-globe"></i> <span data-i18n="visit_site_btn">Layari Laman</span> <i class="fa-solid fa-chevron-right"></i>
                 </a>
             </div>
         </div>
@@ -99,10 +109,10 @@
                 <div class="badge-number-sub">4</div>
             </div>
             <div class="card-body-sub">
-                <h3>Akta KKM</h3>
-                <p>Akta, dasar, polisi & garis panduan Kementerian Kesihatan Malaysia untuk rujukan perundangan.</p>
+                <h3 data-i18n="punca4_title">Akta KKM</h3>
+                <p data-i18n="punca4_desc">Akta, dasar, polisi & garis panduan Kementerian Kesihatan Malaysia untuk rujukan perundangan.</p>
                 <a href="https://www.moh.gov.my/penerbitan-dan-laporan/dasar-akta-polisi-garis-panduan/akta-kesihatan" target="_blank" class="btn-sub btn-gold-sub">
-                    <i class="fa-solid fa-globe"></i> Layari Laman <i class="fa-solid fa-chevron-right"></i>
+                    <i class="fa-solid fa-globe"></i> <span data-i18n="visit_site_btn">Layari Laman</span> <i class="fa-solid fa-chevron-right"></i>
                 </a>
             </div>
         </div>
@@ -112,21 +122,21 @@
     <footer class="footer-values">
         <div class="value-item">
             <i class="fa-solid fa-users"></i>
-            <div><strong>SELAMAT</strong><p>Utamakan Keselamatan</p></div>
+            <div><strong data-i18n="val1_title">SELAMAT</strong><p data-i18n="val1_desc">Utamakan Keselamatan</p></div>
         </div>
         <div class="value-item">
             <i class="fa-solid fa-gauge-high"></i>
-            <div><strong>EFISIEN</strong><p>Laksanakan Tugas Secara Efisien</p></div>
+            <div><strong data-i18n="val2_title">EFISIEN</strong><p data-i18n="val2_desc">Laksanakan Tugas Secara Efisien</p></div>
         </div>
         <div class="value-item">
             <i class="fa-solid fa-handshake"></i>
-            <div><strong>INTEGRITI</strong><p>Bertindak Dengan Jujur</p></div>
+            <div><strong data-i18n="val3_title">INTEGRITI</strong><p data-i18n="val3_desc">Bertindak Dengan Jujur</p></div>
         </div>
         <div class="value-item">
             <i class="fa-solid fa-gem"></i>
-            <div><strong>KUALITI</strong><p>Komited Kepada Kecemerlangan</p></div>
+            <div><strong data-i18n="val4_title">KUALITI</strong><p data-i18n="val4_desc">Komited Kepada Kecemerlangan</p></div>
         </div>
-        <div class="footer-tagline">Bersama Membangun Kesihatan Yang Lebih Baik</div>
+        <div class="footer-tagline" data-i18n="footer_tagline">Bersama Membangun Kesihatan Yang Lebih Baik</div>
     </footer>
 
 <!--SARAH CHATBOT-->
@@ -153,7 +163,7 @@
             <div class="chatbot-avatar">
                 <img src="image/sarah.png" alt="Chatbot-logo" class="Chatbot-logo">
             </div>
-            <div class="message-text">Hi, Saya Sarah <br /> Apa saya boleh bantu anda?</div>
+            <div class="message-text" data-i18n="chatbot_greeting">Hi, Saya Sarah <br /> Apa saya boleh bantu anda?</div>
         </div>
     </div>
 
@@ -162,7 +172,7 @@
     <!-- Chatbot Footer -->
     <div class="chat-footer">
         <form action="#" class="chat-form">
-            <textarea placeholder="Message..." class="message-input" required></textarea>
+            <textarea placeholder="Message..." class="message-input" required data-i18n-placeholder="chat_placeholder"></textarea>
             <div class="chat-controls">
                 <button type="button" id="emoji-picker" class="material-symbols-rounded">sentiment_satisfied</button>
                 <div class="file-upload-wrapper">
@@ -186,6 +196,7 @@
 
 <!-- link custom script -->
 <script src="js/scripts.js"></script>
+<script src="js/language.js"></script>
 
 </body>
 </html>

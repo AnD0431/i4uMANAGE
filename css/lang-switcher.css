@@ -1,0 +1,41 @@
+/* ===============================
+   SHARED LANGUAGE SWITCHER STYLE
+   Link this AFTER the page's main stylesheet
+   =============================== */
+
+.lang-switcher {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 20px;
+    padding: 6px 14px;
+    width: fit-content;
+}
+
+.lang-switcher .lang-sep {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 0.75rem;
+}
+
+.lang-switcher .lang-btn {
+    background: none;
+    border: none;
+    color: #d1d5db;
+    font-size: 0.8rem;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    padding: 2px 4px;
+    font-family: inherit;
+    transition: color 0.2s ease;
+}
+
+.lang-switcher .lang-btn:hover {
+    color: #ffffff;
+}
+
+.lang-switcher .lang-btn.active {
+    color: #ff9f43;
+}
