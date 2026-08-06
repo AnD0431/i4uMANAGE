@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log Masuk - i4uManage</title>
+    <style>
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #001233 0%, #001f4d 100%);
+        }
+        .login-box {
+            background: #ffffff;
+            padding: 40px 32px;
+            border-radius: 14px;
+            width: 100%;
+            max-width: 340px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        .login-box h1 {
+            font-size: 20px;
+            color: #001233;
+            margin: 0 0 6px;
+        }
+        .login-box p {
+            font-size: 13px;
+            color: #64748b;
+            margin: 0 0 24px;
+        }
+        .login-box input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+            margin-bottom: 12px;
+        }
+        .login-box input:focus {
+            outline: 2px solid #1A56DB;
+            border-color: transparent;
+        }
+        .login-box button {
+            width: 100%;
+            padding: 12px;
+            background: #1A56DB;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+        .login-box button:hover {
+            background: #1E40AF;
+        }
+        .error-msg {
+            color: #dc2626;
+            font-size: 13px;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-box">
+        <h1>i4uManage</h1>
+        <p>Akses terhad untuk penjawat awam JKNT sahaja</p>
+        <form id="login-form">
+            <input type="password" id="password" placeholder="Kata laluan" required autofocus>
+            <button type="submit">Log Masuk</button>
+        </form>
+        <div class="error-msg" id="error-msg">Kata laluan salah. Sila cuba lagi.</div>
+    </div>
+
+    <script>
+        const form = document.querySelector("#login-form");
+        const errorMsg = document.querySelector("#error-msg");
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            errorMsg.style.display = "none";
+
+            const password = document.querySelector("#password").value;
+
+            try {
+                const res = await fetch("/api/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ password }),
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    window.location.href = "/";
+                } else {
+                    errorMsg.style.display = "block";
+                }
+            } catch (err) {
+                errorMsg.innerText = "Ralat server. Sila cuba lagi.";
+                errorMsg.style.display = "block";
+            }
+        });
+    </script>
+
+</body>
+</html>
