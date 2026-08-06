@@ -13,9 +13,20 @@ export const config = {
 };
 
 export default function middleware(request) {
-    const cookie = request.cookies.get("jknt_auth");
+    // FIXED: request.cookies.get() adalah API khas Next.js — projek statik
+    // biasa (bukan Next.js) bagi "request" sebagai objek standard Web API
+    // yang TIADA .cookies, jadi panggilan tu crash (500
+    // MIDDLEWARE_INVOCATION_FAILED). Parse header "Cookie" mentah secara
+    // manual sebagai gantinya.
+    const cookieHeader = request.headers.get("cookie") || "";
+    const cookies = Object.fromEntries(
+        cookieHeader
+            .split(";")
+            .map(c => c.trim().split("="))
+            .filter(pair => pair.length === 2)
+    );
 
-    if (!cookie || cookie.value !== process.env.AUTH_SECRET) {
+    if (cookies["jknt_auth"] !== process.env.AUTH_SECRET) {
         const loginUrl = new URL("/login.html", request.url);
         return Response.redirect(loginUrl, 307);
     }
