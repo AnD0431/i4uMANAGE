@@ -221,6 +221,84 @@ function detectRequestedFormats(message) {
     };
 }
 
+// FIXED (ditambah): tukar teks Markdown (jadual, senarai bullet, baris
+// kosong) kepada HTML sebenar untuk paparan dalam chat bubble — sebelum
+// ni simbol Markdown (|, -, *) terus terpapar mentah sebab guna innerText.
+function markdownToChatHtml(text) {
+    // escape HTML basic dulu supaya elak isu suntikan/rendering pelik
+    const escapeHtml = (s) => s
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+    const lines = escapeHtml(text).split("\n");
+    let html = "";
+    let tableRows = [];
+    let inTable = false;
+    let inList = false;
+
+    const isSeparatorRow = (cells) => cells.every(c => /^:?-{2,}:?$/.test(c.trim()));
+
+    const flushTable = () => {
+        if (tableRows.length === 0) return;
+        html += '<table class="md-table">';
+        let rowIndex = 0;
+        tableRows.forEach((row) => {
+            const cells = row
+                .split("|")
+                .map(c => c.trim())
+                .filter((c, idx, arr) => !(idx === 0 && c === "") && !(idx === arr.length - 1 && c === ""));
+            if (isSeparatorRow(cells)) return; // skip baris pemisah "---"
+            const tag = rowIndex === 0 ? "th" : "td";
+            html += "<tr>" + cells.map(c => `<${tag}>${c}</${tag}>`).join("") + "</tr>";
+            rowIndex++;
+        });
+        html += "</table>";
+        tableRows = [];
+        inTable = false;
+    };
+
+    const flushList = () => {
+        if (inList) {
+            html += "</ul>";
+            inList = false;
+        }
+    };
+
+    lines.forEach(rawLine => {
+        const line = rawLine.trim();
+
+        // Baris jadual Markdown (bermula/mengandungi "|")
+        if (line.startsWith("|")) {
+            inTable = true;
+            tableRows.push(line);
+            return;
+        } else if (inTable) {
+            flushTable();
+        }
+
+        // Bullet list ("- item" atau "* item")
+        if (/^[-*]\s+/.test(line)) {
+            if (!inList) { html += "<ul>"; inList = true; }
+            html += `<li>${line.replace(/^[-*]\s+/, "")}</li>`;
+            return;
+        } else if (inList) {
+            flushList();
+        }
+
+        if (line === "") {
+            html += "<br>";
+        } else {
+            html += `<p>${line}</p>`;
+        }
+    });
+
+    if (inTable) flushTable();
+    if (inList) flushList();
+
+    return html;
+}
+
 // Tambah butang download bawah mesej bot — HANYA untuk format yang diminta dalam prompt
 function addDownloadButtons(messageDiv, text, formats) {
     if (!formats.docx && !formats.pdf) return; // takde format diminta, takde butang
@@ -295,7 +373,7 @@ const generateBotResponse = async (incomingMessageDiv) => {
             ? getTextOutsideMarkers(apiResponseText)
             : apiResponseText;
 
-        messageElement.innerText = displayText;
+        messageElement.innerHTML = markdownToChatHtml(displayText);
 
         // add bot chat history
         chatHistory.push({
