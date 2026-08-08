@@ -268,6 +268,31 @@ body.show-chatbot .chatbot-popup {
     font-weight: 700;
 }
 
+/* FIXED (ditambah): styling untuk senarai "Rujukan" (link sumber sebenar
+   dari Google Search grounding) di bawah bubble mesej bot */
+.message-sources {
+    font-size: 0.78rem;
+    color: #475569;
+    margin-top: 6px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 10px;
+    line-height: 1.6;
+}
+
+.message-sources strong {
+    color: #1A56DB;
+}
+
+.message-sources a {
+    color: #1A56DB;
+    text-decoration: none;
+}
+
+.message-sources a:hover {
+    text-decoration: underline;
+}
+
 /* --- Glass tint: user bubble (blue-tinted glass) --- */
 .chat-body .user-message .message-text {
     color: #0B2559;
