@@ -391,7 +391,7 @@ const generateBotResponse = async (incomingMessageDiv) => {
                 sourcesDiv.innerHTML = "<strong>Rujukan:</strong> " + sourceLinks
                     .map(web => `<a href="${web.uri}" target="_blank" rel="noopener">${web.title || web.uri}</a>`)
                     .join(" · ");
-                incomingMessageDiv.appendChild(sourcesDiv);
+                messageElement.appendChild(sourcesDiv);
             }
         }
 

@@ -268,15 +268,14 @@ body.show-chatbot .chatbot-popup {
     font-weight: 700;
 }
 
-/* FIXED (ditambah): styling untuk senarai "Rujukan" (link sumber sebenar
-   dari Google Search grounding) di bawah bubble mesej bot */
+/* FIXED (diubah): "Rujukan" kini letak DALAM bubble Sarah (.message-text)
+   sebagai bahagian kandungan, bukan elemen berasingan di luar bubble */
 .message-sources {
     font-size: 0.78rem;
     color: #475569;
-    margin-top: 6px;
-    padding: 8px 12px;
-    background: rgba(255, 255, 255, 0.4);
-    border-radius: 10px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(26, 86, 219, 0.15);
     line-height: 1.6;
 }
 
