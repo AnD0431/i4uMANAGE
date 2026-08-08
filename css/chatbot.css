@@ -375,6 +375,14 @@ body.show-chatbot .chatbot-popup {
     outline: 2px solid #1A56DB; /* Biru Korporat Utama */
 }
 
+/* FIXED (ditambah): disclaimer tetap di bawah kotak input chat */
+.chat-disclaimer {
+    margin: 6px 4px 0;
+    font-size: 0.68rem;
+    color: #94a3b8;
+    text-align: center;
+}
+
 .chat-form .message-input {
     border: none;
     outline: none;
