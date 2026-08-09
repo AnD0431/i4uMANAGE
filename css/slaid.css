@@ -22,7 +22,7 @@ body {
 
 /* --- HEADER SECTION --- */
 .main-header {
-    background-color: var(--primary-blue);
+    background-color: var(--Oxford-blue);
     color: white;
     padding: 15px 5%;
     display: flex;
