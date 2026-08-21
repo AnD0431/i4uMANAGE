@@ -244,6 +244,10 @@ body {
     background-color: var(--navy-blue);
 }
 
+.doc-action-btn {
+    text-decoration: none;
+}
+
 /* --- METRICS BAR PANEL --- */
 .metrics-panel {
     background-color: var(--navy-blue);
