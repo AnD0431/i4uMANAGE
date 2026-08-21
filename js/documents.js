@@ -170,7 +170,7 @@
 
 
             const url =
-                `/api/documents?type=${encodeURIComponent(type)}&category=${encodeURIComponent(category)}`;
+                `/api/document?type=${encodeURIComponent(type)}&category=${encodeURIComponent(category)}`;
 
 
             const response =
