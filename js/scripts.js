@@ -17,6 +17,7 @@ const quickRepliesBar = document.querySelector("#quick-replies-bar");
 // tu (di server/Vercel) yang simpan key sebenar & forward request ke Google.
 // Rujuk fail api/gemini.js untuk kod proxy tersebut.
 const API_URL = "/api/gemini";
+const DOCUMENT_SEARCH_API = "/api/search-document";
 const userData = {
     message: null,
     file: {
@@ -27,6 +28,453 @@ const userData = {
 
 const chatHistory = [];
 const initialInputHeight = messageInput.scrollHeight;
+
+/* =========================================================
+   SARAH DOCUMENT SEARCH
+   Carian dokumen sebenar daripada i4uManage / Google Drive.
+   Carian ini TIDAK menggunakan Gemini.
+   ========================================================= */
+
+// Detect sama ada pengguna memang nak cari dokumen i4uManage
+function isDocumentSearchIntent(message) {
+
+    const text = (message || "")
+        .toLowerCase()
+        .trim();
+
+    const searchWords = [
+        "cari",
+        "carikan",
+        "find",
+        "search"
+    ];
+
+    const documentWords = [
+        "dokumen",
+        "kertas kerja",
+        "slide",
+        "slaid",
+        "kursus",
+        "fail",
+        "file",
+        "ppt",
+        "pptx",
+        "pdf",
+        "docx"
+    ];
+
+    const hasSearchIntent =
+        searchWords.some(word =>
+            text.includes(word)
+        );
+
+    const hasDocumentContext =
+        documentWords.some(word =>
+            text.includes(word)
+        );
+
+    return hasSearchIntent && hasDocumentContext;
+}
+
+
+// Bersihkan ayat user menjadi keyword search
+function extractDocumentSearchQuery(message) {
+
+    let query = (message || "")
+        .toLowerCase()
+        .trim();
+
+    const phrasesToRemove = [
+        "tolong carikan saya",
+        "tolong carikan",
+        "tolong cari",
+        "boleh carikan saya",
+        "boleh carikan",
+        "boleh cari",
+        "saya nak cari",
+        "saya mahu cari",
+        "aku nak cari",
+        "carikan saya",
+        "cari dokumen",
+        "cari kertas kerja",
+        "cari slide kursus",
+        "cari slaid kursus",
+        "cari slide",
+        "cari slaid",
+        "cari fail",
+        "cari file",
+        "carikan",
+        "cari"
+    ];
+
+    phrasesToRemove.forEach(phrase => {
+        query = query.replace(phrase, " ");
+    });
+
+    return query
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+
+// Label jenis dokumen
+function getDocumentTypeLabel(type) {
+
+    if (type === "kertas-kerja") {
+        return "Kertas Kerja";
+    }
+
+    if (type === "slide-kursus") {
+        return "Slide Kursus";
+    }
+
+    return "Dokumen";
+}
+
+
+// Icon berdasarkan MIME type
+function getDocumentResultIcon(mimeType = "") {
+
+    const mime = mimeType.toLowerCase();
+
+    if (mime.includes("pdf")) {
+        return "fa-solid fa-file-pdf";
+    }
+
+    if (
+        mime.includes("presentation") ||
+        mime.includes("powerpoint")
+    ) {
+        return "fa-solid fa-file-powerpoint";
+    }
+
+    if (
+        mime.includes("spreadsheet") ||
+        mime.includes("excel")
+    ) {
+        return "fa-solid fa-file-excel";
+    }
+
+    if (
+        mime.includes("document") ||
+        mime.includes("word")
+    ) {
+        return "fa-solid fa-file-word";
+    }
+
+    if (mime.includes("image")) {
+        return "fa-solid fa-file-image";
+    }
+
+    return "fa-solid fa-file-lines";
+}
+
+
+// Papar result carian di dalam bubble Sarah
+function renderDocumentSearchResults(messageElement, data) {
+
+    messageElement.innerHTML = "";
+
+    const results =
+        Array.isArray(data.results)
+            ? data.results
+            : [];
+
+
+    // =====================================
+    // TAK JUMPA
+    // =====================================
+
+    if (results.length === 0) {
+
+        const noResult =
+            document.createElement("p");
+
+        noResult.textContent =
+            `Saya tidak menemui dokumen yang sepadan dengan "${data.query}".`;
+
+        messageElement.appendChild(noResult);
+
+        return;
+    }
+
+
+    // =====================================
+    // INTRO
+    // =====================================
+
+    const intro =
+        document.createElement("p");
+
+    intro.textContent =
+        `Saya menemui ${results.length} dokumen berkaitan "${data.query}".`;
+
+    messageElement.appendChild(intro);
+
+
+    // =====================================
+    // CONTAINER
+    // =====================================
+
+    const resultsContainer =
+        document.createElement("div");
+
+    resultsContainer.className =
+        "sarah-document-results";
+
+
+    // =====================================
+    // RESULT CARD
+    // =====================================
+
+    results.forEach(item => {
+
+        const card =
+            document.createElement("div");
+
+        card.className =
+            "sarah-document-card";
+
+
+        // ICON
+        const icon =
+            document.createElement("div");
+
+        icon.className =
+            "sarah-document-icon";
+
+        const iconElement =
+            document.createElement("i");
+
+        iconElement.className =
+            getDocumentResultIcon(
+                item.mimeType
+            );
+
+        icon.appendChild(iconElement);
+
+
+        // CONTENT
+        const content =
+            document.createElement("div");
+
+        content.className =
+            "sarah-document-content";
+
+
+        const name =
+            document.createElement("strong");
+
+        name.textContent =
+            item.name || "Dokumen";
+
+
+        const program =
+            document.createElement("span");
+
+        program.textContent =
+            item.programName || "";
+
+
+        const meta =
+            document.createElement("small");
+
+        const metaParts = [
+            getDocumentTypeLabel(item.type),
+            item.categoryName,
+            item.year
+        ].filter(Boolean);
+
+        meta.textContent =
+            metaParts.join(" • ");
+
+
+        content.appendChild(name);
+
+        if (item.programName) {
+            content.appendChild(program);
+        }
+
+        content.appendChild(meta);
+
+
+        // BUTTON BUKA
+        const openButton =
+            document.createElement("a");
+
+        openButton.className =
+            "sarah-document-open";
+
+        openButton.href =
+            item.url || "#";
+
+        openButton.target =
+            "_blank";
+
+        openButton.rel =
+            "noopener noreferrer";
+
+        openButton.innerHTML = `
+            <span>Buka</span>
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        `;
+
+
+        card.appendChild(icon);
+        card.appendChild(content);
+        card.appendChild(openButton);
+
+        resultsContainer.appendChild(card);
+    });
+
+
+    messageElement.appendChild(
+        resultsContainer
+    );
+}
+
+
+// Main function carian dokumen Sarah
+async function searchDocumentsForSarah(
+    userMessage,
+    incomingMessageDiv
+) {
+
+    const messageElement =
+        incomingMessageDiv.querySelector(
+            ".message-text"
+        );
+
+    try {
+
+        let query =
+            extractDocumentSearchQuery(
+                userMessage
+            );
+
+
+        // fallback jika query terlalu pendek
+        if (query.length < 2) {
+
+            query =
+                userMessage.trim();
+        }
+
+
+        const response =
+            await fetch(
+                `${DOCUMENT_SEARCH_API}?q=${encodeURIComponent(query)}`,
+                {
+                    method: "GET",
+                    cache: "no-store"
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            throw new Error(
+                data.error ||
+                "Document search failed."
+            );
+        }
+
+
+        // Paparkan result
+        renderDocumentSearchResults(
+            messageElement,
+            data
+        );
+
+
+        // =====================================
+        // CHAT HISTORY
+        // =====================================
+
+        const results =
+            Array.isArray(data.results)
+                ? data.results
+                : [];
+
+
+        chatHistory.push({
+            role: "user",
+            parts: [{
+                text: userMessage
+            }]
+        });
+
+
+        const historySummary =
+            results.length > 0
+                ?
+                `Carian dokumen "${data.query}" menemui ${results.length} dokumen: ${results
+                    .map(item => item.name)
+                    .join(", ")}.`
+                :
+                `Carian dokumen "${data.query}" tidak menemui hasil.`;
+
+
+        chatHistory.push({
+            role: "model",
+            parts: [{
+                text: historySummary
+            }]
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "Sarah document search error:",
+            error
+        );
+
+        messageElement.textContent =
+            "Maaf, carian dokumen tidak dapat dilakukan sekarang. Sila cuba lagi.";
+
+        messageElement.style.color =
+            "#ff0000";
+
+
+    } finally {
+
+        // reset attachment supaya tak terbawa
+        // ke mesej seterusnya
+        userData.file = {
+            data: null,
+            mime_type: null
+        };
+
+        fileUploadWrapper.classList.remove(
+            "file-uploaded"
+        );
+
+
+        incomingMessageDiv.classList.remove(
+            "thinking"
+        );
+
+
+        chatBody.scrollTo({
+            top: chatBody.scrollHeight,
+            behavior: "smooth"
+        });
+
+
+        messageInput.disabled = false;
+        sendMessageButton.disabled = false;
+
+        messageInput.focus();
+    }
+}
 
 // Create message element with dynamic classes and return it
 const createMessageElement = (content, ...classes) => {
@@ -57,6 +505,7 @@ Format dokumen yang dihasilkan juga boleh disediakan untuk dimuat turun secara t
 Ada sebarang dokumen atau tugasan yang ingin saya bantu sediakan sekarang? Sila beritahu saya!`
      },
     { label: "Jana Kertas Kerja", message: "Saya nak jana kertas kerja untuk satu program/latihan." },
+    { label: "Cari Dokumen", message: "Cari dokumen Design Thinking" },
     {
         label: "Hubungi JKNT",
         message: "Siapa saya patut berhubung?",
@@ -449,23 +898,71 @@ const sendUserMessage = (rawText) => {
 
     // Simulate bot response after a delay
     setTimeout(() => {
-        const messageContent = `<div class="chatbot-avatar">
-                    <img src="image/sarah.png" alt="Chatbot-logo" class="Chatbot-logo">
-                </div>
-                <div class="message-text">
-                    <div class="thinking-indicator">
-                        <div class="dot"></div>
-                        <div class="dot"></div>
-                        <div class="dot"></div>
-                </div>
-                
-                    </div>`;
 
-    const incomingMessageDiv =createMessageElement(messageContent, "bot-message", "thinking");
-    chatBody.appendChild(incomingMessageDiv);
-    chatBody.scrollTo({ top: chatBody.scrollHeight, behavior: "smooth" });
-    generateBotResponse(incomingMessageDiv);
-    },  600);
+    const messageContent = `
+        <div class="chatbot-avatar">
+            <img
+                src="image/sarah.png"
+                alt="Chatbot-logo"
+                class="Chatbot-logo"
+            >
+        </div>
+
+        <div class="message-text">
+
+            <div class="thinking-indicator">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+
+        </div>
+    `;
+
+
+    const incomingMessageDiv =
+        createMessageElement(
+            messageContent,
+            "bot-message",
+            "thinking"
+        );
+
+
+    chatBody.appendChild(
+        incomingMessageDiv
+    );
+
+
+    chatBody.scrollTo({
+        top: chatBody.scrollHeight,
+        behavior: "smooth"
+    });
+
+
+    // ========================================
+    // SARAH REQUEST ROUTER
+    // ========================================
+
+    if (
+        isDocumentSearchIntent(
+            userData.message
+        )
+    ) {
+
+        searchDocumentsForSarah(
+            userData.message,
+            incomingMessageDiv
+        );
+
+    } else {
+
+        generateBotResponse(
+            incomingMessageDiv
+        );
+    }
+
+
+}, 600);
 }
 
 // Handle outgoing user meesages (form submit / send button)
