@@ -78,42 +78,277 @@ function isDocumentSearchIntent(message) {
 
 
 // Bersihkan ayat user menjadi keyword search
-function extractDocumentSearchQuery(message) {
+function parseDocumentSearchRequest(message) {
 
-    let query = (message || "")
-        .toLowerCase()
-        .trim();
+    let text =
+        (message || "")
+            .toLowerCase()
+            .trim();
+
+
+    let type = null;
+    let category = null;
+    let year = null;
+
+
+    // =====================================
+    // TYPE
+    // =====================================
+
+    if (
+        /\bkertas\s*kerja\b/i.test(text)
+    ) {
+
+        type =
+            "kertas-kerja";
+
+    } else if (
+        /\b(slide|slaid)\b/i.test(text)
+    ) {
+
+        type =
+            "slide-kursus";
+    }
+
+
+    // =====================================
+    // YEAR
+    // =====================================
+
+    const yearMatch =
+        text.match(
+            /\b(20\d{2})\b/
+        );
+
+
+    if (yearMatch) {
+
+        year =
+            Number(
+                yearMatch[1]
+            );
+    }
+
+
+    // =====================================
+    // CATEGORY
+    // =====================================
+
+    const categoryPatterns = [
+
+        {
+            slug:
+                "teknologi-maklumat",
+
+            patterns: [
+                "teknologi maklumat",
+                "ict"
+            ]
+        },
+
+        {
+            slug:
+                "psikologi-kaunseling",
+
+            patterns: [
+                "psikologi dan kaunseling",
+                "psikologi & kaunseling",
+                "psikologi",
+                "kaunseling"
+            ]
+        },
+
+        {
+            slug:
+                "sumber-manusia",
+
+            patterns: [
+                "sumber manusia",
+                "human resource"
+            ]
+        },
+
+        {
+            slug:
+                "perolehan-aset",
+
+            patterns: [
+                "perolehan dan aset",
+                "perolehan & aset",
+                "perolehan",
+                "aset"
+            ]
+        },
+
+        {
+            slug:
+                "pembangunan",
+
+            patterns: [
+                "pembangunan"
+            ]
+        },
+
+        {
+            slug:
+                "latihan",
+
+            patterns: [
+                "latihan"
+            ]
+        },
+
+        {
+            slug:
+                "pentadbiran",
+
+            patterns: [
+                "pentadbiran"
+            ]
+        },
+
+        {
+            slug:
+                "kewangan",
+
+            patterns: [
+                "kewangan"
+            ]
+        }
+
+    ];
+
+
+    for (
+        const item
+        of categoryPatterns
+    ) {
+
+        const found =
+            item.patterns.find(
+                pattern =>
+                    text.includes(pattern)
+            );
+
+
+        if (found) {
+
+            category =
+                item.slug;
+
+            break;
+        }
+    }
+
+
+    // =====================================
+    // CLEAN SEARCH QUERY
+    // =====================================
+
+    let query =
+        text;
+
 
     const phrasesToRemove = [
+
         "tolong carikan saya",
         "tolong carikan",
         "tolong cari",
+
         "boleh carikan saya",
         "boleh carikan",
         "boleh cari",
+
         "saya nak cari",
         "saya mahu cari",
         "aku nak cari",
+
         "carikan saya",
+
         "cari dokumen",
-        "cari kertas kerja",
-        "cari slide kursus",
-        "cari slaid kursus",
-        "cari slide",
-        "cari slaid",
         "cari fail",
         "cari file",
+
         "carikan",
-        "cari"
+        "cari",
+
+        "find",
+        "search",
+
+        "kertas kerja",
+
+        "slide kursus",
+        "slaid kursus",
+
+        "slide",
+        "slaid",
+
+        "dokumen"
     ];
 
-    phrasesToRemove.forEach(phrase => {
-        query = query.replace(phrase, " ");
-    });
 
-    return query
-        .replace(/\s+/g, " ")
-        .trim();
+    phrasesToRemove.forEach(
+        phrase => {
+
+            query =
+                query.replace(
+                    phrase,
+                    " "
+                );
+
+        }
+    );
+
+
+    // Buang category daripada keyword
+    categoryPatterns.forEach(
+        item => {
+
+            item.patterns.forEach(
+                pattern => {
+
+                    query =
+                        query.replace(
+                            pattern,
+                            " "
+                        );
+
+                }
+            );
+
+        }
+    );
+
+
+    // Buang tahun
+    query =
+        query.replace(
+            /\b20\d{2}\b/g,
+            " "
+        );
+
+
+    query =
+        query
+            .replace(/\s+/g, " ")
+            .trim();
+
+
+    return {
+
+        query:
+            query,
+
+        type:
+            type,
+
+        category:
+            category,
+
+        year:
+            year
+
+    };
 }
 
 
@@ -206,8 +441,99 @@ function renderDocumentSearchResults(messageElement, data) {
     const intro =
         document.createElement("p");
 
-    intro.textContent =
-        `Saya menemui ${results.length} dokumen berkaitan "${data.query}".`;
+    const filterLabels = [];
+
+
+if (
+    data.filters?.type ===
+    "kertas-kerja"
+) {
+
+    filterLabels.push(
+        "Kertas Kerja"
+    );
+
+}
+
+
+if (
+    data.filters?.type ===
+    "slide-kursus"
+) {
+
+    filterLabels.push(
+        "Slide Kursus"
+    );
+
+}
+
+
+if (
+    data.filters?.category
+) {
+
+    const categoryLabelMap = {
+
+        "pembangunan":
+            "Pembangunan",
+
+        "teknologi-maklumat":
+            "Teknologi Maklumat",
+
+        "latihan":
+            "Latihan",
+
+        "psikologi-kaunseling":
+            "Psikologi & Kaunseling",
+
+        "sumber-manusia":
+            "Sumber Manusia",
+
+        "pentadbiran":
+            "Pentadbiran",
+
+        "perolehan-aset":
+            "Perolehan & Aset",
+
+        "kewangan":
+            "Kewangan"
+    };
+
+
+    filterLabels.push(
+        categoryLabelMap[
+            data.filters.category
+        ]
+    );
+
+}
+
+
+if (data.filters?.year) {
+
+    filterLabels.push(
+        String(
+            data.filters.year
+        )
+    );
+
+}
+
+
+const filterText =
+    filterLabels.length
+        ? ` (${filterLabels.join(" • ")})`
+        : "";
+
+
+const keywordText =
+    data.query
+        ? ` berkaitan "${data.query}"`
+        : "";
+
+
+intro.textContent =
+    `Saya menemui ${results.length} dokumen${keywordText}${filterText}.`;
 
     messageElement.appendChild(intro);
 
@@ -347,28 +673,65 @@ async function searchDocumentsForSarah(
 
     try {
 
-        let query =
-            extractDocumentSearchQuery(
-                userMessage
-            );
+       const searchRequest =
+    parseDocumentSearchRequest(
+        userMessage
+    );
 
 
-        // fallback jika query terlalu pendek
-        if (query.length < 2) {
+const params =
+    new URLSearchParams();
 
-            query =
-                userMessage.trim();
+
+if (searchRequest.query) {
+
+    params.set(
+        "q",
+        searchRequest.query
+    );
+}
+
+
+if (searchRequest.type) {
+
+    params.set(
+        "type",
+        searchRequest.type
+    );
+}
+
+
+if (searchRequest.category) {
+
+    params.set(
+        "category",
+        searchRequest.category
+    );
+}
+
+
+if (searchRequest.year) {
+
+    params.set(
+        "year",
+        String(
+            searchRequest.year
+        )
+    );
+}
+
+
+const response =
+    await fetch(
+        `${DOCUMENT_SEARCH_API}?${params.toString()}`,
+        {
+            method:
+                "GET",
+
+            cache:
+                "no-store"
         }
-
-
-        const response =
-            await fetch(
-                `${DOCUMENT_SEARCH_API}?q=${encodeURIComponent(query)}`,
-                {
-                    method: "GET",
-                    cache: "no-store"
-                }
-            );
+    );
 
 
         const data =

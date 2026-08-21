@@ -46,8 +46,20 @@ const CATEGORIES = [
 ];
 
 
+const ALLOWED_TYPES =
+    new Set(
+        TYPES.map(item => item.slug)
+    );
+
+
+const ALLOWED_CATEGORIES =
+    new Set(
+        CATEGORIES.map(item => item.slug)
+    );
+
+
 // ======================================
-// NORMALIZE SEARCH TEXT
+// NORMALIZE
 // ======================================
 
 function normalizeText(text = "") {
@@ -70,6 +82,13 @@ function calculateScore(item, query) {
 
     const normalizedQuery =
         normalizeText(query);
+
+
+    // Kalau user hanya guna filter,
+    // semua dokumen yang lepas filter dianggap match.
+    if (!normalizedQuery) {
+        return 1;
+    }
 
 
     const terms =
@@ -102,7 +121,6 @@ function calculateScore(item, query) {
     ].join(" ");
 
 
-    // Semua keyword mesti wujud
     const allTermsMatch =
         terms.every(term =>
             haystack.includes(term)
@@ -117,36 +135,42 @@ function calculateScore(item, query) {
     let score = 1;
 
 
-    // Exact phrase dalam nama fail
+    // Nama fail exact phrase
     if (
-        documentName.includes(normalizedQuery)
+        documentName.includes(
+            normalizedQuery
+        )
     ) {
         score += 100;
     }
 
 
-    // Exact phrase dalam nama program
+    // Nama program exact phrase
     if (
-        programName.includes(normalizedQuery)
+        programName.includes(
+            normalizedQuery
+        )
     ) {
         score += 70;
     }
 
 
-    // Individual keyword
     terms.forEach(term => {
 
         if (documentName.includes(term)) {
             score += 20;
         }
 
+
         if (programName.includes(term)) {
             score += 15;
         }
 
+
         if (categoryName.includes(term)) {
             score += 5;
         }
+
 
         if (typeName.includes(term)) {
             score += 5;
@@ -160,7 +184,7 @@ function calculateScore(item, query) {
 
 
 // ======================================
-// FETCH ONE DRIVE CATEGORY
+// APPS SCRIPT REQUEST
 // ======================================
 
 async function fetchDocumentSource(
@@ -197,7 +221,7 @@ async function fetchDocumentSource(
             );
 
 
-        const text =
+        const responseText =
             await response.text();
 
 
@@ -207,13 +231,15 @@ async function fetchDocumentSource(
         try {
 
             data =
-                JSON.parse(text);
+                JSON.parse(
+                    responseText
+                );
 
         } catch {
 
             console.error(
                 "Invalid Apps Script response:",
-                text
+                responseText
             );
 
             return null;
@@ -247,10 +273,13 @@ async function fetchDocumentSource(
 
 
 // ======================================
-// MAIN API
+// API HANDLER
 // ======================================
 
-export default async function handler(req, res) {
+export default async function handler(
+    req,
+    res
+) {
 
     if (req.method !== "GET") {
 
@@ -258,37 +287,129 @@ export default async function handler(req, res) {
             .status(405)
             .json({
                 success: false,
-                error: "Method not allowed."
+                error:
+                    "Method not allowed."
             });
     }
 
 
     try {
 
+        // ==================================
+        // PARAMETERS
+        // ==================================
+
         const query =
-            String(req.query.q || "")
-                .trim();
+            String(
+                req.query.q || ""
+            )
+            .trim();
 
 
-        // ==============================
-        // VALIDATE QUERY
-        // ==============================
+        const type =
+            String(
+                req.query.type || ""
+            )
+            .trim();
 
-        if (query.length < 2) {
+
+        const category =
+            String(
+                req.query.category || ""
+            )
+            .trim();
+
+
+        const yearRaw =
+            String(
+                req.query.year || ""
+            )
+            .trim();
+
+
+        const year =
+            yearRaw
+                ? Number(yearRaw)
+                : null;
+
+
+        // ==================================
+        // VALIDATION
+        // ==================================
+
+        if (
+            type &&
+            !ALLOWED_TYPES.has(type)
+        ) {
 
             return res
                 .status(400)
                 .json({
                     success: false,
                     error:
-                        "Search query must contain at least 2 characters."
+                        "Invalid document type."
                 });
         }
 
 
-        // ==============================
-        // ENVIRONMENT VARIABLES
-        // ==============================
+        if (
+            category &&
+            !ALLOWED_CATEGORIES.has(
+                category
+            )
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    success: false,
+                    error:
+                        "Invalid category."
+                });
+        }
+
+
+        if (
+            yearRaw &&
+            (
+                !Number.isInteger(year) ||
+                year < 2000 ||
+                year > 2100
+            )
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    success: false,
+                    error:
+                        "Invalid year."
+                });
+        }
+
+
+        // User mesti bagi sekurang-kurangnya
+        // keyword ATAU satu filter.
+        if (
+            query.length < 2 &&
+            !type &&
+            !category &&
+            !year
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    success: false,
+                    error:
+                        "Please provide a search keyword or filter."
+                });
+        }
+
+
+        // ==================================
+        // ENVIRONMENT
+        // ==================================
 
         const GAS_URL =
             process.env.I4UMANAGE_GAS_URL;
@@ -298,11 +419,15 @@ export default async function handler(req, res) {
             process.env.I4UMANAGE_DOC_SECRET;
 
 
-        if (!GAS_URL || !API_SECRET) {
+        if (
+            !GAS_URL ||
+            !API_SECRET
+        ) {
 
             console.error(
                 "Search API environment variables missing."
             );
+
 
             return res
                 .status(500)
@@ -314,31 +439,58 @@ export default async function handler(req, res) {
         }
 
 
-        // ==============================
-        // BUILD ALL SOURCES
-        // ==============================
+        // ==================================
+        // FILTER SOURCE
+        // ==================================
+
+        const selectedTypes =
+            type
+                ? TYPES.filter(
+                    item =>
+                        item.slug === type
+                )
+                : TYPES;
+
+
+        const selectedCategories =
+            category
+                ? CATEGORIES.filter(
+                    item =>
+                        item.slug === category
+                )
+                : CATEGORIES;
+
 
         const sources = [];
 
 
-        TYPES.forEach(type => {
+        selectedTypes.forEach(
+            typeItem => {
 
-            CATEGORIES.forEach(category => {
+                selectedCategories.forEach(
+                    categoryItem => {
 
-                sources.push({
-                    type:
-                        type.slug,
+                        sources.push({
 
-                    category:
-                        category.slug
-                });
+                            type:
+                                typeItem.slug,
 
-            });
+                            category:
+                                categoryItem.slug
 
-        });
+                        });
+
+                    }
+                );
+
+            }
+        );
 
 
-        // 2 jenis × 8 kategori = 16 request
+        // ==================================
+        // FETCH DRIVE DATA
+        // ==================================
+
         const responses =
             await Promise.all(
 
@@ -352,12 +504,13 @@ export default async function handler(req, res) {
                     )
 
                 )
+
             );
 
 
-        // ==============================
-        // FLATTEN DOCUMENT DATA
-        // ==============================
+        // ==================================
+        // FLATTEN
+        // ==================================
 
         const documents = [];
 
@@ -366,100 +519,119 @@ export default async function handler(req, res) {
 
             if (
                 !data ||
-                !Array.isArray(data.programs)
+                !Array.isArray(
+                    data.programs
+                )
             ) {
                 return;
             }
 
 
-            data.programs.forEach(program => {
+            data.programs.forEach(
+                program => {
 
-                if (
-                    !Array.isArray(program.documents)
-                ) {
-                    return;
+                    if (
+                        !Array.isArray(
+                            program.documents
+                        )
+                    ) {
+                        return;
+                    }
+
+
+                    // YEAR FILTER
+                    if (
+                        year &&
+                        Number(program.year) !== year
+                    ) {
+                        return;
+                    }
+
+
+                    program.documents.forEach(
+                        document => {
+
+                            documents.push({
+
+                                id:
+                                    document.id,
+
+                                name:
+                                    document.name,
+
+                                mimeType:
+                                    document.mimeType,
+
+                                size:
+                                    document.size,
+
+                                url:
+                                    document.url,
+
+                                updatedAt:
+                                    document.updatedAt,
+
+
+                                programId:
+                                    program.id,
+
+                                programName:
+                                    program.name,
+
+                                year:
+                                    program.year,
+
+
+                                category:
+                                    data.category,
+
+                                categoryName:
+                                    data.categoryName,
+
+
+                                type:
+                                    data.type,
+
+                                typeName:
+                                    data.typeName
+
+                            });
+
+                        }
+                    );
+
                 }
-
-
-                program.documents.forEach(document => {
-
-                    documents.push({
-
-                        id:
-                            document.id,
-
-                        name:
-                            document.name,
-
-                        mimeType:
-                            document.mimeType,
-
-                        size:
-                            document.size,
-
-                        url:
-                            document.url,
-
-                        updatedAt:
-                            document.updatedAt,
-
-
-                        // Program
-                        programId:
-                            program.id,
-
-                        programName:
-                            program.name,
-
-                        year:
-                            program.year,
-
-
-                        // Category
-                        category:
-                            data.category,
-
-                        categoryName:
-                            data.categoryName,
-
-
-                        // Type
-                        type:
-                            data.type,
-
-                        typeName:
-                            data.typeName
-
-                    });
-
-                });
-
-            });
+            );
 
         });
 
 
-        // ==============================
+        // ==================================
         // REMOVE DUPLICATES
-        // ==============================
+        // ==================================
 
         const uniqueDocuments =
             [
                 ...new Map(
-                    documents.map(item => [
-                        item.id,
-                        item
-                    ])
+
+                    documents.map(
+                        item => [
+                            item.id,
+                            item
+                        ]
+                    )
+
                 ).values()
             ];
 
 
-        // ==============================
+        // ==================================
         // SEARCH
-        // ==============================
+        // ==================================
 
         const results =
             uniqueDocuments
+
                 .map(item => ({
 
                     ...item,
@@ -471,19 +643,23 @@ export default async function handler(req, res) {
                         )
 
                 }))
-                .filter(item =>
-                    item.score > 0
+
+                .filter(
+                    item =>
+                        item.score > 0
                 )
+
                 .sort(
                     (a, b) =>
                         b.score - a.score
                 )
-                .slice(0, 10);
+
+                .slice(0, 20);
 
 
-        // ==============================
+        // ==================================
         // RESPONSE
-        // ==============================
+        // ==================================
 
         res.setHeader(
             "Cache-Control",
@@ -495,10 +671,24 @@ export default async function handler(req, res) {
             .status(200)
             .json({
 
-                success: true,
+                success:
+                    true,
 
                 query:
                     query,
+
+                filters: {
+
+                    type:
+                        type || null,
+
+                    category:
+                        category || null,
+
+                    year:
+                        year || null
+
+                },
 
                 totalDocumentsScanned:
                     uniqueDocuments.length,
@@ -508,8 +698,10 @@ export default async function handler(req, res) {
 
                 results:
                     results.map(
-                        ({ score, ...item }) =>
-                            item
+                        ({
+                            score,
+                            ...item
+                        }) => item
                     )
 
             });
