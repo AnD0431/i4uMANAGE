@@ -62,6 +62,34 @@
         params.get("category") ||
         "latihan";
 
+// ========================================
+// DYNAMIC BACK BUTTON
+// ========================================
+
+const backLink =
+    document.querySelector("#document-back-link");
+
+const backText =
+    document.querySelector("#document-back-text");
+
+
+if (type === "slide-kursus") {
+
+    backLink.href =
+        "slaid.html";
+
+    backText.textContent =
+        "Kembali ke Slide Kursus";
+
+} else {
+
+    backLink.href =
+        "kerja.html";
+
+    backText.textContent =
+        "Kembali ke Kertas Kerja";
+}
+
 
 
     // ========================================
