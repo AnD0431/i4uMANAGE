@@ -161,6 +161,99 @@ body {
     padding: 40px 5%;
 }
 
+/* =========================================
+   BACK TO HOMEPAGE BUTTON
+   ========================================= */
+
+.home-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+
+    padding: 9px 16px;
+
+    background: rgba(255, 255, 255, 0.12);
+
+    border: 1px solid rgba(255, 255, 255, 0.35);
+
+    border-radius: 999px;
+
+    color: #ffffff;
+    text-decoration: none;
+
+    font-size: 0.82rem;
+    font-weight: 600;
+
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+
+    transition:
+        background 0.25s ease,
+        transform 0.25s ease,
+        border-color 0.25s ease;
+
+    cursor: pointer;
+}
+
+
+/* Elakkan link jadi ungu selepas ditekan */
+.home-back-btn:visited {
+    color: #ffffff;
+}
+
+
+/* Icon rumah */
+.home-back-btn .home-icon {
+    width: 27px;
+    height: 27px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(255, 255, 255, 0.16);
+
+    border-radius: 50%;
+
+    font-size: 0.72rem;
+}
+
+
+/* Hover desktop */
+.home-back-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+
+    border-color: rgba(255, 255, 255, 0.55);
+
+    transform: translateX(-3px);
+
+    color: #ffffff;
+}
+
+
+/* Click */
+.home-back-btn:active {
+    transform: translateX(-1px) scale(0.98);
+}
+
+
+/* Mobile */
+@media (max-width: 480px) {
+
+    .home-back-btn {
+        padding: 8px 13px;
+
+        font-size: 0.74rem;
+
+        gap: 7px;
+    }
+
+    .home-back-btn .home-icon {
+        width: 24px;
+        height: 24px;
+    }
+}
+
 /* --- CARD DESIGN --- */
 .card {
     background: white;
