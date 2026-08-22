@@ -1,0 +1,7 @@
+User-agent: *
+
+Allow: /
+
+Disallow: /api/
+
+Sitemap: https://i4u-manage.vercel.app/sitemap.xml
