@@ -222,8 +222,9 @@ async function resolveOfficialGovernmentSource(web = {}) {
 
 
         if (
-            isGovernmentHostname(
-                directUrl.hostname
+            isAuthoritativeGovernmentHostname(
+                directUrl.hostname,
+                topic
             )
         ) {
 
@@ -291,8 +292,9 @@ async function resolveOfficialGovernmentSource(web = {}) {
         // ========================================
 
         if (
-            !isGovernmentHostname(
-                finalUrl.hostname
+            !isAuthoritativeGovernmentHostname(
+                finalUrl.hostname,
+                topic
             )
         ) {
 
@@ -324,10 +326,133 @@ async function resolveOfficialGovernmentSource(web = {}) {
 }
 
 // =========================================================
+// GOVERNMENT TOPIC ROUTER
+// Tentukan badan induk rasmi berdasarkan soalan
+// =========================================================
+
+function detectGovernmentTopic(message = "") {
+
+    const text =
+        String(message)
+            .toLowerCase()
+            .trim();
+
+
+    // KEWANGAN / TUNTUTAN / PEROLEHAN
+    if (
+        text.includes("lojing") ||
+        text.includes("hotel") ||
+        text.includes("tuntutan") ||
+        text.includes("perjalanan") ||
+        text.includes("perolehan") ||
+        text.includes("perbendaharaan") ||
+        text.includes("elaun makan") ||
+        text.includes("elaun harian")
+    ) {
+        return "finance";
+    }
+
+
+    // PERKHIDMATAN AWAM / HR
+    if (
+        text.includes("cuti") ||
+        text.includes("tatatertib") ||
+        text.includes("kenaikan pangkat") ||
+        text.includes("pemangkuan") ||
+        text.includes("skim perkhidmatan") ||
+        text.includes("gred")
+    ) {
+        return "public-service";
+    }
+
+
+    // KESIHATAN
+    if (
+        text.includes("kkm") ||
+        text.includes("kesihatan") ||
+        text.includes("klinik") ||
+        text.includes("hospital")
+    ) {
+        return "health";
+    }
+
+
+    return "general-government";
+}
+
+// =========================================================
+// AUTHORITATIVE DOMAINS BY TOPIC
+// =========================================================
+
+const GOVERNMENT_AUTHORITY_DOMAINS = {
+
+    "finance": [
+        "mof.gov.my",
+        "treasury.gov.my",
+        "anm.gov.my"
+    ],
+
+    "public-service": [
+        "jpa.gov.my",
+        "docs.jpa.gov.my"
+    ],
+
+    "health": [
+        "moh.gov.my"
+    ],
+
+    "general-government": [
+        "gov.my"
+    ]
+};
+
+
+// =========================================================
+// Authoritative Government Hostname Check
+// =========================================================
+function isAuthoritativeGovernmentHostname(
+    hostname,
+    topic
+) {
+
+    const host =
+        String(hostname || "")
+            .toLowerCase()
+            .trim();
+
+
+    const allowedDomains =
+        GOVERNMENT_AUTHORITY_DOMAINS[
+            topic
+        ] || [];
+
+
+    return allowedDomains.some(domain => {
+
+        if (domain === "gov.my") {
+
+            return (
+                host === "gov.my" ||
+                host.endsWith(".gov.my")
+            );
+        }
+
+
+        return (
+            host === domain ||
+            host.endsWith("." + domain)
+        );
+    });
+}
+
+// =========================================================
 // ANALYSE GROUNDING
 // =========================================================
 
-async function analyseGrounding(data) {
+async function analyseGrounding(
+    data,
+    topic
+  ) {
 
     const metadata =
         data?.candidates?.[0]
@@ -390,7 +515,8 @@ for (
 
     const officialSource =
         await resolveOfficialGovernmentSource(
-            web
+            web,
+            topic
         );
 
 
@@ -820,6 +946,11 @@ export default async function handler(
         const latestUserMessage =
             getLatestUserMessage(
                 clientPayload.contents
+            );
+
+        const governmentTopic =
+            detectGovernmentTopic(
+                latestUserMessage
             );
 
 
