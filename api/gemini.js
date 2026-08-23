@@ -178,28 +178,13 @@ function isGovernmentQuery(message = "") {
 
 
 // =========================================================
-// CHECK GOV.MY HOSTNAME
-// =========================================================
-
-function isGovernmentHostname(hostname = "") {
-
-    const host =
-        String(hostname)
-            .toLowerCase()
-            .trim();
-
-    return (
-        host === "gov.my" ||
-        host.endsWith(".gov.my")
-    );
-}
-
-
-// =========================================================
 // RESOLVE & VERIFY OFFICIAL GOVERNMENT SOURCE
 // =========================================================
 
-async function resolveOfficialGovernmentSource(web = {}) {
+async function resolveOfficialGovernmentSource(
+  web = {},
+  topic = "general-government"
+) {
 
     const originalUri =
         String(web?.uri || "")
@@ -389,6 +374,7 @@ const GOVERNMENT_AUTHORITY_DOMAINS = {
     "finance": [
         "mof.gov.my",
         "treasury.gov.my",
+        "ppp.treasury.gov.my",
         "anm.gov.my"
     ],
 
@@ -681,18 +667,33 @@ PENGESAHAN PERTAMA TIDAK MENEMUI BUKTI RASMI YANG MENCUKUPI.
 
 Jalankan Google Search SEKALI LAGI.
 
-Gunakan carian khusus sumber kerajaan Malaysia, termasuk pendekatan seperti:
+Gunakan carian khusus sumber kerajaan Malaysia, termasuk:
 
 site:gov.my
 site:jpa.gov.my
 site:docs.jpa.gov.my
 site:mof.gov.my
+site:treasury.gov.my
+site:ppp.treasury.gov.my
 site:moh.gov.my
 site:anm.gov.my
 
-Cari dokumen rasmi yang paling relevan dan terkini.
+Untuk soalan berkaitan:
+- elaun
+- tuntutan perjalanan
+- lojing
+- hotel
+- perolehan
+- Pekeliling Perbendaharaan
 
-JANGAN memberikan fakta spesifik sehingga sumber rasmi ditemui.
+utamakan Portal Pekeliling Perbendaharaan
+dan Kementerian Kewangan Malaysia.
+
+Cari dokumen rasmi yang paling relevan,
+terkini dan masih berkuat kuasa.
+
+JANGAN memberikan fakta spesifik sehingga
+sumber rasmi autoritatif ditemui.
 `;
 }
 
