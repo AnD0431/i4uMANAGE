@@ -178,46 +178,148 @@ function isGovernmentQuery(message = "") {
 
 
 // =========================================================
-// OFFICIAL SOURCE CHECK
+// CHECK GOV.MY HOSTNAME
 // =========================================================
 
-function isOfficialGovernmentSource(web = {}) {
+function isGovernmentHostname(hostname = "") {
 
-    const uri =
+    const host =
+        String(hostname)
+            .toLowerCase()
+            .trim();
+
+    return (
+        host === "gov.my" ||
+        host.endsWith(".gov.my")
+    );
+}
+
+
+// =========================================================
+// RESOLVE & VERIFY OFFICIAL GOVERNMENT SOURCE
+// =========================================================
+
+async function resolveOfficialGovernmentSource(web = {}) {
+
+    const originalUri =
         String(web?.uri || "")
-            .trim()
-            .toLowerCase();
+            .trim();
 
 
-    if (!uri) {
-        return false;
+    if (!originalUri) {
+        return null;
     }
 
 
+    // ========================================
+    // CHECK DIRECT URL FIRST
+    // ========================================
+
     try {
 
-        const url =
-            new URL(uri);
+        const directUrl =
+            new URL(originalUri);
 
 
-        const hostname =
-            url.hostname
-                .toLowerCase();
+        if (
+            isGovernmentHostname(
+                directUrl.hostname
+            )
+        ) {
+
+            return {
+                title:
+                    web.title ||
+                    directUrl.hostname,
+
+                uri:
+                    originalUri
+            };
+        }
+
+    } catch (error) {
+
+        return null;
+    }
+
+
+    // ========================================
+    // FOLLOW REDIRECT
+    // ========================================
+
+    try {
+
+        const response =
+            await fetch(
+                originalUri,
+                {
+                    method:
+                        "GET",
+
+                    redirect:
+                        "follow",
+
+                    headers: {
+                        "User-Agent":
+                            "Mozilla/5.0 i4uManage-Sarah"
+                    }
+                }
+            );
+
+
+        const finalUri =
+            response.url;
+
+
+        // Tak perlu download seluruh page
+        if (response.body) {
+
+            try {
+                await response.body.cancel();
+            } catch (error) {
+                // ignore
+            }
+        }
+
+
+        const finalUrl =
+            new URL(finalUri);
 
 
         // ========================================
-        // MALAYSIAN GOVERNMENT DOMAIN ONLY
+        // FINAL DOMAIN MUST BE GOV.MY
         // ========================================
 
-        return (
-            hostname === "gov.my" ||
-            hostname.endsWith(".gov.my")
-        );
+        if (
+            !isGovernmentHostname(
+                finalUrl.hostname
+            )
+        ) {
+
+            return null;
+        }
+
+
+        return {
+
+            title:
+                web.title ||
+                finalUrl.hostname,
+
+            uri:
+                finalUri
+        };
 
 
     } catch (error) {
 
-        return false;
+        console.warn(
+            "Unable to resolve grounding source:",
+            originalUri
+        );
+
+
+        return null;
     }
 }
 
@@ -225,7 +327,7 @@ function isOfficialGovernmentSource(web = {}) {
 // ANALYSE GROUNDING
 // =========================================================
 
-function analyseGrounding(data) {
+async function analyseGrounding(data) {
 
     const metadata =
         data?.candidates?.[0]
@@ -267,36 +369,45 @@ function analyseGrounding(data) {
     const officialSources = [];
 
 
-    chunks.forEach(
-        (chunk, index) => {
+// ========================================
+// VERIFY EACH GROUNDING SOURCE
+// ========================================
 
-            const web =
-                chunk?.web;
+for (
+    let index = 0;
+    index < chunks.length;
+    index++
+) {
 
-
-            if (
-                web &&
-                isOfficialGovernmentSource(web)
-            ) {
-
-                officialChunkIndices.add(
-                    index
-                );
+    const web =
+        chunks[index]?.web;
 
 
-                officialSources.push({
+    if (!web) {
+        continue;
+    }
 
-                    title:
-                        web.title ||
-                        "Sumber Rasmi Kerajaan",
 
-                    uri:
-                        web.uri || ""
+    const officialSource =
+        await resolveOfficialGovernmentSource(
+            web
+        );
 
-                });
-            }
-        }
+
+    if (!officialSource) {
+        continue;
+    }
+
+
+    officialChunkIndices.add(
+        index
     );
+
+
+    officialSources.push(
+        officialSource
+    );
+}
 
 
     // ===============================
@@ -809,7 +920,7 @@ export default async function handler(
         // ===============================
 
         let verification =
-            analyseGrounding(
+            await analyseGrounding(
                 data
             );
 
@@ -846,7 +957,7 @@ export default async function handler(
             ) {
 
                 const retryVerification =
-                    analyseGrounding(
+                    await analyseGrounding(
                         retryResult.data
                     );
 
