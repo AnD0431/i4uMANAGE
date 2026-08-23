@@ -229,85 +229,135 @@ async function resolveOfficialGovernmentSource(
     }
 
 
-    // ========================================
-    // FOLLOW REDIRECT
-    // ========================================
+// ========================================
+// FOLLOW REDIRECT WITH TIMEOUT
+// ========================================
 
-    try {
+const controller =
+    new AbortController();
 
-        const response =
-            await fetch(
-                originalUri,
-                {
-                    method:
-                        "GET",
 
-                    redirect:
-                        "follow",
+const timeout =
+    setTimeout(
+        () => {
+            controller.abort();
+        },
+        5000
+    );
 
-                    headers: {
-                        "User-Agent":
-                            "Mozilla/5.0 i4uManage-Sarah"
-                    }
+
+try {
+
+    const response =
+        await fetch(
+            originalUri,
+            {
+                method: "GET",
+
+                redirect: "follow",
+
+                signal:
+                    controller.signal,
+
+                headers: {
+                    "User-Agent":
+                        "Mozilla/5.0 i4uManage-Sarah"
                 }
-            );
-
-
-        const finalUri =
-            response.url;
-
-
-        // Tak perlu download seluruh page
-        if (response.body) {
-
-            try {
-                await response.body.cancel();
-            } catch (error) {
-                // ignore
             }
-        }
-
-
-        const finalUrl =
-            new URL(finalUri);
-
-
-        // ========================================
-        // FINAL DOMAIN MUST BE GOV.MY
-        // ========================================
-
-        if (
-            !isAuthoritativeGovernmentHostname(
-                finalUrl.hostname,
-                topic
-            )
-        ) {
-
-            return null;
-        }
-
-
-        return {
-
-            title:
-                web.title ||
-                finalUrl.hostname,
-
-            uri:
-                finalUri
-        };
-
-
-    } catch (error) {
-
-        console.warn(
-            "Unable to resolve grounding source:",
-            originalUri
         );
 
 
+    const finalUri =
+        response.url;
+
+
+    // ========================================
+    // TAK PERLU DOWNLOAD SELURUH PAGE
+    // ========================================
+
+    if (response.body) {
+
+        try {
+
+            await response.body.cancel();
+
+        } catch (error) {
+
+            // Ignore body cancel error
+        }
+    }
+
+
+    const finalUrl =
+        new URL(
+            finalUri
+        );
+
+
+    // ========================================
+    // FINAL DOMAIN MESTI AUTORITATIF
+    // ========================================
+
+    if (
+        !isAuthoritativeGovernmentHostname(
+            finalUrl.hostname,
+            topic
+        )
+    ) {
+
         return null;
     }
+
+
+    return {
+
+        title:
+            web.title ||
+            finalUrl.hostname,
+
+        uri:
+            finalUri
+    };
+
+
+} catch (error) {
+
+    // ========================================
+    // TIMEOUT
+    // ========================================
+
+    if (
+        error?.name ===
+        "AbortError"
+    ) {
+
+        console.warn(
+            "Government source verification timeout:",
+            originalUri
+        );
+
+    } else {
+
+        console.warn(
+            "Unable to resolve grounding source:",
+            originalUri,
+            error?.message || error
+        );
+    }
+
+
+    return null;
+
+
+} finally {
+
+    // Sangat penting:
+    // hentikan timer selepas request selesai
+    clearTimeout(
+        timeout
+    );
+}
+
 }
 
 // =========================================================
@@ -481,45 +531,76 @@ async function analyseGrounding(
 
 
 // ========================================
-// VERIFY EACH GROUNDING SOURCE
+// VERIFY SOURCES SECARA PARALLEL
 // ========================================
 
-for (
-    let index = 0;
-    index < chunks.length;
-    index++
-) {
-
-    const web =
-        chunks[index]?.web;
+const MAX_SOURCE_CHECKS = 5;
 
 
-    if (!web) {
-        continue;
-    }
+const sourceChecks =
+    chunks
+        .slice(
+            0,
+            MAX_SOURCE_CHECKS
+        )
+        .map(
+            async (
+                chunk,
+                index
+            ) => {
+
+                const web =
+                    chunk?.web;
 
 
-    const officialSource =
-        await resolveOfficialGovernmentSource(
-            web,
-            topic
+                if (!web) {
+
+                    return {
+                        index,
+                        source: null
+                    };
+                }
+
+
+                const source =
+                    await resolveOfficialGovernmentSource(
+                        web,
+                        topic
+                    );
+
+
+                return {
+                    index,
+                    source
+                };
+            }
         );
 
 
-    if (!officialSource) {
-        continue;
+const resolvedSources =
+    await Promise.all(
+        sourceChecks
+    );
+
+
+resolvedSources.forEach(
+    result => {
+
+        if (!result.source) {
+            return;
+        }
+
+
+        officialChunkIndices.add(
+            result.index
+        );
+
+
+        officialSources.push(
+            result.source
+        );
     }
-
-
-    officialChunkIndices.add(
-        index
-    );
-
-
-    officialSources.push(
-        officialSource
-    );
-}
+);
 
 
     // ===============================
@@ -653,6 +734,83 @@ Jika sumber rasmi tidak mencukupi, nyatakan bahawa maklumat tersebut tidak dapat
 
 Jangan taip URL secara manual dalam jawapan kerana aplikasi akan memaparkan sumber grounding secara berasingan.
 `;
+}
+
+// =========================================================
+// TOPIC-SPECIFIC GOVERNMENT SEARCH INSTRUCTION
+// =========================================================
+
+function getGovernmentTopicInstruction(topic) {
+
+    switch (topic) {
+
+        case "finance":
+
+            return `
+TOPIK DIKESAN: KEWANGAN KERAJAAN.
+
+Untuk carian pertama, utamakan sumber:
+
+- ppp.treasury.gov.my
+- treasury.gov.my
+- mof.gov.my
+- anm.gov.my
+
+Jika soalan berkaitan:
+- lojing
+- elaun
+- tuntutan perjalanan
+- hotel
+- perolehan
+- Pekeliling Perbendaharaan
+
+cari dokumen rasmi atau PDF pekeliling yang
+spesifik, terkini dan masih berkuat kuasa.
+
+Utamakan Portal Pekeliling Perbendaharaan
+berbanding laman kerajaan umum.
+`;
+
+
+        case "public-service":
+
+            return `
+TOPIK DIKESAN: PERKHIDMATAN AWAM.
+
+Untuk carian pertama, utamakan:
+
+- jpa.gov.my
+- docs.jpa.gov.my
+
+Cari MyPPSM, ceraian, pekeliling atau dokumen
+JPA yang paling terkini dan masih berkuat kuasa.
+`;
+
+
+        case "health":
+
+            return `
+TOPIK DIKESAN: KESIHATAN.
+
+Untuk carian pertama, utamakan:
+
+- moh.gov.my
+
+Gunakan dasar, garis panduan atau dokumen rasmi
+KKM yang paling relevan dan terkini.
+`;
+
+
+        default:
+
+            return `
+TOPIK DIKESAN: KERAJAAN UMUM.
+
+Utamakan laman rasmi kerajaan Malaysia
+berdomain .gov.my dan badan induk yang
+bertanggungjawab terhadap perkara tersebut.
+`;
+    }
 }
 
 
@@ -978,22 +1136,43 @@ export default async function handler(
         // BUILD PAYLOAD
         // ===============================
 
-        let payload =
-            addGoogleSearchTool(
-                clientPayload
-            );
+        let payload = {
+    ...clientPayload
+};
 
 
-        if (governmentMode) {
+// ========================================
+// GOOGLE SEARCH HANYA UNTUK GOVERNMENT MODE
+// ========================================
 
-            payload =
-                appendSystemInstruction(
-                    payload,
-                    getGovernmentInstruction(
-                        checkedAt
-                    )
-                );
-        }
+if (governmentMode) {
+
+    // Aktifkan Google Search
+    payload =
+        addGoogleSearchTool(
+            payload
+        );
+
+
+    // Arahan Verified Government Mode
+    payload =
+        appendSystemInstruction(
+            payload,
+            getGovernmentInstruction(
+                checkedAt
+            )
+        );
+
+
+    // Arahan carian ikut topik
+    payload =
+        appendSystemInstruction(
+            payload,
+            getGovernmentTopicInstruction(
+                governmentTopic
+            )
+        );
+}
 
 
         // ===============================
