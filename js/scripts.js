@@ -1333,25 +1333,106 @@ if (
     );
 }
 
-        // FIXED (ditambah): papar link SUMBER SEBENAR dari Google Search
-        // grounding (bukan link yang AI taip sendiri — elak risiko
-        // "hallucinated link" yang nampak sah tapi sebenarnya tak wujud).
-        const groundingChunks = data.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
-        if (groundingChunks.length > 0) {
-            const seenUrls = new Set();
-            const sourceLinks = groundingChunks
-                .map(chunk => chunk.web)
-                .filter(web => web?.uri && !seenUrls.has(web.uri) && seenUrls.add(web.uri));
+       let sourceLinks = [];
 
-            if (sourceLinks.length > 0) {
-                const sourcesDiv = document.createElement("div");
-                sourcesDiv.classList.add("message-sources");
-                sourcesDiv.innerHTML = "<strong>Rujukan:</strong> " + sourceLinks
-                    .map(web => `<a href="${web.uri}" target="_blank" rel="noopener">${web.title || web.uri}</a>`)
-                    .join(" · ");
-                messageElement.appendChild(sourcesDiv);
-            }
-        }
+       if (
+        verification?.mode === "government" &&
+        verification?.verified
+       ) {
+        sourceLinks =
+            Array.isArray(
+                verification.officialSources
+            )
+                ? verification.officialSources
+                : [];
+       }
+
+       else if (
+        verification?.mode !== "government"
+       ) {
+        const groundingChunks =
+            data.candidates?.[0]
+                ?.groundingMetadata
+                ?.groundingChunks || [];
+
+        const seenUrls =
+            new Set();
+
+        sourceLinks =
+            groundingChunks
+                .map(chunk =>
+                    chunk.web
+                )
+                .filter(web => {
+                    if ( !web?.uri) {
+                        return false;
+                    }
+                    
+                    if (
+                        seenUrls.has (
+                            web.uri
+                        )
+                    ) {
+                        return false;
+                    }
+                    seenUrls.add(
+                        web.uri
+                    );
+                    return true;
+                });
+       }
+
+       const uniqueSources = [
+        ...new Map(
+            sourceLinks.map(source => [
+                source.uri,
+                source
+            ])
+        ) .values()
+       ];
+
+       if (uniqueSources.length > 0) {
+        const sourcesDiv =
+            document.createElement("div");
+
+        sourcesDiv.classList.add(
+            "message-sources"
+        );
+
+        const sourceTitle =
+            verification?.mode === "government" 
+                ? "Rujukan Rasmi"
+                : "Rujukan";
+
+        const title =
+            document.createElement("strong");
+
+        title.textContent =
+            sourceTitle;
+
+        sourcesDiv.appendChild(
+            title
+        );
+
+        uniqueSources.forEach(source => {
+            const link =
+                document.createElement("a");
+
+                link.href = source.uri;
+                link.target = "_blank";
+                link.rel = "noopener noreferrer";
+                link.textContent = source.title ||
+                "Sumber";
+
+                sourcesDiv.appendChild(
+                    link
+                );
+        });
+
+        messageElement.appendChild(
+            sourcesDiv
+        );
+    }
 
         // add bot chat history
         chatHistory.push({
