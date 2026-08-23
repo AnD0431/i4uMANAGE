@@ -896,3 +896,63 @@ body.show-emoji-picker em-emoji-picker {
 .chat-body .bot-message .message-text a:hover {
     border-bottom-color: #1A56DB;
 }
+
+/* =========================================
+   GOVERNMENT VERIFICATION
+   ========================================= */
+
+.government-verification {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    margin-bottom: 12px;
+    padding: 10px 12px;
+
+    border-radius: 9px;
+
+    font-size: 0.72rem;
+}
+
+
+.government-verification i {
+    font-size: 1rem;
+}
+
+
+.government-verification .verification-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+
+.government-verification strong {
+    font-size: 0.75rem;
+}
+
+
+.government-verification span {
+    font-size: 0.64rem;
+    opacity: 0.8;
+}
+
+
+/* VERIFIED */
+
+.government-verification.verified {
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+
+    color: #065f46;
+}
+
+
+/* UNVERIFIED */
+
+.government-verification.unverified {
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+
+    color: #9a3412;
+}
