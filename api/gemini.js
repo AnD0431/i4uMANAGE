@@ -1052,7 +1052,8 @@ export default async function handler(
 
         let verification =
             await analyseGrounding(
-                data
+                data,
+                governmentTopic
             );
 
 
@@ -1089,7 +1090,8 @@ export default async function handler(
 
                 const retryVerification =
                     await analyseGrounding(
-                        retryResult.data
+                        retryResult.data,
+                        governmentTopic
                     );
 
 
