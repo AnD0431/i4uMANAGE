@@ -956,3 +956,48 @@ body.show-emoji-picker em-emoji-picker {
 
     color: #9a3412;
 }
+
+/* =========================================
+   OFFICIAL SOURCES
+   ========================================= */
+
+.message-sources {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+
+    margin-top: 12px;
+    padding-top: 10px;
+
+    border-top: 1px solid rgba(26, 86, 219, 0.15);
+
+    font-size: 0.78rem;
+    line-height: 1.5;
+}
+
+.message-sources strong {
+    color: #1A56DB;
+    margin-bottom: 2px;
+}
+
+.message-sources a {
+    display: inline-flex;
+    align-items: center;
+
+    color: #1A56DB;
+    text-decoration: none;
+
+    font-weight: 600;
+
+    padding: 4px 0;
+}
+
+.message-sources a::before {
+    content: "↗";
+    margin-right: 6px;
+}
+
+.message-sources a:hover {
+    text-decoration: underline;
+}

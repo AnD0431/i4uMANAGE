@@ -183,22 +183,43 @@ function isGovernmentQuery(message = "") {
 
 function isOfficialGovernmentSource(web = {}) {
 
-    const sourceText = [
-        web?.title || "",
-        web?.uri || ""
-    ]
-        .join(" ")
-        .toLowerCase();
+    const uri =
+        String(web?.uri || "")
+            .trim()
+            .toLowerCase();
 
 
-    return OFFICIAL_SOURCE_HINTS.some(
-        hint =>
-            sourceText.includes(
-                hint.toLowerCase()
-            )
-    );
+    if (!uri) {
+        return false;
+    }
+
+
+    try {
+
+        const url =
+            new URL(uri);
+
+
+        const hostname =
+            url.hostname
+                .toLowerCase();
+
+
+        // ========================================
+        // MALAYSIAN GOVERNMENT DOMAIN ONLY
+        // ========================================
+
+        return (
+            hostname === "gov.my" ||
+            hostname.endsWith(".gov.my")
+        );
+
+
+    } catch (error) {
+
+        return false;
+    }
 }
-
 
 // =========================================================
 // ANALYSE GROUNDING
