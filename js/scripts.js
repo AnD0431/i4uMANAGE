@@ -1980,7 +1980,18 @@ const sendUserMessage = (rawText) => {
     userData.message = (rawText || "").trim();
     if (!userData.message) return;
     messageInput.value = "";
-    fileUploadWrapper.classList.remove("file-uploaded");
+
+// Reset textarea selepas mesej dihantar
+messageInput.style.height = `${initialInputHeight}px`;
+messageInput.style.overflowY = "hidden";
+
+const chatForm = document.querySelector(".chat-form");
+
+if (chatForm) {
+    chatForm.style.borderRadius = "32px";
+}
+
+fileUploadWrapper.classList.remove("file-uploaded");
     messageInput.disabled = true;
     sendMessageButton.disabled = true;
 
@@ -2078,9 +2089,37 @@ messageInput.addEventListener("keydown", (e) => {
 
 // Adjust input field height dynamically
 messageInput.addEventListener("input", () => {
+
+    const MAX_INPUT_HEIGHT = 140;
+
+    // Reset dahulu supaya scrollHeight boleh dikira semula
     messageInput.style.height = `${initialInputHeight}px`;
-    messageInput.style.height = `${messageInput.scrollHeight}px`;
-    document.querySelector(".chat-form").style.borderRadius = messageInput.scrollHeight > initialInputHeight ? "15px" : "32px";
+
+    const newHeight =
+        Math.min(
+            messageInput.scrollHeight,
+            MAX_INPUT_HEIGHT
+        );
+
+    messageInput.style.height =
+        `${newHeight}px`;
+
+    // Bila teks terlalu panjang,
+    // textarea scroll di dalam sahaja
+    messageInput.style.overflowY =
+        messageInput.scrollHeight > MAX_INPUT_HEIGHT
+            ? "auto"
+            : "hidden";
+
+    const chatForm =
+        document.querySelector(".chat-form");
+
+    if (chatForm) {
+        chatForm.style.borderRadius =
+            newHeight > initialInputHeight
+                ? "15px"
+                : "32px";
+    }
 });
 
 // Handle file input change and preview the selected file
