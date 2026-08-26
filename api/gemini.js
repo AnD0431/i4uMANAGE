@@ -524,7 +524,7 @@ async function analyseGrounding(
     // VERIFY SOURCES SECARA PARALLEL
     // ========================================
 
-    const MAX_SOURCE_CHECKS = 5;
+    const MAX_SOURCE_CHECKS = 10;
 
     const sourceChecks =
         chunks
@@ -661,8 +661,6 @@ function hasSensitiveGovernmentFact(
         /\bRM\s?\d[\d,.]*/i,
 
         /\b\d+(?:\.\d+)?\s?%/,
-
-        /\b(?:19|20)\d{2}\b/,
 
         /\b\d{1,2}\s+(?:januari|februari|mac|april|mei|jun|julai|ogos|september|oktober|november|disember)\s+(?:19|20)\d{2}\b/i,
 
