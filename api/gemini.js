@@ -519,6 +519,333 @@ async function analyseGrounding(
             : [];
 
 
+// =========================================================
+// SENSITIVE GOVERNMENT CLAIM COVERAGE
+// =========================================================
+
+function hasSensitiveGovernmentFact(text = "") {
+
+    const value =
+        String(text || "");
+
+
+    const patterns = [
+
+        // RM50 / RM 120.00
+        /\bRM\s?\d[\d,.]*/i,
+
+        // 10% / 5.5%
+        /\b\d+(?:\.\d+)?\s?%/,
+
+        // Tahun
+        /\b(?:19|20)\d{2}\b/,
+
+        // Tarikh seperti 1 Januari 2025
+        /\b\d{1,2}\s+(?:januari|februari|mac|april|mei|jun|julai|ogos|september|oktober|november|disember)\s+(?:19|20)\d{2}\b/i,
+
+        // 01/01/2025
+        /\b\d{1,2}[/-]\d{1,2}[/-](?:19|20)\d{2}\b/,
+
+        // Gred 41 / Gred N29
+        /\bgred\s+[A-Z]?\d+[A-Z]?\b/i,
+
+        // 25 hari / 8 jam / 3 bulan
+        /\b\d+(?:\.\d+)?\s*(?:hari|jam|bulan|malam|kilometer|km)\b/i,
+
+        // Ceraian SR.5.1.1 / SP.1.1.1
+        /\bceraian\s+[A-Z]{1,6}\.\d+(?:\.\d+)+\b/i,
+
+        // Pekeliling Bilangan 11 Tahun 2015
+        /\bpekeliling\b.{0,80}\b(?:bilangan|bil\.?)\s*\d+/i,
+
+        // Surat Edaran Bilangan...
+        /\bsurat\s+edaran\b.{0,80}\b(?:bilangan|bil\.?)\s*\d+/i,
+
+        // Arahan Perbendaharaan 100 / AP 100
+        /\barahan\s+perbendaharaan\s+\d+/i,
+
+        // Akta 605
+        /\bakta\s+\d+/i
+    ];
+
+
+    return patterns.some(
+        pattern =>
+            pattern.test(value)
+    );
+}
+
+
+// =========================================================
+// GET FULL MODEL RESPONSE TEXT
+// =========================================================
+
+function getGovernmentResponseText(data) {
+
+    const parts =
+        data?.candidates?.[0]
+            ?.content
+            ?.parts;
+
+
+    if (!Array.isArray(parts)) {
+        return "";
+    }
+
+
+    return parts
+        .map(part =>
+            typeof part?.text === "string"
+                ? part.text
+                : ""
+        )
+        .join("\n");
+}
+
+
+// =========================================================
+// ANALYSE SENSITIVE CLAIM COVERAGE
+// =========================================================
+
+function analyseSensitiveClaimCoverage(
+    data,
+    officialChunkIndices = []
+) {
+
+    const responseText =
+        getGovernmentResponseText(
+            data
+        );
+
+
+    const officialSet =
+        new Set(
+            officialChunkIndices
+        );
+
+
+    const groundingSupports =
+        data?.candidates?.[0]
+            ?.groundingMetadata
+            ?.groundingSupports || [];
+
+
+    // ========================================
+    // FIND LINES WITH SENSITIVE FACTS
+    // ========================================
+
+    const sensitiveClaims = [];
+
+    let currentOffset = 0;
+
+
+    responseText
+        .split("\n")
+        .forEach(line => {
+
+            const start =
+                currentOffset;
+
+            const end =
+                start +
+                line.length;
+
+            const cleanLine =
+                line.trim();
+
+
+            if (
+                cleanLine &&
+                hasSensitiveGovernmentFact(
+                    cleanLine
+                )
+            ) {
+
+                sensitiveClaims.push({
+
+                    text:
+                        cleanLine,
+
+                    start:
+                        start,
+
+                    end:
+                        end
+                });
+            }
+
+
+            currentOffset =
+                end + 1;
+        });
+
+
+    // Tiada fakta sensitif
+    // → base verification sudah mencukupi
+    if (
+        sensitiveClaims.length === 0
+    ) {
+
+        return {
+
+            required:
+                false,
+
+            passed:
+                true,
+
+            totalClaims:
+                0,
+
+            supportedClaims:
+                0,
+
+            unsupportedClaims:
+                []
+        };
+    }
+
+
+    // ========================================
+    // CHECK EACH CLAIM AGAINST OFFICIAL SOURCE
+    // ========================================
+
+    const unsupportedClaims = [];
+
+
+    let supportedClaims = 0;
+
+
+    sensitiveClaims.forEach(
+        claim => {
+
+            const officiallySupported =
+                groundingSupports.some(
+                    support => {
+
+                        const chunkIndices =
+                            Array.isArray(
+                                support
+                                    ?.groundingChunkIndices
+                            )
+                                ? support
+                                    .groundingChunkIndices
+                                : [];
+
+
+                        const hasOfficialChunk =
+                            chunkIndices.some(
+                                index =>
+                                    officialSet.has(
+                                        index
+                                    )
+                            );
+
+
+                        if (!hasOfficialChunk) {
+                            return false;
+                        }
+
+
+                        const segment =
+                            support?.segment;
+
+
+                        // =================================
+                        // PRIMARY: OFFSET OVERLAP
+                        // =================================
+
+                        if (
+                            Number.isFinite(
+                                segment?.startIndex
+                            ) &&
+                            Number.isFinite(
+                                segment?.endIndex
+                            )
+                        ) {
+
+                            const overlaps =
+                                segment.startIndex <
+                                    claim.end &&
+                                segment.endIndex >
+                                    claim.start;
+
+
+                            if (overlaps) {
+                                return true;
+                            }
+                        }
+
+
+                        // =================================
+                        // FALLBACK: SEGMENT TEXT
+                        // =================================
+
+                        if (
+                            typeof segment?.text ===
+                                "string"
+                        ) {
+
+                            const segmentText =
+                                segment.text
+                                    .trim();
+
+
+                            if (
+                                segmentText &&
+                                (
+                                    claim.text.includes(
+                                        segmentText
+                                    ) ||
+                                    segmentText.includes(
+                                        claim.text
+                                    )
+                                )
+                            ) {
+
+                                return true;
+                            }
+                        }
+
+
+                        return false;
+                    }
+                );
+
+
+            if (officiallySupported) {
+
+                supportedClaims++;
+
+            } else {
+
+                unsupportedClaims.push(
+                    claim.text
+                );
+            }
+        }
+    );
+
+
+    return {
+
+        required:
+            true,
+
+        passed:
+            unsupportedClaims.length === 0,
+
+        totalClaims:
+            sensitiveClaims.length,
+
+        supportedClaims:
+            supportedClaims,
+
+        unsupportedClaims:
+            unsupportedClaims
+    };
+}
+
     // ===============================
     // OFFICIAL CHUNKS
     // ===============================
@@ -651,6 +978,9 @@ resolvedSources.forEach(
 
         hasOfficialSupport:
             hasOfficialSupport,
+
+        officialChunkIndices:
+        [...officialChunkIndices],
 
         verified:
             queries.length > 0 &&
@@ -1441,6 +1771,12 @@ if (governmentMode) {
                 governmentTopic
             );
 
+        const sensitiveClaimCoverage =
+    analyseSensitiveClaimCoverage(
+        data,
+        verification.officialChunkIndices
+    );
+
 // ===============================
 // CURRENT STATUS GATE
 // ===============================
@@ -1467,7 +1803,8 @@ const currentStatusVerified =
 
         if (
     !verification.verified ||
-    !currentStatusVerified
+    !currentStatusVerified ||
+    !sensitiveClaimCoverage.passed
 ) {
 
             console.warn(
@@ -1539,7 +1876,10 @@ const currentStatusVerified =
                 .officialSourceCount,
 
         documentStatus:
-            governmentDocumentStatus
+            governmentDocumentStatus,
+
+        claimCoverage:
+            sensitiveClaimCoverage,
     }
 );
 
@@ -1569,6 +1909,9 @@ const currentStatusVerified =
 
     documentStatus:
         governmentDocumentStatus,
+
+    claimCoverage:
+        sensitiveClaimCoverage,
 
     searched:
         verification.searched,
