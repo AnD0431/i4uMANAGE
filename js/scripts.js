@@ -1623,9 +1623,26 @@ const generateBotResponse = async (incomingMessageDiv) => {
 
         // Extract and display bot's response text
         const apiResponseText = data.candidates[0].content.parts[0].text
-        .replace(/\*\*(.*?)\*\*/g, "$1")   // remove bold **text**
-        .replace(/^#{1,6}\s*/gm, "")        // remove markdown headers (#, ##, ### etc.)
-        .trim();
+
+    // remove internal government status marker
+    .replace(
+        /\s*\[\[I4U_STATUS:(ACTIVE|AMENDED|REPLACED|CANCELLED|UNKNOWN)\]\]\s*/gi,
+        "\n"
+    )
+
+    // remove bold markdown
+    .replace(
+        /\*\*(.*?)\*\*/g,
+        "$1"
+    )
+
+    // remove markdown headers
+    .replace(
+        /^#{1,6}\s*/gm,
+        ""
+    )
+
+    .trim();
 
         // Asingkan kandungan dokumen (dalam marker) dari penerangan bot.
         // Chat hanya papar ayat bot di LUAR marker — kandungan sebenar disimpan untuk fail download sahaja.
