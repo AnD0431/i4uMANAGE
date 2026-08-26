@@ -1512,6 +1512,124 @@ function createVerificationFailureResponse(
     };
 }
 
+// =========================================================
+// DETECT ACTIVE KERTAS KERJA WORKFLOW
+// =========================================================
+
+function isKertasKerjaConversation(
+    contents = []
+) {
+
+    if (!Array.isArray(contents)) {
+        return false;
+    }
+
+    const recentText =
+        contents
+            .slice(-12)
+            .flatMap(item =>
+                Array.isArray(item?.parts)
+                    ? item.parts
+                    : []
+            )
+            .map(part =>
+                typeof part?.text === "string"
+                    ? part.text
+                    : ""
+            )
+            .join("\n")
+            .toLowerCase();
+
+
+    const triggers = [
+        "jana kertas kerja",
+        "buat kertas kerja",
+        "sediakan kertas kerja",
+        "kertas kerja untuk",
+        "kertas cadangan"
+    ];
+
+
+    let latestStartIndex = -1;
+
+    triggers.forEach(trigger => {
+
+        latestStartIndex =
+            Math.max(
+                latestStartIndex,
+                recentText.lastIndexOf(
+                    trigger
+                )
+            );
+    });
+
+
+    const latestCompletedIndex =
+        recentText.lastIndexOf(
+            "===tamat_dokumen==="
+        );
+
+
+    return (
+        latestStartIndex !== -1 &&
+        latestStartIndex >
+            latestCompletedIndex
+    );
+}
+
+
+// =========================================================
+// STRICT GOVERNMENT FACT REQUEST
+// =========================================================
+
+function requiresStrictGovernmentVerification(
+    message = ""
+) {
+
+    const text =
+        String(message || "")
+            .toLowerCase()
+            .trim();
+
+
+    const strictKeywords = [
+
+        "berkuat kuasa",
+        "terkini",
+
+        "pekeliling",
+        "ceraian",
+        "surat edaran",
+        "akta",
+        "arahan perbendaharaan",
+
+        "kadar",
+        "kelayakan",
+
+        "elaun",
+        "tuntutan",
+        "tuntutan perjalanan",
+
+        "perolehan",
+
+        "tatatertib",
+        "cuti",
+
+        "peraturan kerajaan",
+        "dasar kerajaan",
+
+        "myppsm",
+        "jpa",
+        "mof",
+        "perbendaharaan"
+    ];
+
+
+    return strictKeywords.some(
+        keyword =>
+            text.includes(keyword)
+    );
+}
 
 // =========================================================
 // MAIN HANDLER
@@ -1680,13 +1798,29 @@ PERATURAN:
         // GOVERNMENT MODE
         // ===============================
 
-        // Server detect sendiri.
-        // Jangan bergantung sepenuhnya pada frontend.
-        const governmentMode =
+    const kertasKerjaMode =
+    isKertasKerjaConversation(
+        clientPayload.contents
+    );
+
+
+const strictGovernmentFactRequest =
+    requiresStrictGovernmentVerification(
+        latestUserMessage
+    );
+
+
+const governmentMode =
+    strictGovernmentFactRequest ||
+    (
+        !kertasKerjaMode &&
+        (
             government_mode === true ||
             isGovernmentQuery(
                 latestUserMessage
-            );
+            )
+        )
+    );
 
 
         // Malaysia timestamp
