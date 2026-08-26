@@ -813,6 +813,90 @@ bertanggungjawab terhadap perkara tersebut.
     }
 }
 
+// =========================================================
+// CURRENT GOVERNMENT DOCUMENT STATUS INSTRUCTION
+// =========================================================
+
+function getCurrentStatusInstruction() {
+
+    return `
+SEMAKAN STATUS KUAT KUASA — WAJIB.
+
+Sebelum memberikan jawapan berdasarkan:
+- pekeliling;
+- ceraian;
+- surat edaran;
+- arahan;
+- garis panduan;
+- polisi;
+- peraturan;
+- undang-undang;
+- kadar;
+- kelayakan;
+- prosedur kerajaan;
+
+anda WAJIB menentukan status dokumen yang dirujuk.
+
+Semak daripada sumber rasmi sama ada dokumen tersebut:
+
+1. MASIH BERKUAT KUASA;
+2. TELAH DIPINDA;
+3. TELAH DIGANTI oleh dokumen yang lebih baharu;
+4. TELAH DIBATALKAN / DIMANSUHKAN;
+5. atau STATUS TIDAK DAPAT DIPASTIKAN.
+
+PERATURAN:
+
+- Jangan gunakan dokumen yang telah dibatalkan sebagai dasar semasa.
+- Jika dokumen telah diganti, gunakan dokumen pengganti terkini.
+- Jika terdapat pindaan, gunakan versi yang mengandungi pindaan terkini.
+- Jika terdapat beberapa versi, utamakan versi dengan tarikh kuat kuasa paling baharu.
+- Jangan anggap dokumen lama masih aktif hanya kerana ia masih boleh ditemui melalui Google Search.
+- Jangan gunakan halaman arkib sebagai bukti bahawa sesuatu peraturan masih berkuat kuasa.
+- Semak tarikh kuat kuasa jika dinyatakan.
+- Semak kenyataan seperti:
+  "dibatalkan",
+  "dimansuhkan",
+  "digantikan",
+  "dipinda",
+  "berkuat kuasa",
+  "berkuat kuasa mulai",
+  "superseded",
+  atau kenyataan lain yang membawa maksud sama.
+
+Jika status semasa tidak dapat dipastikan daripada
+sumber rasmi kerajaan:
+
+JANGAN berikan kadar, kelayakan, peraturan,
+nombor pekeliling atau fakta khusus tersebut.
+
+Sebaliknya nyatakan bahawa status kuat kuasa
+tidak dapat disahkan daripada sumber rasmi semasa.
+
+Untuk jawapan akhir, gunakan hanya dasar atau
+dokumen yang paling terkini dan masih berkuat kuasa.
+
+ANDA WAJIB letakkan SATU penanda status pada BARIS PALING AKHIR jawapan:
+
+[[I4U_STATUS:ACTIVE]]
+jika dasar / dokumen semasa telah disahkan masih berkuat kuasa.
+
+[[I4U_STATUS:AMENDED]]
+jika dokumen asal telah dipinda dan jawapan menggunakan pindaan terkini yang masih berkuat kuasa.
+
+[[I4U_STATUS:REPLACED]]
+jika dokumen lama telah diganti dan jawapan menggunakan dokumen pengganti terkini.
+
+[[I4U_STATUS:CANCELLED]]
+jika dokumen yang ditanya telah dibatalkan atau dimansuhkan dan tiada dasar pengganti yang boleh disahkan.
+
+[[I4U_STATUS:UNKNOWN]]
+jika status kuat kuasa tidak dapat dipastikan.
+
+JANGAN gunakan ACTIVE, AMENDED atau REPLACED kecuali status tersebut disokong oleh sumber rasmi semasa.
+`;
+}
+
 
 // =========================================================
 // STRONG RETRY INSTRUCTION
@@ -976,6 +1060,85 @@ async function callGemini(
         data
 
     };
+}
+
+// =========================================================
+// READ GOVERNMENT CURRENT-STATUS MARKER
+// =========================================================
+
+function getGovernmentDocumentStatus(data) {
+
+    const parts =
+        data?.candidates?.[0]
+            ?.content
+            ?.parts;
+
+
+    if (!Array.isArray(parts)) {
+        return "UNKNOWN";
+    }
+
+
+    const fullText =
+        parts
+            .map(part =>
+                typeof part?.text === "string"
+                    ? part.text
+                    : ""
+            )
+            .join("\n");
+
+
+    const match =
+        fullText.match(
+            /\[\[I4U_STATUS:(ACTIVE|AMENDED|REPLACED|CANCELLED|UNKNOWN)\]\]/i
+        );
+
+
+    if (!match) {
+        return "UNKNOWN";
+    }
+
+
+    return match[1]
+        .toUpperCase();
+}
+
+// =========================================================
+// REMOVE INTERNAL STATUS MARKER
+// Jangan paparkan marker kepada pengguna
+// =========================================================
+
+function removeGovernmentStatusMarker(data) {
+
+    const parts =
+        data?.candidates?.[0]
+            ?.content
+            ?.parts;
+
+
+    if (!Array.isArray(parts)) {
+        return;
+    }
+
+
+    parts.forEach(part => {
+
+        if (
+            typeof part?.text !== "string"
+        ) {
+            return;
+        }
+
+
+        part.text =
+            part.text
+                .replace(
+                    /\s*\[\[I4U_STATUS:(ACTIVE|AMENDED|REPLACED|CANCELLED|UNKNOWN)\]\]\s*/gi,
+                    ""
+                )
+                .trim();
+    });
 }
 
 
@@ -1147,20 +1310,28 @@ export default async function handler(
 
 if (governmentMode) {
 
-    // Aktifkan Google Search
+    // Google Search
     payload =
         addGoogleSearchTool(
             payload
         );
 
 
-    // Arahan Verified Government Mode
+    // Verified Government Mode
     payload =
         appendSystemInstruction(
             payload,
             getGovernmentInstruction(
                 checkedAt
             )
+        );
+
+
+    // Semakan status kuat kuasa
+    payload =
+        appendSystemInstruction(
+            payload,
+            getCurrentStatusInstruction()
         );
 
 
@@ -1236,12 +1407,34 @@ if (governmentMode) {
                 governmentTopic
             );
 
+// ===============================
+// CURRENT STATUS GATE
+// ===============================
+
+const governmentDocumentStatus =
+    getGovernmentDocumentStatus(
+        data
+    );
+
+
+const currentStatusVerified =
+    [
+        "ACTIVE",
+        "AMENDED",
+        "REPLACED"
+    ].includes(
+        governmentDocumentStatus
+    );
+
 
         // ===============================
         // RETRY IF NOT VERIFIED
         // ===============================
 
-        if (!verification.verified) {
+        if (
+    !verification.verified ||
+    !currentStatusVerified
+) {
 
             console.warn(
                 "Government response not sufficiently verified. Retrying with official-source instruction."
@@ -1296,22 +1489,25 @@ if (governmentMode) {
         // FAIL CLOSED
         // ===============================
 
-        if (!verification.verified) {
+        if (!verification.verified || !currentStatusVerified) {
 
-            console.warn(
-                "Verified Government Mode failed.",
-                {
-                    query:
-                        latestUserMessage,
+           console.warn(
+    "Verified Government Mode failed.",
+    {
+        query:
+            latestUserMessage,
 
-                    searched:
-                        verification.searched,
+        searched:
+            verification.searched,
 
-                    officialSources:
-                        verification
-                            .officialSourceCount
-                }
-            );
+        officialSources:
+            verification
+                .officialSourceCount,
+
+        documentStatus:
+            governmentDocumentStatus
+    }
+);
 
 
             return res
@@ -1330,32 +1526,30 @@ if (governmentMode) {
 
         data.i4uVerification = {
 
-            mode:
-                "government",
+    mode:
+        "government",
 
-            verified:
-                true,
+    verified:
+        true,
 
-            searched:
-                verification
-                    .searched,
+    documentStatus:
+        governmentDocumentStatus,
 
-            checkedAt:
-                checkedAt,
+    searched:
+        verification.searched,
 
-            officialSourceCount:
-                verification
-                    .officialSourceCount,
+    checkedAt:
+        checkedAt,
 
-            officialSources:
-                verification
-                    .officialSources,
+    officialSourceCount:
+        verification.officialSourceCount,
 
-            searchQueries:
-                verification
-                    .searchQueries
+    officialSources:
+        verification.officialSources,
 
-        };
+    searchQueries:
+        verification.searchQueries
+};
 
 
         res.setHeader(
