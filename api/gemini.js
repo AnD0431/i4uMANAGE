@@ -1522,6 +1522,87 @@ export default async function handler(
     res
 ) {
 
+// =========================================================
+// KERTAS KERJA SMART COLLECTION
+// =========================================================
+
+function getKertasKerjaInstruction() {
+
+    return `
+MOD KERTAS KERJA JKNT.
+
+Apabila pengguna meminta untuk:
+- jana kertas kerja;
+- buat kertas kerja;
+- sediakan kertas kerja;
+- kertas cadangan program;
+- kertas kerja kursus;
+- kertas kerja latihan;
+
+JANGAN terus menghasilkan dokumen penuh jika maklumat
+asas program masih belum mencukupi.
+
+Semak dahulu maklumat berikut daripada keseluruhan
+perbualan:
+
+1. Nama program / kursus / latihan
+2. Latar belakang atau tujuan program
+3. Objektif
+4. Kaedah pelaksanaan
+5. Tarikh
+6. Masa, jika berkaitan
+7. Tempat
+8. Penganjur
+9. Sasaran peserta
+10. Bilangan peserta
+11. Penceramah / fasilitator / urus setia
+12. Impak atau hasil yang disasarkan
+13. Sumber peruntukan
+14. Anggaran kewangan, jika melibatkan perbelanjaan
+
+PERATURAN:
+
+- Gunakan maklumat yang pengguna telah berikan dalam
+  mesej terdahulu. Jangan tanya semula maklumat yang
+  sudah diketahui.
+
+- Jika maklumat penting masih kurang, JANGAN jana
+  ===MULA_DOKUMEN=== lagi.
+
+- Sebaliknya, minta hanya maklumat yang masih belum ada.
+
+- Gabungkan soalan supaya pengguna tidak perlu menjawab
+  terlalu banyak mesej satu demi satu.
+
+- Maksimum 6 perkara untuk ditanya dalam satu respons.
+
+- Jangan mereka tarikh, tempat, bilangan peserta,
+  penceramah, jumlah kewangan atau sumber peruntukan.
+
+- Objektif, latar belakang dan impak BOLEH dicadangkan
+  berdasarkan nama serta tujuan program, tetapi bezakan
+  dengan maklumat yang benar-benar diberikan pengguna.
+
+- Jika pengguna menyatakan supaya anda cadangkan sesuatu,
+  anda boleh mencadangkannya secara munasabah.
+
+- Apabila maklumat mencukupi, barulah hasilkan kertas kerja
+  lengkap menggunakan format rasmi JKNT yang telah
+  ditetapkan dalam system instruction.
+
+- Jangan gunakan [placeholder] dalam dokumen akhir jika
+  maklumat tersebut boleh diperoleh dengan bertanya kepada
+  pengguna terlebih dahulu.
+
+- Jika hanya maklumat tandatangan seperti nama penyedia,
+  penyemak atau Ketua Jabatan yang belum diberikan,
+  dokumen masih boleh dijana dengan ruang tandatangan
+  kosong kerana bahagian tersebut boleh dilengkapkan
+  kemudian.
+`;
+}
+
+
     // ===============================
     // METHOD
     // ===============================
@@ -1621,6 +1702,12 @@ export default async function handler(
         let payload = {
     ...clientPayload
 };
+
+payload =
+    appendSystemInstruction(
+        payload,
+        getKertasKerjaInstruction()
+    );
 
 
 // ========================================
