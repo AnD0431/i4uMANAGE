@@ -1037,76 +1037,454 @@ function detectRequestedFormats(message) {
 // kosong) kepada HTML sebenar untuk paparan dalam chat bubble — sebelum
 // ni simbol Markdown (|, -, *) terus terpapar mentah sebab guna innerText.
 function markdownToChatHtml(text) {
-    // escape HTML basic dulu supaya elak isu suntikan/rendering pelik
-    const escapeHtml = (s) => s
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
 
-    const lines = escapeHtml(text).split("\n");
+    // ========================================
+    // ESCAPE HTML
+    // ========================================
+
+    const escapeHtml = (value) =>
+        String(value || "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+
+
+    // ========================================
+    // INLINE MARKDOWN
+    // **bold**
+    // *italic*
+    // `code`
+    // ========================================
+
+    const formatInline = (value) => {
+
+        let result = value;
+
+
+        // Inline code
+        result = result.replace(
+            /`([^`]+)`/g,
+            "<code>$1</code>"
+        );
+
+
+        // Bold
+        result = result.replace(
+            /\*\*([^*]+)\*\*/g,
+            "<strong>$1</strong>"
+        );
+
+
+        result = result.replace(
+            /__([^_]+)__/g,
+            "<strong>$1</strong>"
+        );
+
+
+        // Italic
+        result = result.replace(
+            /(^|[^*])\*([^*\n]+)\*(?!\*)/g,
+            "$1<em>$2</em>"
+        );
+
+
+        return result;
+    };
+
+
+    const lines =
+        escapeHtml(text)
+            .split("\n");
+
+
     let html = "";
+
     let tableRows = [];
+
     let inTable = false;
+
     let inList = false;
 
-    const isSeparatorRow = (cells) => cells.every(c => /^:?-{2,}:?$/.test(c.trim()));
+    let listType = null;
+
+
+    // ========================================
+    // TABLE HELPERS
+    // ========================================
+
+    const getTableCells = (row) => {
+
+        return row
+            .split("|")
+            .map(cell => cell.trim())
+            .filter(
+                (cell, index, array) =>
+                    !(
+                        index === 0 &&
+                        cell === ""
+                    ) &&
+                    !(
+                        index ===
+                            array.length - 1 &&
+                        cell === ""
+                    )
+            );
+    };
+
+
+    const isSeparatorRow = (cells) => {
+
+        return (
+            cells.length > 0 &&
+            cells.every(
+                cell =>
+                    /^:?-{2,}:?$/.test(
+                        cell.trim()
+                    )
+            )
+        );
+    };
+
 
     const flushTable = () => {
-        if (tableRows.length === 0) return;
-        html += '<table class="md-table">';
+
+        if (
+            tableRows.length === 0
+        ) {
+            return;
+        }
+
+
+        html +=
+            '<div class="md-table-wrap">';
+
+        html +=
+            '<table class="md-table">';
+
+
         let rowIndex = 0;
-        tableRows.forEach((row) => {
-            const cells = row
-                .split("|")
-                .map(c => c.trim())
-                .filter((c, idx, arr) => !(idx === 0 && c === "") && !(idx === arr.length - 1 && c === ""));
-            if (isSeparatorRow(cells)) return; // skip baris pemisah "---"
-            const tag = rowIndex === 0 ? "th" : "td";
-            html += "<tr>" + cells.map(c => `<${tag}>${c}</${tag}>`).join("") + "</tr>";
+
+
+        tableRows.forEach(row => {
+
+            const cells =
+                getTableCells(row);
+
+
+            // Skip Markdown table separator:
+            // | --- | --- |
+            if (
+                isSeparatorRow(cells)
+            ) {
+                return;
+            }
+
+
+            const tag =
+                rowIndex === 0
+                    ? "th"
+                    : "td";
+
+
+            html +=
+                "<tr>" +
+                cells
+                    .map(
+                        cell =>
+                            `<${tag}>${formatInline(cell)}</${tag}>`
+                    )
+                    .join("") +
+                "</tr>";
+
+
             rowIndex++;
         });
-        html += "</table>";
+
+
+        html +=
+            "</table>";
+
+        html +=
+            "</div>";
+
+
         tableRows = [];
+
         inTable = false;
     };
 
-    const flushList = () => {
-        if (inList) {
-            html += "</ul>";
-            inList = false;
+
+    // ========================================
+    // LIST HELPERS
+    // ========================================
+
+    const closeList = () => {
+
+        if (!inList) {
+            return;
         }
+
+
+        html +=
+            listType === "ol"
+                ? "</ol>"
+                : "</ul>";
+
+
+        inList = false;
+
+        listType = null;
     };
 
-    lines.forEach(rawLine => {
-        const line = rawLine.trim();
 
-        // Baris jadual Markdown (bermula/mengandungi "|")
-        if (line.startsWith("|")) {
-            inTable = true;
-            tableRows.push(line);
+    const openList = (type) => {
+
+        if (
+            inList &&
+            listType === type
+        ) {
             return;
-        } else if (inTable) {
+        }
+
+
+        if (inList) {
+            closeList();
+        }
+
+
+        listType = type;
+
+        inList = true;
+
+
+        html +=
+            type === "ol"
+                ? "<ol>"
+                : "<ul>";
+    };
+
+
+    // ========================================
+    // PROCESS EACH LINE
+    // ========================================
+
+    lines.forEach(rawLine => {
+
+        const line =
+            rawLine.trim();
+
+
+        // ====================================
+        // TABLE
+        // ====================================
+
+        if (
+            line.startsWith("|")
+        ) {
+
+            if (inList) {
+                closeList();
+            }
+
+
+            inTable = true;
+
+            tableRows.push(line);
+
+            return;
+        }
+
+
+        if (inTable) {
             flushTable();
         }
 
-        // Bullet list ("- item" atau "* item")
-        if (/^[-*]\s+/.test(line)) {
-            if (!inList) { html += "<ul>"; inList = true; }
-            html += `<li>${line.replace(/^[-*]\s+/, "")}</li>`;
-            return;
-        } else if (inList) {
-            flushList();
-        }
+
+        // ====================================
+        // EMPTY LINE
+        // ====================================
 
         if (line === "") {
-            html += "<br>";
-        } else {
-            html += `<p>${line}</p>`;
+
+            if (inList) {
+                closeList();
+            }
+
+            return;
         }
+
+
+        // ====================================
+        // HORIZONTAL RULE
+        // --- / *** / ___
+        // ====================================
+
+        if (
+            /^(-{3,}|\*{3,}|_{3,})$/.test(
+                line
+            )
+        ) {
+
+            if (inList) {
+                closeList();
+            }
+
+
+            html +=
+                '<hr class="md-divider">';
+
+            return;
+        }
+
+
+        // ====================================
+        // HEADINGS
+        // ====================================
+
+        if (
+            /^###\s+/.test(line)
+        ) {
+
+            if (inList) {
+                closeList();
+            }
+
+
+            html +=
+                `<h4 class="md-heading md-heading-3">${formatInline(
+                    line.replace(
+                        /^###\s+/,
+                        ""
+                    )
+                )}</h4>`;
+
+            return;
+        }
+
+
+        if (
+            /^##\s+/.test(line)
+        ) {
+
+            if (inList) {
+                closeList();
+            }
+
+
+            html +=
+                `<h3 class="md-heading md-heading-2">${formatInline(
+                    line.replace(
+                        /^##\s+/,
+                        ""
+                    )
+                )}</h3>`;
+
+            return;
+        }
+
+
+        if (
+            /^#\s+/.test(line)
+        ) {
+
+            if (inList) {
+                closeList();
+            }
+
+
+            html +=
+                `<h2 class="md-heading md-heading-1">${formatInline(
+                    line.replace(
+                        /^#\s+/,
+                        ""
+                    )
+                )}</h2>`;
+
+            return;
+        }
+
+
+        // ====================================
+        // BULLET LIST
+        // - item
+        // * item
+        // ====================================
+
+        if (
+            /^[-*]\s+/.test(line)
+        ) {
+
+            openList("ul");
+
+
+            const content =
+                line.replace(
+                    /^[-*]\s+/,
+                    ""
+                );
+
+
+            html +=
+                `<li>${formatInline(content)}</li>`;
+
+            return;
+        }
+
+
+        // ====================================
+        // NUMBERED LIST
+        // 1. item
+        // 2. item
+        // ====================================
+
+        if (
+            /^\d+\.\s+/.test(line)
+        ) {
+
+            openList("ol");
+
+
+            const content =
+                line.replace(
+                    /^\d+\.\s+/,
+                    ""
+                );
+
+
+            html +=
+                `<li>${formatInline(content)}</li>`;
+
+            return;
+        }
+
+
+        // ====================================
+        // NORMAL PARAGRAPH
+        // ====================================
+
+        if (inList) {
+            closeList();
+        }
+
+
+        html +=
+            `<p>${formatInline(line)}</p>`;
     });
 
-    if (inTable) flushTable();
-    if (inList) flushList();
+
+    // ========================================
+    // CLOSE REMAINING ELEMENTS
+    // ========================================
+
+    if (inTable) {
+        flushTable();
+    }
+
+
+    if (inList) {
+        closeList();
+    }
+
 
     return html;
 }
