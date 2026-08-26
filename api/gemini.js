@@ -488,42 +488,169 @@ function isAuthoritativeGovernmentHostname(
 async function analyseGrounding(
     data,
     topic
-  ) {
+) {
 
     const metadata =
         data?.candidates?.[0]
             ?.groundingMetadata;
 
-
     const queries =
-        Array.isArray(
-            metadata?.webSearchQueries
-        )
+        Array.isArray(metadata?.webSearchQueries)
             ? metadata.webSearchQueries
             : [];
 
-
     const chunks =
-        Array.isArray(
-            metadata?.groundingChunks
-        )
+        Array.isArray(metadata?.groundingChunks)
             ? metadata.groundingChunks
             : [];
 
-
     const supports =
-        Array.isArray(
-            metadata?.groundingSupports
-        )
+        Array.isArray(metadata?.groundingSupports)
             ? metadata.groundingSupports
             : [];
+
+
+    // ===============================
+    // OFFICIAL CHUNKS
+    // ===============================
+
+    const officialChunkIndices =
+        new Set();
+
+    const officialSources = [];
+
+
+    // ========================================
+    // VERIFY SOURCES SECARA PARALLEL
+    // ========================================
+
+    const MAX_SOURCE_CHECKS = 5;
+
+    const sourceChecks =
+        chunks
+            .slice(
+                0,
+                MAX_SOURCE_CHECKS
+            )
+            .map(
+                async (
+                    chunk,
+                    index
+                ) => {
+
+                    const web =
+                        chunk?.web;
+
+                    if (!web) {
+                        return {
+                            index,
+                            source: null
+                        };
+                    }
+
+                    const source =
+                        await resolveOfficialGovernmentSource(
+                            web,
+                            topic
+                        );
+
+                    return {
+                        index,
+                        source
+                    };
+                }
+            );
+
+
+    const resolvedSources =
+        await Promise.all(
+            sourceChecks
+        );
+
+
+    resolvedSources.forEach(
+        result => {
+
+            if (!result.source) {
+                return;
+            }
+
+            officialChunkIndices.add(
+                result.index
+            );
+
+            officialSources.push(
+                result.source
+            );
+        }
+    );
+
+
+    // ===============================
+    // CHECK SUPPORT
+    // ===============================
+
+    const hasOfficialSupport =
+        supports.some(
+            support => {
+
+                const indices =
+                    support
+                        ?.groundingChunkIndices;
+
+                if (
+                    !Array.isArray(indices)
+                ) {
+                    return false;
+                }
+
+                return indices.some(
+                    index =>
+                        officialChunkIndices
+                            .has(index)
+                );
+            }
+        );
+
+
+    return {
+
+        searched:
+            queries.length > 0,
+
+        searchQueries:
+            queries,
+
+        totalSources:
+            chunks.length,
+
+        officialSourceCount:
+            officialSources.length,
+
+        officialSources:
+            officialSources,
+
+        hasOfficialSupport:
+            hasOfficialSupport,
+
+        officialChunkIndices:
+            [...officialChunkIndices],
+
+        verified:
+            queries.length > 0 &&
+            officialSources.length > 0 &&
+            hasOfficialSupport
+    };
+}
 
 
 // =========================================================
 // SENSITIVE GOVERNMENT CLAIM COVERAGE
 // =========================================================
 
-function hasSensitiveGovernmentFact(text = "") {
+function hasSensitiveGovernmentFact(
+    text = ""
+) {
 
     const value =
         String(text || "");
@@ -531,40 +658,28 @@ function hasSensitiveGovernmentFact(text = "") {
 
     const patterns = [
 
-        // RM50 / RM 120.00
         /\bRM\s?\d[\d,.]*/i,
 
-        // 10% / 5.5%
         /\b\d+(?:\.\d+)?\s?%/,
 
-        // Tahun
         /\b(?:19|20)\d{2}\b/,
 
-        // Tarikh seperti 1 Januari 2025
         /\b\d{1,2}\s+(?:januari|februari|mac|april|mei|jun|julai|ogos|september|oktober|november|disember)\s+(?:19|20)\d{2}\b/i,
 
-        // 01/01/2025
         /\b\d{1,2}[/-]\d{1,2}[/-](?:19|20)\d{2}\b/,
 
-        // Gred 41 / Gred N29
         /\bgred\s+[A-Z]?\d+[A-Z]?\b/i,
 
-        // 25 hari / 8 jam / 3 bulan
         /\b\d+(?:\.\d+)?\s*(?:hari|jam|bulan|malam|kilometer|km)\b/i,
 
-        // Ceraian SR.5.1.1 / SP.1.1.1
         /\bceraian\s+[A-Z]{1,6}\.\d+(?:\.\d+)+\b/i,
 
-        // Pekeliling Bilangan 11 Tahun 2015
         /\bpekeliling\b.{0,80}\b(?:bilangan|bil\.?)\s*\d+/i,
 
-        // Surat Edaran Bilangan...
         /\bsurat\s+edaran\b.{0,80}\b(?:bilangan|bil\.?)\s*\d+/i,
 
-        // Arahan Perbendaharaan 100 / AP 100
         /\barahan\s+perbendaharaan\s+\d+/i,
 
-        // Akta 605
         /\bakta\s+\d+/i
     ];
 
@@ -580,7 +695,9 @@ function hasSensitiveGovernmentFact(text = "") {
 // GET FULL MODEL RESPONSE TEXT
 // =========================================================
 
-function getGovernmentResponseText(data) {
+function getGovernmentResponseText(
+    data
+) {
 
     const parts =
         data?.candidates?.[0]
@@ -594,10 +711,12 @@ function getGovernmentResponseText(data) {
 
 
     return parts
-        .map(part =>
-            typeof part?.text === "string"
-                ? part.text
-                : ""
+        .map(
+            part =>
+                typeof part?.text ===
+                    "string"
+                    ? part.text
+                    : ""
         )
         .join("\n");
 }
@@ -630,10 +749,6 @@ function analyseSensitiveClaimCoverage(
             ?.groundingSupports || [];
 
 
-    // ========================================
-    // FIND LINES WITH SENSITIVE FACTS
-    // ========================================
-
     const sensitiveClaims = [];
 
     let currentOffset = 0;
@@ -641,47 +756,47 @@ function analyseSensitiveClaimCoverage(
 
     responseText
         .split("\n")
-        .forEach(line => {
+        .forEach(
+            line => {
 
-            const start =
-                currentOffset;
+                const start =
+                    currentOffset;
 
-            const end =
-                start +
-                line.length;
+                const end =
+                    start +
+                    line.length;
 
-            const cleanLine =
-                line.trim();
+                const cleanLine =
+                    line.trim();
 
 
-            if (
-                cleanLine &&
-                hasSensitiveGovernmentFact(
-                    cleanLine
-                )
-            ) {
+                if (
+                    cleanLine &&
+                    hasSensitiveGovernmentFact(
+                        cleanLine
+                    )
+                ) {
 
-                sensitiveClaims.push({
+                    sensitiveClaims.push({
 
-                    text:
-                        cleanLine,
+                        text:
+                            cleanLine,
 
-                    start:
-                        start,
+                        start:
+                            start,
 
-                    end:
-                        end
-                });
+                        end:
+                            end
+                    });
+                }
+
+
+                currentOffset =
+                    end + 1;
             }
+        );
 
 
-            currentOffset =
-                end + 1;
-        });
-
-
-    // Tiada fakta sensitif
-    // → base verification sudah mencukupi
     if (
         sensitiveClaims.length === 0
     ) {
@@ -706,12 +821,7 @@ function analyseSensitiveClaimCoverage(
     }
 
 
-    // ========================================
-    // CHECK EACH CLAIM AGAINST OFFICIAL SOURCE
-    // ========================================
-
     const unsupportedClaims = [];
-
 
     let supportedClaims = 0;
 
@@ -751,10 +861,6 @@ function analyseSensitiveClaimCoverage(
                             support?.segment;
 
 
-                        // =================================
-                        // PRIMARY: OFFSET OVERLAP
-                        // =================================
-
                         if (
                             Number.isFinite(
                                 segment?.startIndex
@@ -775,11 +881,6 @@ function analyseSensitiveClaimCoverage(
                                 return true;
                             }
                         }
-
-
-                        // =================================
-                        // FALLBACK: SEGMENT TEXT
-                        // =================================
 
                         if (
                             typeof segment?.text ===
@@ -845,150 +946,6 @@ function analyseSensitiveClaimCoverage(
             unsupportedClaims
     };
 }
-
-    // ===============================
-    // OFFICIAL CHUNKS
-    // ===============================
-
-    const officialChunkIndices =
-        new Set();
-
-
-    const officialSources = [];
-
-
-// ========================================
-// VERIFY SOURCES SECARA PARALLEL
-// ========================================
-
-const MAX_SOURCE_CHECKS = 5;
-
-
-const sourceChecks =
-    chunks
-        .slice(
-            0,
-            MAX_SOURCE_CHECKS
-        )
-        .map(
-            async (
-                chunk,
-                index
-            ) => {
-
-                const web =
-                    chunk?.web;
-
-
-                if (!web) {
-
-                    return {
-                        index,
-                        source: null
-                    };
-                }
-
-
-                const source =
-                    await resolveOfficialGovernmentSource(
-                        web,
-                        topic
-                    );
-
-
-                return {
-                    index,
-                    source
-                };
-            }
-        );
-
-
-const resolvedSources =
-    await Promise.all(
-        sourceChecks
-    );
-
-
-resolvedSources.forEach(
-    result => {
-
-        if (!result.source) {
-            return;
-        }
-
-
-        officialChunkIndices.add(
-            result.index
-        );
-
-
-        officialSources.push(
-            result.source
-        );
-    }
-);
-
-
-    // ===============================
-    // CHECK SUPPORT
-    // ===============================
-
-    const hasOfficialSupport =
-        supports.some(
-            support => {
-
-                const indices =
-                    support
-                        ?.groundingChunkIndices;
-
-
-                if (
-                    !Array.isArray(indices)
-                ) {
-                    return false;
-                }
-
-
-                return indices.some(
-                    index =>
-                        officialChunkIndices
-                            .has(index)
-                );
-            }
-        );
-
-
-    return {
-
-        searched:
-            queries.length > 0,
-
-        searchQueries:
-            queries,
-
-        totalSources:
-            chunks.length,
-
-        officialSourceCount:
-            officialSources.length,
-
-        officialSources:
-            officialSources,
-
-        hasOfficialSupport:
-            hasOfficialSupport,
-
-        officialChunkIndices:
-        [...officialChunkIndices],
-
-        verified:
-            queries.length > 0 &&
-            officialSources.length > 0 &&
-            hasOfficialSupport
-    };
-}
-
 
 // =========================================================
 // GOVERNMENT VERIFICATION INSTRUCTION
@@ -1796,71 +1753,11 @@ const currentStatusVerified =
         governmentDocumentStatus
     );
 
-
-        // ===============================
-        // RETRY IF NOT VERIFIED
-        // ===============================
-
-        if (
-    !verification.verified ||
-    !currentStatusVerified ||
-    !sensitiveClaimCoverage.passed
-) {
-
-            console.warn(
-                "Government response not sufficiently verified. Retrying with official-source instruction."
-            );
-
-
-            let retryPayload =
-                appendSystemInstruction(
-                    payload,
-                    getRetryInstruction()
-                );
-
-
-            const retryResult =
-                await callGemini(
-                    GOOGLE_URL,
-                    retryPayload
-                );
-
-
-            if (
-                retryResult
-                    .response
-                    .ok
-            ) {
-
-                const retryVerification =
-                    await analyseGrounding(
-                        retryResult.data,
-                        governmentTopic
-                    );
-
-
-                // Gunakan retry jika lebih baik
-                if (
-                    retryVerification
-                        .verified
-                ) {
-
-                    data =
-                        retryResult.data;
-
-
-                    verification =
-                        retryVerification;
-                }
-            }
-        }
-
-
         // ===============================
         // FAIL CLOSED
         // ===============================
 
-        if (!verification.verified || !currentStatusVerified) {
+        if (!verification.verified || !currentStatusVerified || !sensitiveClaimCoverage.passed) {
 
            console.warn(
     "Verified Government Mode failed.",
