@@ -1147,26 +1147,59 @@ function removeGovernmentStatusMarker(data) {
 // =========================================================
 
 function createVerificationFailureResponse(
-    checkedAt
+    checkedAt,
+    documentStatus = "UNKNOWN"
 ) {
+
+    let message =
+        "Maklumat spesifik ini tidak dapat disahkan daripada sumber rasmi kerajaan yang mencukupi buat masa ini. Saya tidak akan memberikan kadar, nombor pekeliling, kelayakan atau fakta khusus yang tidak dapat disahkan. Sila rujuk badan induk rasmi yang berkaitan untuk pengesahan.";
+
+
+    // ========================================
+    // DOCUMENT CANCELLED / ABOLISHED
+    // ========================================
+
+    if (
+        documentStatus === "CANCELLED"
+    ) {
+
+        message =
+            "Dokumen, pekeliling atau peraturan yang dirujuk dikenal pasti sebagai telah dibatalkan atau dimansuhkan berdasarkan semakan sumber rasmi semasa. Saya tidak akan menggunakan dokumen tersebut sebagai dasar semasa. Sila gunakan dokumen pengganti yang terkini sekiranya ada.";
+    }
+
+
+    // ========================================
+    // STATUS UNKNOWN
+    // ========================================
+
+    else if (
+        documentStatus === "UNKNOWN"
+    ) {
+
+        message =
+            "Status kuat kuasa dokumen atau peraturan ini tidak dapat disahkan dengan mencukupi daripada sumber rasmi semasa. Saya tidak akan memberikan fakta khusus berdasarkan dokumen tersebut sehingga statusnya dapat dipastikan.";
+    }
+
 
     return {
 
         candidates: [
             {
                 content: {
+
                     role:
                         "model",
 
                     parts: [
                         {
                             text:
-                                "Maklumat spesifik ini tidak dapat disahkan daripada sumber rasmi kerajaan yang mencukupi buat masa ini. Saya tidak akan memberikan kadar, nombor pekeliling, kelayakan atau fakta khusus yang tidak dapat disahkan. Sila rujuk badan induk rasmi yang berkaitan untuk pengesahan."
+                                message
                         }
                     ]
                 }
             }
         ],
+
 
         i4uVerification: {
 
@@ -1182,14 +1215,15 @@ function createVerificationFailureResponse(
             checkedAt:
                 checkedAt,
 
+            documentStatus:
+                documentStatus,
+
             officialSourceCount:
                 0,
 
             officialSources:
                 []
-
         }
-
     };
 }
 
@@ -1514,7 +1548,8 @@ const currentStatusVerified =
                 .status(200)
                 .json(
                     createVerificationFailureResponse(
-                        checkedAt
+                        checkedAt,
+                        governmentDocumentStatus
                     )
                 );
         }

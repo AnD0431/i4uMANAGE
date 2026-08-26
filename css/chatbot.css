@@ -1311,6 +1311,18 @@ body.show-emoji-picker em-emoji-picker {
 }
 
 /* =========================================
+   CANCELLED GOVERNMENT DOCUMENT
+   ========================================= */
+
+.government-verification.cancelled {
+    background: #fef2f2;
+
+    border: 1px solid #fecaca;
+
+    color: #991b1b;
+}
+
+/* =========================================
    OFFICIAL SOURCES
    ========================================= */
 

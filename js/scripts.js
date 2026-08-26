@@ -1640,7 +1640,9 @@ const generateBotResponse = async (incomingMessageDiv) => {
 // VERIFIED GOVERNMENT STATUS
 // ========================================
 
-const verification = data.i4uVerification;
+const verification =
+    data.i4uVerification;
+
 
 if (
     verification?.mode === "government"
@@ -1649,39 +1651,145 @@ if (
     const verificationDiv =
         document.createElement("div");
 
+
     verificationDiv.classList.add(
         "government-verification"
     );
 
 
+    const documentStatus =
+        verification.documentStatus ||
+        "UNKNOWN";
+
+
     // =====================================
-    // VERIFIED
+    // CANCELLED
     // =====================================
 
-    if (verification.verified) {
+    if (
+        documentStatus === "CANCELLED"
+    ) {
+
+        verificationDiv.classList.add(
+            "cancelled"
+        );
+
+
+        verificationDiv.innerHTML = `
+            <i class="fa-solid fa-ban"></i>
+
+            <div class="verification-text">
+
+                <strong>
+                    Dokumen Telah Dibatalkan
+                </strong>
+
+                <span>
+                    Dokumen atau peraturan ini tidak lagi digunakan sebagai dasar semasa
+                </span>
+
+            </div>
+        `;
+    }
+
+
+    // =====================================
+    // UNKNOWN
+    // =====================================
+
+    else if (
+        documentStatus === "UNKNOWN"
+    ) {
+
+        verificationDiv.classList.add(
+            "unverified"
+        );
+
+
+        verificationDiv.innerHTML = `
+            <i class="fa-solid fa-triangle-exclamation"></i>
+
+            <div class="verification-text">
+
+                <strong>
+                    Status Tidak Dapat Disahkan
+                </strong>
+
+                <span>
+                    Status kuat kuasa tidak dapat dipastikan daripada sumber rasmi semasa
+                </span>
+
+            </div>
+        `;
+    }
+
+
+    // =====================================
+    // VERIFIED
+    // ACTIVE / AMENDED / REPLACED
+    // =====================================
+
+    else if (
+        verification.verified
+    ) {
 
         verificationDiv.classList.add(
             "verified"
         );
 
+
+        let title =
+            "Maklumat Disahkan";
+
+
+        let subtitle =
+            "Disemak menggunakan sumber rasmi semasa";
+
+
+        if (
+            documentStatus === "AMENDED"
+        ) {
+
+            title =
+                "Maklumat Disahkan";
+
+            subtitle =
+                "Versi semasa mengandungi pindaan yang telah disemak";
+        }
+
+
+        else if (
+            documentStatus === "REPLACED"
+        ) {
+
+            title =
+                "Maklumat Disahkan";
+
+            subtitle =
+                "Dokumen lama telah diganti dan versi semasa telah digunakan";
+        }
+
+
         verificationDiv.innerHTML = `
             <i class="fa-solid fa-circle-check"></i>
 
             <div class="verification-text">
+
                 <strong>
-                    Maklumat Disahkan
+                    ${title}
                 </strong>
 
                 <span>
-                    Disemak menggunakan sumber rasmi semasa
+                    ${subtitle}
                 </span>
+
             </div>
         `;
-
     }
 
+
     // =====================================
-    // NOT VERIFIED
+    // FALLBACK
     // =====================================
 
     else {
@@ -1690,10 +1798,12 @@ if (
             "unverified"
         );
 
+
         verificationDiv.innerHTML = `
             <i class="fa-solid fa-triangle-exclamation"></i>
 
             <div class="verification-text">
+
                 <strong>
                     Tidak Dapat Disahkan
                 </strong>
@@ -1701,6 +1811,7 @@ if (
                 <span>
                     Sumber rasmi yang mencukupi tidak ditemui
                 </span>
+
             </div>
         `;
     }
@@ -1710,6 +1821,7 @@ if (
         verificationDiv
     );
 }
+
 
        let sourceLinks = [];
 
