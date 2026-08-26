@@ -168,7 +168,7 @@ body.show-chatbot .chatbot-popup {
     /* FIXED (jarak diminta): dinaikkan dari 11px ke 14px supaya avatar
        dan bubble mesej ada ruang nafas dan tak nampak overflow/bertindih. */
     gap: 14px;
-    align-items: center;
+    align-items: flex-start;
 }
 
 .chat-body .bot-message .chatbot-avatar {
@@ -234,19 +234,124 @@ body.show-chatbot .chatbot-popup {
     border-radius: 13px 13px 13px 3px;
 }
 
-/* FIXED (ditambah): styling untuk jadual & senarai Markdown yang
-   di-render dalam bubble bot (dari markdownToChatHtml di scripts.js) */
+/* =========================================
+   SARAH MARKDOWN TYPOGRAPHY
+   ========================================= */
+
 .chat-body .bot-message .message-text p {
-    margin: 0 0 8px;
+    margin: 0 0 10px;
+
+    line-height: 1.6;
 }
 
 .chat-body .bot-message .message-text p:last-child {
     margin-bottom: 0;
 }
 
-.chat-body .bot-message .message-text ul {
-    margin: 0 0 8px;
-    padding-left: 18px;
+
+/* =========================================
+   HEADINGS
+   ========================================= */
+
+.chat-body .bot-message .message-text .md-heading {
+    margin: 14px 0 8px;
+
+    color: #0f172a;
+
+    line-height: 1.35;
+}
+
+.chat-body .bot-message .message-text .md-heading:first-child {
+    margin-top: 0;
+}
+
+.chat-body .bot-message .message-text .md-heading-1 {
+    font-size: 1.08rem;
+    font-weight: 750;
+}
+
+.chat-body .bot-message .message-text .md-heading-2 {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.chat-body .bot-message .message-text .md-heading-3 {
+    font-size: 0.94rem;
+    font-weight: 700;
+}
+
+
+/* =========================================
+   BOLD / ITALIC
+   ========================================= */
+
+.chat-body .bot-message .message-text strong {
+    font-weight: 700;
+}
+
+.chat-body .bot-message .message-text em {
+    font-style: italic;
+}
+
+
+/* =========================================
+   BULLET & NUMBERED LIST
+   ========================================= */
+
+.chat-body .bot-message .message-text ul,
+.chat-body .bot-message .message-text ol {
+    margin: 4px 0 12px;
+
+    padding-left: 22px;
+}
+
+.chat-body .bot-message .message-text li {
+    margin-bottom: 6px;
+
+    line-height: 1.55;
+}
+
+.chat-body .bot-message .message-text li:last-child {
+    margin-bottom: 0;
+}
+
+
+/* =========================================
+   HORIZONTAL DIVIDER
+   Markdown: ---
+   ========================================= */
+
+.chat-body .bot-message .message-text .md-divider {
+    border: 0;
+
+    height: 1px;
+
+    margin: 16px 0;
+
+    background: rgba(15, 23, 42, 0.12);
+}
+
+
+/* =========================================
+   INLINE CODE
+   ========================================= */
+
+.chat-body .bot-message .message-text code {
+    padding: 2px 5px;
+
+    border-radius: 5px;
+
+    background: rgba(15, 23, 42, 0.07);
+
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+
+    font-size: 0.88em;
 }
 
 .chat-body .bot-message .message-text .md-table-wrap {
@@ -292,26 +397,89 @@ body.show-chatbot .chatbot-popup {
 
 /* FIXED (diubah): "Rujukan" kini letak DALAM bubble Sarah (.message-text)
    sebagai bahagian kandungan, bukan elemen berasingan di luar bubble */
+/* =========================================
+   SARAH OFFICIAL SOURCES
+   ========================================= */
+
 .message-sources {
-    font-size: 0.78rem;
-    color: #475569;
-    margin-top: 8px;
-    padding-top: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    gap: 7px;
+
+    margin-top: 14px;
+    padding-top: 12px;
+
     border-top: 1px solid rgba(26, 86, 219, 0.15);
-    line-height: 1.6;
+
+    font-size: 0.78rem;
+    line-height: 1.45;
+
+    color: #475569;
 }
 
+
+/* Tajuk Rujukan Rasmi */
 .message-sources strong {
+    display: block;
+
+    margin-bottom: 1px;
+
     color: #1A56DB;
+
+    font-size: 0.76rem;
+    font-weight: 700;
 }
 
+
+/* Setiap link source */
 .message-sources a {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 6px;
+
+    width: 100%;
+
+    padding: 7px 9px;
+
+    box-sizing: border-box;
+
+    border-radius: 7px;
+
+    background: rgba(26, 86, 219, 0.05);
+
     color: #1A56DB;
+
+    font-size: 0.74rem;
+    font-weight: 600;
+
+    line-height: 1.4;
+
     text-decoration: none;
+
+    word-break: break-word;
+
+    transition: 0.2s ease;
 }
 
+
+/* Icon kecil */
+.message-sources a::before {
+    content: "↗";
+
+    flex-shrink: 0;
+
+    font-weight: 700;
+}
+
+
+/* Hover desktop */
 .message-sources a:hover {
-    text-decoration: underline;
+    background: rgba(26, 86, 219, 0.1);
+
+    text-decoration: none;
 }
 
 /* --- Glass tint: user bubble (blue-tinted glass) --- */
@@ -937,6 +1105,137 @@ body.show-emoji-picker em-emoji-picker {
     padding: 9px 10px;
 }
 
+/* =====================================
+   SARAH TYPOGRAPHY - MOBILE
+   ===================================== */
+
+.chat-body .bot-message .message-text {
+    line-height: 1.55;
+}
+
+.chat-body .bot-message .message-text p {
+    margin-bottom: 9px;
+}
+
+.chat-body .bot-message .message-text .md-heading-1 {
+    font-size: 1rem;
+}
+
+.chat-body .bot-message .message-text .md-heading-2 {
+    font-size: 0.95rem;
+}
+
+.chat-body .bot-message .message-text .md-heading-3 {
+    font-size: 0.9rem;
+}
+
+.chat-body .bot-message .message-text ul,
+.chat-body .bot-message .message-text ol {
+    padding-left: 20px;
+}
+
+.chat-body .bot-message .message-text .md-divider {
+    margin: 14px 0;
+}
+
+/* =====================================
+   SARAH BUBBLE - MOBILE
+   ===================================== */
+
+.chat-body .bot-message {
+    align-items: flex-start;
+}
+
+
+/* Bubble Sarah lebih luas */
+.chat-body .bot-message .message-text {
+    max-width: calc(100% - 49px);
+    width: auto;
+
+    padding: 14px 15px;
+
+    box-sizing: border-box;
+
+    font-size: 0.9rem;
+
+    line-height: 1.55;
+
+    overflow: hidden;
+}
+
+
+/* Bubble pengguna masih lebih kecil sedikit */
+.chat-body .user-message .message-text {
+    max-width: 86%;
+
+    padding: 11px 14px;
+
+    box-sizing: border-box;
+}
+
+
+/* Avatar Sarah kekal di bahagian atas jawapan panjang */
+.chat-body .bot-message .chatbot-avatar {
+    margin-top: 4px;
+}
+
+/* =====================================
+   GOVERNMENT VERIFICATION - MOBILE
+   ===================================== */
+
+.government-verification {
+    gap: 9px;
+
+    margin-bottom: 12px;
+
+    padding: 9px 10px;
+
+    border-radius: 8px;
+}
+
+
+.government-verification i {
+    font-size: 0.95rem;
+}
+
+
+.government-verification strong {
+    font-size: 0.72rem;
+}
+
+
+.government-verification span {
+    font-size: 0.62rem;
+}
+
+
+/* =====================================
+   OFFICIAL SOURCES - MOBILE
+   ===================================== */
+
+.message-sources {
+    gap: 6px;
+
+    margin-top: 12px;
+    padding-top: 10px;
+
+    font-size: 0.72rem;
+}
+
+
+.message-sources strong {
+    font-size: 0.72rem;
+}
+
+
+.message-sources a {
+    padding: 7px 8px;
+
+    font-size: 0.69rem;
+
+    border-radius: 6px;
+}
+
 /* =========================================
    GOVERNMENT VERIFICATION
    ========================================= */
@@ -944,18 +1243,24 @@ body.show-emoji-picker em-emoji-picker {
 .government-verification {
     display: flex;
     align-items: center;
-    gap: 9px;
 
-    margin-bottom: 12px;
+    gap: 10px;
+
+    width: 100%;
+
+    margin-bottom: 14px;
+
     padding: 10px 12px;
 
-    border-radius: 9px;
+    box-sizing: border-box;
 
-    font-size: 0.72rem;
+    border-radius: 9px;
 }
 
 
 .government-verification i {
+    flex-shrink: 0;
+
     font-size: 1rem;
 }
 
@@ -963,18 +1268,26 @@ body.show-emoji-picker em-emoji-picker {
 .government-verification .verification-text {
     display: flex;
     flex-direction: column;
+
+    min-width: 0;
+
     gap: 2px;
 }
 
 
 .government-verification strong {
-    font-size: 0.75rem;
+    font-size: 0.76rem;
+
+    line-height: 1.3;
 }
 
 
 .government-verification span {
-    font-size: 0.64rem;
-    opacity: 0.8;
+    font-size: 0.66rem;
+
+    line-height: 1.35;
+
+    opacity: 0.82;
 }
 
 
