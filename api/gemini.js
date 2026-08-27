@@ -729,11 +729,15 @@ function analyseSensitiveClaimCoverage(
     officialChunkIndices = []
 ) {
 
-    const responseText =
-        getGovernmentResponseText(
-            data
-        );
+    const parts =
+        data?.candidates?.[0]
+            ?.content
+            ?.parts;
 
+    const groundingSupports =
+        data?.candidates?.[0]
+            ?.groundingMetadata
+            ?.groundingSupports || [];
 
     const officialSet =
         new Set(
@@ -741,59 +745,137 @@ function analyseSensitiveClaimCoverage(
         );
 
 
-    const groundingSupports =
-        data?.candidates?.[0]
-            ?.groundingMetadata
-            ?.groundingSupports || [];
+    // ========================================
+    // RESPONSE PARTS
+    // Gemini offsets adalah UTF-8 BYTES
+    // dan relatif kepada setiap Part.
+    // ========================================
 
+    if (!Array.isArray(parts)) {
+
+        return {
+            required: false,
+            passed: true,
+            totalClaims: 0,
+            supportedClaims: 0,
+            unsupportedClaims: []
+        };
+    }
+
+
+    const encoder =
+        new TextEncoder();
+
+
+    const getByteLength =
+        value =>
+            encoder.encode(
+                String(value || "")
+            ).length;
+
+
+    const normalizeText =
+        value =>
+            String(value || "")
+                .toLowerCase()
+
+                // buang markdown formatting
+                .replace(/[*_`#>|]/g, " ")
+
+                // normalize punctuation/spacing
+                .replace(/\s+/g, " ")
+                .trim();
+
+
+    // ========================================
+    // FIND SENSITIVE CLAIMS PER PART
+    // ========================================
 
     const sensitiveClaims = [];
 
-    let currentOffset = 0;
 
+    parts.forEach(
+        (part, partIndex) => {
 
-    responseText
-        .split("\n")
-        .forEach(
-            line => {
-
-                const start =
-                    currentOffset;
-
-                const end =
-                    start +
-                    line.length;
-
-                const cleanLine =
-                    line.trim();
-
-
-                if (
-                    cleanLine &&
-                    hasSensitiveGovernmentFact(
-                        cleanLine
-                    )
-                ) {
-
-                    sensitiveClaims.push({
-
-                        text:
-                            cleanLine,
-
-                        start:
-                            start,
-
-                        end:
-                            end
-                    });
-                }
-
-
-                currentOffset =
-                    end + 1;
+            if (
+                typeof part?.text !==
+                "string"
+            ) {
+                return;
             }
-        );
 
+
+            const text =
+                part.text;
+
+            const lines =
+                text.split("\n");
+
+            let currentByteOffset = 0;
+
+
+            lines.forEach(
+                (line, lineIndex) => {
+
+                    const start =
+                        currentByteOffset;
+
+                    const lineByteLength =
+                        getByteLength(
+                            line
+                        );
+
+                    const end =
+                        start +
+                        lineByteLength;
+
+                    const cleanLine =
+                        line.trim();
+
+
+                    if (
+                        cleanLine &&
+                        hasSensitiveGovernmentFact(
+                            cleanLine
+                        )
+                    ) {
+
+                        sensitiveClaims.push({
+
+                            text:
+                                cleanLine,
+
+                            partIndex:
+                                partIndex,
+
+                            start:
+                                start,
+
+                            end:
+                                end
+                        });
+                    }
+
+
+                    currentByteOffset =
+                        end;
+
+                    // \n = 1 byte UTF-8
+                    if (
+                        lineIndex <
+                        lines.length - 1
+                    ) {
+                        currentByteOffset += 1;
+                    }
+                }
+            );
+        }
+    );
+
+
+    // ========================================
+    // NO SENSITIVE FACT
+    // ========================================
 
     if (
         sensitiveClaims.length === 0
@@ -819,6 +901,10 @@ function analyseSensitiveClaimCoverage(
     }
 
 
+    // ========================================
+    // CHECK CLAIM AGAINST OFFICIAL SUPPORT
+    // ========================================
+
     const unsupportedClaims = [];
 
     let supportedClaims = 0;
@@ -841,6 +927,8 @@ function analyseSensitiveClaimCoverage(
                                 : [];
 
 
+                        // Mesti ada sekurang-kurangnya
+                        // satu official grounding chunk
                         const hasOfficialChunk =
                             chunkIndices.some(
                                 index =>
@@ -858,6 +946,36 @@ function analyseSensitiveClaimCoverage(
                         const segment =
                             support?.segment;
 
+
+                        if (!segment) {
+                            return false;
+                        }
+
+
+                        // =================================
+                        // PART INDEX
+                        // =================================
+
+                        const segmentPartIndex =
+                            Number.isInteger(
+                                segment?.partIndex
+                            )
+                                ? segment.partIndex
+                                : 0;
+
+
+                        if (
+                            segmentPartIndex !==
+                            claim.partIndex
+                        ) {
+                            return false;
+                        }
+
+
+                        // =================================
+                        // PRIMARY:
+                        // UTF-8 BYTE OFFSET OVERLAP
+                        // =================================
 
                         if (
                             Number.isFinite(
@@ -880,24 +998,37 @@ function analyseSensitiveClaimCoverage(
                             }
                         }
 
+
+                        // =================================
+                        // FALLBACK:
+                        // NORMALIZED SEGMENT TEXT
+                        // =================================
+
                         if (
                             typeof segment?.text ===
                                 "string"
                         ) {
 
+                            const claimText =
+                                normalizeText(
+                                    claim.text
+                                );
+
                             const segmentText =
-                                segment.text
-                                    .trim();
+                                normalizeText(
+                                    segment.text
+                                );
 
 
                             if (
                                 segmentText &&
+                                claimText &&
                                 (
-                                    claim.text.includes(
+                                    claimText.includes(
                                         segmentText
                                     ) ||
                                     segmentText.includes(
-                                        claim.text
+                                        claimText
                                     )
                                 )
                             ) {
