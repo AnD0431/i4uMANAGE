@@ -1947,91 +1947,75 @@ function getTargetedClaimVerificationInstruction(
     topic = "general-government"
 ) {
 
-    const claims =
-        Array.isArray(unsupportedClaims)
-            ? unsupportedClaims
-            : [];
-
-
     return `
-PENGESAHAN FAKTA KERAJAAN — CARIAN SASARAN.
+PENGESAHAN SEMULA MAKLUMAT KERAJAAN.
+
+Jawapan terdahulu telah DITOLAK oleh sistem pengesahan.
+
+JANGAN cuba mempertahankan, mengesahkan atau menggunakan
+semula angka, kadar, gred, tarikh, kelayakan atau fakta
+daripada jawapan terdahulu.
+
+ANGGAP JAWAPAN TERDAHULU TIDAK WUJUD.
 
 SOALAN ASAL PENGGUNA:
 
 "${userMessage}"
 
-Fakta berikut telah dikesan dalam jawapan pertama tetapi
-belum mempunyai grounding rasmi yang mencukupi:
+TOPIK:
 
-${claims
-    .map(claim => `- ${claim}`)
-    .join("\n")}
-
-PENTING:
-
-Senarai di atas BUKAN fakta yang perlu dipertahankan.
-Ia ialah calon fakta yang perlu DISAHKAN, DIBETULKAN
-atau DIBUANG.
-
-ANDA WAJIB menjalankan Google Search menggunakan
-sumber rasmi kerajaan Malaysia.
-
-Topik:
 ${topic}
+
+Jalankan Google Search dari awal dan bina jawapan BARU
+berdasarkan sumber rasmi kerajaan Malaysia semasa sahaja.
 
 
 PERATURAN WAJIB:
 
-1. JAWAB HANYA perkara yang ditanya oleh pengguna.
+1. Gunakan sumber rasmi dan autoritatif sahaja.
 
-2. Jika fakta dalam senarai unsupported:
-   - salah;
-   - telah dipinda;
-   - telah diganti;
-   - sudah tidak berkuat kuasa;
-   - atau tidak berkaitan dengan soalan;
+2. Tentukan dahulu dokumen / dasar yang sedang
+   berkuat kuasa pada masa semakan.
 
-   JANGAN masukkan fakta tersebut dalam jawapan akhir.
+3. Jika terdapat:
+   - versi lama;
+   - dokumen arkib;
+   - kadar terdahulu;
+   - struktur gred lama;
+   - pekeliling yang telah dipinda;
+   - atau dokumen yang telah diganti;
 
-3. Untuk soalan yang meminta maklumat semasa / terkini /
-   sedang berkuat kuasa:
+   jangan gunakan maklumat tersebut sebagai jawapan semasa.
 
-   - gunakan HANYA nilai, kadar, syarat dan peraturan semasa;
-   - sejarah pindaan boleh digunakan untuk tujuan semakan;
-   - tetapi JANGAN paparkan nilai lama dalam jawapan akhir
-     kecuali pengguna secara khusus meminta sejarah perubahan.
+4. Jika pengguna meminta maklumat "terkini",
+   "semasa" atau "sedang berkuat kuasa",
+   gunakan HANYA versi semasa.
 
-4. Jangan menambah fakta daripada topik berkaitan yang
-   tidak ditanya.
+5. Untuk perkhidmatan awam, utamakan JPA / MyPPSM.
 
-   Contohnya, jika pengguna bertanya kaedah pengumpulan
-   dan had maksimum sesuatu kemudahan, jangan secara
-   automatik menambah syarat permohonan, kelayakan lain,
-   pembayaran awal atau proses persaraan jika tidak diperlukan.
+6. Untuk kewangan, elaun, tuntutan dan perjalanan rasmi,
+   utamakan Portal Pekeliling Perbendaharaan,
+   Perbendaharaan Malaysia, MOF dan ANM mengikut bidang kuasa.
 
-5. Jangan masukkan nombor, tarikh, kadar, tempoh, gred,
-   amaun atau peratus hanya kerana ia muncul dalam dokumen
-   sejarah atau contoh pengiraan.
-
-6. Gunakan sumber rasmi dan autoritatif sahaja.
-
-7. Untuk perkhidmatan awam, utamakan:
-   - jpa.gov.my
-   - docs.jpa.gov.my
-   - MyPPSM JPA
+7. Jangan memetakan struktur gred lama kepada struktur
+   baharu menggunakan andaian.
 
 8. Jangan gunakan pengetahuan dalaman model sebagai bukti.
 
-9. Jika fakta semasa tidak dapat disahkan daripada sumber
-   rasmi, jangan teka. Nyatakan bahawa fakta tersebut tidak
-   dapat disahkan.
+9. Jawab HANYA perkara yang ditanya.
 
-10. Jawapan akhir mestilah ringkas, terus kepada soalan
-    dan menggunakan fakta semasa sahaja.
+10. Jangan masukkan sejarah pindaan kecuali pengguna
+    secara khusus meminta sejarah tersebut.
 
-11. Semak status kuat kuasa dokumen.
+11. Jangan reka kadar, amaun, peratus, tempoh,
+    tarikh, gred atau kelayakan.
 
-12. Letakkan SATU penanda pada baris terakhir:
+12. Jika fakta semasa tidak dapat disahkan,
+    jangan teka.
+
+13. Semak status kuat kuasa dokumen yang digunakan.
+
+14. Letakkan SATU penanda pada baris terakhir:
 
 [[I4U_STATUS:ACTIVE]]
 [[I4U_STATUS:AMENDED]]
@@ -2300,6 +2284,25 @@ JANGAN beri penerangan tambahan.
         metadata?.url_metadata ||
         [];
 
+    const urlRetrievalDebug =
+    (
+        Array.isArray(urlMetadata)
+            ? urlMetadata
+            : []
+    ).map(
+        item => ({
+            url:
+                item?.retrievedUrl ||
+                item?.retrieved_url ||
+                "",
+
+            status:
+                item?.urlRetrievalStatus ||
+                item?.url_retrieval_status ||
+                "UNKNOWN"
+        })
+    );
+
 
     const successfulUrls =
         (
@@ -2433,6 +2436,9 @@ JANGAN beri penerangan tambahan.
 
         retrievedUrls:
             successfulUrls,
+
+        urlRetrievalDebug:
+            urlRetrievalDebug,
 
         allClaimsClassified:
             allClaimsClassified
