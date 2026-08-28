@@ -2399,21 +2399,81 @@ if (
     );
 
 
-    let claimRetryPayload =
-        appendSystemInstruction(
-            payload,
-            getTargetedClaimVerificationInstruction(
-                latestUserMessage,
-                sensitiveClaimCoverage.unsupportedClaims,
-                governmentTopic
-            )
-        );
+   // =========================================================
+// FRESH TARGETED GOVERNMENT RESEARCH REQUEST
+// Jangan bawa seluruh conversation lama.
+// =========================================================
+
+let claimRetryPayload = {
+
+    contents: [
+        {
+            role: "user",
+
+            parts: [
+                {
+                    text:
+                        getTargetedClaimVerificationInstruction(
+                            latestUserMessage,
+                            sensitiveClaimCoverage
+                                .unsupportedClaims,
+                            governmentTopic
+                        )
+                }
+            ]
+        }
+    ],
 
 
-    claimRetryPayload =
-        addGoogleSearchTool(
-            claimRetryPayload
-        );
+    system_instruction: {
+
+        parts: [
+
+            {
+                text:
+                    getGovernmentInstruction(
+                        checkedAt
+                    )
+            },
+
+            {
+                text:
+                    getCurrentStatusInstruction()
+            },
+
+            {
+                text:
+                    getGovernmentTopicInstruction(
+                        governmentTopic
+                    )
+            },
+
+            {
+                text: `
+INI IALAH PERMINTAAN PENYELIDIKAN SEMASA.
+
+Gunakan Google Search untuk mendapatkan maklumat
+semasa daripada sumber rasmi kerajaan Malaysia.
+
+Jangan bergantung kepada conversation terdahulu,
+memori model atau pengetahuan latihan.
+
+Jika Google Search tidak digunakan atau tiada sumber
+rasmi ditemui, jangan menganggap fakta tersebut telah
+disahkan.
+`
+            }
+
+        ]
+    }
+};
+
+
+// Enable Google Search pada fresh request
+claimRetryPayload =
+    addGoogleSearchTool(
+        claimRetryPayload
+    );
 
 
     const claimRetryResult =
