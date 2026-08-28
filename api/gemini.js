@@ -655,7 +655,7 @@ function hasSensitiveGovernmentFact(
     const value =
         String(text || "");
 
-        // ========================================
+// ========================================
 // REFERENCE-ONLY SENTENCES
 // Jangan jadikan arahan rujukan sebagai
 // sensitive factual claim
@@ -673,6 +673,48 @@ if (
     normalizedValue.startsWith("rujuk laman") ||
     normalizedValue.startsWith("untuk maklumat lanjut") ||
     normalizedValue.startsWith("untuk pengesahan")
+) {
+    return false;
+}
+
+// ========================================
+// REFERENCE / INTRO ONLY
+// Jangan jadikan ayat rujukan umum sebagai
+// sensitive claim jika tiada nilai dasar
+// spesifik di dalamnya.
+// ========================================
+
+const hasPolicyValue =
+    (
+        /\bRM\s?\d[\d,.]*/i.test(value) ||
+        /\b\d+(?:\.\d+)?\s?%/.test(value) ||
+        /\b\d{1,2}\s+(?:januari|februari|mac|april|mei|jun|julai|ogos|september|oktober|november|disember)\s+(?:19|20)\d{2}\b/i.test(value) ||
+        /\b\d{1,2}[/-]\d{1,2}[/-](?:19|20)\d{2}\b/.test(value) ||
+        /\bgred\s+[A-Z]?\d+[A-Z]?\b/i.test(value) ||
+        /\b\d+(?:\.\d+)?\s*(?:hari|jam|bulan|malam|kilometer|km)\b/i.test(value)
+    );
+
+
+const isReferenceIntro =
+    (
+        normalizedValue.includes(
+            "dikawal selia di bawah"
+        ) ||
+        normalizedValue.startsWith(
+            "berdasarkan myppsm"
+        ) ||
+        normalizedValue.startsWith(
+            "berdasarkan pekeliling"
+        ) ||
+        normalizedValue.startsWith(
+            "menurut myppsm"
+        )
+    );
+
+
+if (
+    isReferenceIntro &&
+    !hasPolicyValue
 ) {
     return false;
 }
