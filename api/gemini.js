@@ -2018,6 +2018,403 @@ atau
 }
 
 // =========================================================
+// FULL-DOCUMENT GOVERNMENT VERIFIER
+// URL CONTEXT
+// =========================================================
+
+async function verifyUnsupportedClaimsWithOfficialUrls(
+    googleUrl,
+    userMessage,
+    unsupportedClaims = [],
+    officialSources = [],
+    topic = "general-government"
+) {
+
+    const claims = [
+        ...new Set(
+            (
+                Array.isArray(unsupportedClaims)
+                    ? unsupportedClaims
+                    : []
+            )
+                .map(
+                    value =>
+                        String(value || "")
+                            .trim()
+                )
+                .filter(Boolean)
+        )
+    ].slice(0, 20);
+
+
+    // Hadkan kepada 6 URL rasmi untuk
+    // kurangkan latency + token.
+    const urls = [
+        ...new Set(
+            (
+                Array.isArray(officialSources)
+                    ? officialSources
+                    : []
+            )
+                .map(
+                    source =>
+                        String(
+                            source?.uri || ""
+                        ).trim()
+                )
+                .filter(Boolean)
+        )
+    ].slice(0, 6);
+
+
+    if (
+        claims.length === 0 ||
+        urls.length === 0
+    ) {
+
+        return {
+
+            attempted:
+                false,
+
+            retrieved:
+                false,
+
+            passed:
+                false,
+
+            totalClaims:
+                claims.length,
+
+            supportedClaims:
+                [],
+
+            unsupportedClaims:
+                claims,
+
+            retrievedUrls:
+                []
+        };
+    }
+
+
+    const numberedClaims =
+        claims
+            .map(
+                (claim, index) =>
+                    `${index + 1}. ${claim}`
+            )
+            .join("\n");
+
+
+    const urlList =
+        urls
+            .map(
+                url =>
+                    `- ${url}`
+            )
+            .join("\n");
+
+
+    const prompt = `
+FULL-DOCUMENT GOVERNMENT FACT VERIFICATION.
+
+SOALAN PENGGUNA:
+
+"${userMessage}"
+
+TOPIK KERAJAAN:
+
+${topic}
+
+
+FAKTA ATOMIK YANG BELUM DAPAT DISAHKAN
+OLEH GOOGLE SEARCH GROUNDING:
+
+${numberedClaims}
+
+
+SUMBER RASMI YANG WAJIB DIBACA:
+
+${urlList}
+
+
+ARAHAN:
+
+Gunakan URL Context untuk membaca kandungan PENUH
+sumber rasmi di atas.
+
+Baca termasuk:
+- kandungan halaman;
+- jadual;
+- lampiran;
+- kandungan PDF;
+- kadar;
+- syarat;
+- tarikh kuat kuasa.
+
+
+PERATURAN PENGESAHAN:
+
+1. SUPPORTED hanya jika sumber rasmi secara jelas
+   menyokong fakta tersebut dalam konteks soalan pengguna.
+
+2. Jika pengguna bertanya maklumat:
+   - terkini;
+   - semasa;
+   - sedang berkuat kuasa;
+
+   fakta lama, sejarah pindaan, kadar terdahulu,
+   dokumen yang diganti atau dibatalkan TIDAK BOLEH
+   dianggap sebagai sokongan kepada fakta semasa.
+
+3. Jangan menganggap fakta disokong hanya kerana nombor
+   yang sama muncul pada bahagian lain dokumen.
+
+4. Jadual rasmi dan kandungan PDF boleh digunakan sebagai
+   bukti.
+
+5. Jangan gunakan memori atau pengetahuan dalaman model
+   sebagai bukti.
+
+6. Jika sumber tidak menyokong fakta dengan jelas,
+   tandakan UNSUPPORTED.
+
+7. Berikan keputusan untuk SETIAP fakta bernombor.
+
+
+OUTPUT MESTI TEPAT DALAM FORMAT INI.
+
+Satu baris bagi setiap fakta.
+
+I4U_FACT|1|SUPPORTED
+I4U_FACT|2|UNSUPPORTED
+
+JANGAN beri penerangan tambahan.
+`;
+
+
+    const verifierPayload = {
+
+        contents: [
+            {
+                role:
+                    "user",
+
+                parts: [
+                    {
+                        text:
+                            prompt
+                    }
+                ]
+            }
+        ],
+
+
+        tools: [
+            {
+                url_context: {}
+            }
+        ]
+    };
+
+
+    const result =
+        await callGemini(
+            googleUrl,
+            verifierPayload
+        );
+
+
+    if (!result.response.ok) {
+
+        return {
+
+            attempted:
+                true,
+
+            retrieved:
+                false,
+
+            passed:
+                false,
+
+            totalClaims:
+                claims.length,
+
+            supportedClaims:
+                [],
+
+            unsupportedClaims:
+                claims,
+
+            retrievedUrls:
+                [],
+
+            apiStatus:
+                result.response.status
+        };
+    }
+
+
+    const candidate =
+        result.data
+            ?.candidates?.[0] || {};
+
+
+    // Gemini REST boleh pulangkan camelCase
+    // atau metadata dengan nama snake_case.
+    const metadata =
+        candidate?.urlContextMetadata ||
+        candidate?.url_context_metadata ||
+        {};
+
+
+    const urlMetadata =
+        metadata?.urlMetadata ||
+        metadata?.url_metadata ||
+        [];
+
+
+    const successfulUrls =
+        (
+            Array.isArray(urlMetadata)
+                ? urlMetadata
+                : []
+        )
+            .filter(
+                item => {
+
+                    const status =
+                        item?.urlRetrievalStatus ||
+                        item?.url_retrieval_status ||
+                        "";
+
+
+                    return (
+                        status ===
+                        "URL_RETRIEVAL_STATUS_SUCCESS"
+                    );
+                }
+            )
+            .map(
+                item =>
+                    item?.retrievedUrl ||
+                    item?.retrieved_url ||
+                    ""
+            )
+            .filter(Boolean);
+
+
+    const verifierText =
+        getGovernmentResponseText(
+            result.data
+        );
+
+
+    const decisions =
+        new Map();
+
+
+    const decisionPattern =
+        /I4U_FACT\|(\d+)\|(SUPPORTED|UNSUPPORTED)/gi;
+
+
+    for (
+        const match of verifierText.matchAll(
+            decisionPattern
+        )
+    ) {
+
+        const index =
+            Number(match[1]) - 1;
+
+
+        const decision =
+            match[2]
+                .toUpperCase();
+
+
+        if (
+            index >= 0 &&
+            index < claims.length
+        ) {
+
+            decisions.set(
+                index,
+                decision
+            );
+        }
+    }
+
+
+    const supportedClaims = [];
+
+    const remainingClaims = [];
+
+
+    claims.forEach(
+        (claim, index) => {
+
+            if (
+                decisions.get(index) ===
+                "SUPPORTED"
+            ) {
+
+                supportedClaims.push(
+                    claim
+                );
+
+            } else {
+
+                remainingClaims.push(
+                    claim
+                );
+            }
+        }
+    );
+
+
+    const allClaimsClassified =
+        decisions.size ===
+        claims.length;
+
+
+    const retrieved =
+        successfulUrls.length > 0;
+
+
+    return {
+
+        attempted:
+            true,
+
+        retrieved:
+            retrieved,
+
+        passed:
+            retrieved &&
+            allClaimsClassified &&
+            remainingClaims.length === 0,
+
+        totalClaims:
+            claims.length,
+
+        supportedClaims:
+            supportedClaims,
+
+        unsupportedClaims:
+            remainingClaims,
+
+        retrievedUrls:
+            successfulUrls,
+
+        allClaimsClassified:
+            allClaimsClassified
+    };
+}
+
+// =========================================================
 // MAIN HANDLER
 // =========================================================
 
@@ -2524,12 +2921,73 @@ claimRetryPayload =
             );
 
 
-        const claimRetryCoverage =
+        let claimRetryCoverage =
             analyseSensitiveClaimCoverage(
                 claimRetryResult.data,
                 claimRetryVerification
                     .officialChunkIndices
             );
+
+            // =========================================================
+// FULL DOCUMENT VERIFICATION WITH URL CONTEXT
+// =========================================================
+
+if (
+    claimRetryVerification.verified &&
+    claimRetryCoverage.required &&
+    !claimRetryCoverage.passed &&
+    claimRetryCoverage
+        .unsupportedClaims
+        .length > 0
+) {
+
+    const urlContextVerification =
+        await verifyUnsupportedClaimsWithOfficialUrls(
+            GOOGLE_URL,
+            latestUserMessage,
+            claimRetryCoverage
+                .unsupportedClaims,
+            claimRetryVerification
+                .officialSources,
+            governmentTopic
+        );
+
+
+    console.warn(
+        "I4U_GOV_URL_CONTEXT_RESULT",
+        urlContextVerification
+    );
+
+
+    // Semua unsupported facts telah
+    // disahkan terus daripada dokumen rasmi.
+    if (
+        urlContextVerification.passed
+    ) {
+
+        claimRetryCoverage = {
+
+            ...claimRetryCoverage,
+
+            passed:
+                true,
+
+            supportedClaims:
+                claimRetryCoverage
+                    .totalClaims,
+
+            unsupportedClaims:
+                [],
+
+            urlContextVerified:
+                true,
+
+            urlContextSources:
+                urlContextVerification
+                    .retrievedUrls
+        };
+    }
+}
 
             console.warn(
     "I4U_GOV_TARGETED_RETRY_RESULT",
