@@ -645,111 +645,17 @@ async function analyseGrounding(
 
 
 // =========================================================
-// SENSITIVE GOVERNMENT CLAIM COVERAGE
+// SENSITIVE GOVERNMENT CLAIM COVERAGE V2
+// Semak fakta atomik kritikal sahaja.
 // =========================================================
 
-function hasSensitiveGovernmentFact(
-    text = ""
-) {
+function normalizeGovernmentFactText(text = "") {
 
-    const value =
-        String(text || "");
-
-// ========================================
-// REFERENCE-ONLY SENTENCES
-// Jangan jadikan arahan rujukan sebagai
-// sensitive factual claim
-// ========================================
-
-const normalizedValue =
-    value
+    return String(text || "")
         .toLowerCase()
+        .replace(/[*_`#>|]/g, " ")
+        .replace(/\s+/g, " ")
         .trim();
-
-
-if (
-    normalizedValue.startsWith("sila rujuk") ||
-    normalizedValue.startsWith("rujuk portal") ||
-    normalizedValue.startsWith("rujuk laman") ||
-    normalizedValue.startsWith("untuk maklumat lanjut") ||
-    normalizedValue.startsWith("untuk pengesahan")
-) {
-    return false;
-}
-
-// ========================================
-// REFERENCE / INTRO ONLY
-// Jangan jadikan ayat rujukan umum sebagai
-// sensitive claim jika tiada nilai dasar
-// spesifik di dalamnya.
-// ========================================
-
-const hasPolicyValue =
-    (
-        /\bRM\s?\d[\d,.]*/i.test(value) ||
-        /\b\d+(?:\.\d+)?\s?%/.test(value) ||
-        /\b\d{1,2}\s+(?:januari|februari|mac|april|mei|jun|julai|ogos|september|oktober|november|disember)\s+(?:19|20)\d{2}\b/i.test(value) ||
-        /\b\d{1,2}[/-]\d{1,2}[/-](?:19|20)\d{2}\b/.test(value) ||
-        /\bgred\s+[A-Z]?\d+[A-Z]?\b/i.test(value) ||
-        /\b\d+(?:\.\d+)?\s*(?:hari|jam|bulan|malam|kilometer|km)\b/i.test(value)
-    );
-
-
-const isReferenceIntro =
-    (
-        normalizedValue.includes(
-            "dikawal selia di bawah"
-        ) ||
-        normalizedValue.startsWith(
-            "berdasarkan myppsm"
-        ) ||
-        normalizedValue.startsWith(
-            "berdasarkan pekeliling"
-        ) ||
-        normalizedValue.startsWith(
-            "menurut myppsm"
-        )
-    );
-
-
-if (
-    isReferenceIntro &&
-    !hasPolicyValue
-) {
-    return false;
-}
-
-
-    const patterns = [
-
-        /\bRM\s?\d[\d,.]*/i,
-
-        /\b\d+(?:\.\d+)?\s?%/,
-
-        /\b\d{1,2}\s+(?:januari|februari|mac|april|mei|jun|julai|ogos|september|oktober|november|disember)\s+(?:19|20)\d{2}\b/i,
-
-        /\b\d{1,2}[/-]\d{1,2}[/-](?:19|20)\d{2}\b/,
-
-        /\bgred\s+[A-Z]?\d+[A-Z]?\b/i,
-
-        /\b\d+(?:\.\d+)?\s*(?:hari|jam|bulan|malam|kilometer|km)\b/i,
-
-        /\bceraian\s+[A-Z]{1,6}\.\d+(?:\.\d+)+\b/i,
-
-        /\bpekeliling\b.{0,80}\b(?:bilangan|bil\.?)\s*\d+/i,
-
-        /\bsurat\s+edaran\b.{0,80}\b(?:bilangan|bil\.?)\s*\d+/i,
-
-        /\barahan\s+perbendaharaan\s+\d+/i,
-
-        /\bakta\s+\d+/i
-    ];
-
-
-    return patterns.some(
-        pattern =>
-            pattern.test(value)
-    );
 }
 
 
@@ -757,202 +663,396 @@ if (
 // GET FULL MODEL RESPONSE TEXT
 // =========================================================
 
-function getGovernmentResponseText(
-    data
-) {
+function getGovernmentResponseText(data) {
 
     const parts =
         data?.candidates?.[0]
             ?.content
             ?.parts;
 
-
     if (!Array.isArray(parts)) {
         return "";
     }
 
-
     return parts
         .map(
             part =>
-                typeof part?.text ===
-                    "string"
+                typeof part?.text === "string"
                     ? part.text
                     : ""
         )
         .join("\n");
 }
 
+
 // =========================================================
-// EXTRACT SENSITIVE TOKENS FROM GOVERNMENT CLAIM
+// EXTRACT CRITICAL GOVERNMENT FACTS
 // =========================================================
 
-function extractSensitiveGovernmentTokens(
-    text = ""
-) {
+function extractCriticalGovernmentFacts(text = "") {
 
     const value =
-        String(text || "");
+        normalizeGovernmentFactText(text);
 
-    const tokens =
-        new Set();
-
-
-    const patterns = [
-
-        // 180 hari / 15 tahun / 45 tahun
-        /\b\d+(?:\.\d+)?\s*(?:hari|tahun|bulan|jam|malam)\b/gi,
-
-        // 1/2
-        /\b\d+\s*\/\s*\d+\b/g,
-
-        // RM100 / RM 1,500.00
-        /\bRM\s?\d[\d,.]*/gi,
-
-        // 10%
-        /\b\d+(?:\.\d+)?\s?%/g,
-
-        // PP.1.3.1 / SR.5.1.5
-        /\b[A-Z]{1,6}\.\d+(?:\.\d+)+\b/gi,
-
-        // Akta 227
-        /\bAkta\s+\d+\b/gi
-    ];
+    const facts =
+        new Map();
 
 
-    patterns.forEach(
-        pattern => {
+    const addFact = (
+        key,
+        display
+    ) => {
 
-            const matches =
-                value.match(pattern) || [];
-
-
-            matches.forEach(
-                match => {
-
-                    const normalized =
-                        match
-                            .toLowerCase()
-                            .replace(/\s+/g, " ")
-                            .trim();
-
-                    tokens.add(
-                        normalized
-                    );
-                }
-            );
+        if (!key || facts.has(key)) {
+            return;
         }
-    );
+
+        facts.set(
+            key,
+            {
+                key,
+                display:
+                    String(display || "").trim()
+            }
+        );
+    };
+
+
+    const canonicalNumber =
+        raw => {
+
+            const number =
+                Number(
+                    String(raw || "")
+                        .replace(/,/g, "")
+                );
+
+            return Number.isFinite(number)
+                ? String(number)
+                : String(raw || "")
+                    .replace(/,/g, "")
+                    .trim();
+        };
+
+
+    // ===============================
+    // RM
+    // ===============================
+
+    for (
+        const match of value.matchAll(
+            /\brm\s*([0-9][0-9,.]*)\b/gi
+        )
+    ) {
+
+        const amount =
+            canonicalNumber(match[1]);
+
+        addFact(
+            `amount:${amount}`,
+            `RM${amount}`
+        );
+    }
+
+
+    // ===============================
+    // %
+    // ===============================
+
+    for (
+        const match of value.matchAll(
+            /\b(\d+(?:\.\d+)?)\s*%/g
+        )
+    ) {
+
+        const percent =
+            canonicalNumber(match[1]);
+
+        addFact(
+            `percent:${percent}`,
+            `${percent}%`
+        );
+    }
+
+
+    // ===============================
+    // TEMPOH / BILANGAN
+    // ===============================
+
+    for (
+        const match of value.matchAll(
+            /\b(\d+(?:\.\d+)?)\s*(hari|tahun|bulan|jam|minit|malam|kilometer|km|orang|kali)\b/gi
+        )
+    ) {
+
+        const number =
+            canonicalNumber(match[1]);
+
+        let unit =
+            match[2].toLowerCase();
+
+        if (unit === "kilometer") {
+            unit = "km";
+        }
+
+        addFact(
+            `unit:${number}:${unit}`,
+            `${number} ${unit}`
+        );
+    }
+
+
+    // ===============================
+    // PECAHAN
+    // ===============================
+
+    for (
+        const match of value.matchAll(
+            /\b(\d+)\s*\/\s*(\d+)\b/g
+        )
+    ) {
+
+        addFact(
+            `fraction:${match[1]}/${match[2]}`,
+            `${match[1]}/${match[2]}`
+        );
+    }
+
+
+    // ===============================
+    // TARIKH - 1 JANUARI 2026
+    // ===============================
+
+    const monthMap = {
+        januari: 1,
+        februari: 2,
+        mac: 3,
+        april: 4,
+        mei: 5,
+        jun: 6,
+        julai: 7,
+        ogos: 8,
+        september: 9,
+        oktober: 10,
+        november: 11,
+        disember: 12
+    };
+
+
+    for (
+        const match of value.matchAll(
+            /\b(\d{1,2})\s+(januari|februari|mac|april|mei|jun|julai|ogos|september|oktober|november|disember)\s+((?:19|20)\d{2})\b/gi
+        )
+    ) {
+
+        const day =
+            Number(match[1]);
+
+        const month =
+            monthMap[
+                match[2].toLowerCase()
+            ];
+
+        const year =
+            Number(match[3]);
+
+        addFact(
+            `date:${year}-${month}-${day}`,
+            `${day} ${match[2]} ${year}`
+        );
+    }
+
+
+    // ===============================
+    // TARIKH - 01/01/2026
+    // ===============================
+
+    for (
+        const match of value.matchAll(
+            /\b(\d{1,2})[\/-](\d{1,2})[\/-]((?:19|20)\d{2})\b/g
+        )
+    ) {
+
+        const day =
+            Number(match[1]);
+
+        const month =
+            Number(match[2]);
+
+        const year =
+            Number(match[3]);
+
+        addFact(
+            `date:${year}-${month}-${day}`,
+            `${day}/${month}/${year}`
+        );
+    }
+
+
+    // ===============================
+    // GRED
+    // ===============================
+
+    for (
+        const match of value.matchAll(
+            /\bgred\s+([a-z]?\d+[a-z]?)\b/gi
+        )
+    ) {
+
+        const grade =
+            match[1].toUpperCase();
+
+        addFact(
+            `grade:${grade}`,
+            `Gred ${grade}`
+        );
+    }
 
 
     return [
-        ...tokens
+        ...facts.values()
     ];
 }
 
 
 // =========================================================
-// TOKEN COVERAGE AGAINST OFFICIAL GROUNDED SEGMENTS
+// OFFICIAL GROUNDED TEXT
+// Hanya segment yang linked kepada sumber rasmi.
 // =========================================================
 
-function hasOfficialSensitiveTokenCoverage(
-    claimText,
-    groundingSupports,
-    officialSet
+function getOfficialGroundedGovernmentText(
+    data,
+    officialChunkIndices = []
 ) {
 
-    const requiredTokens =
-        extractSensitiveGovernmentTokens(
-            claimText
+    const supports =
+        data?.candidates?.[0]
+            ?.groundingMetadata
+            ?.groundingSupports || [];
+
+    const parts =
+        data?.candidates?.[0]
+            ?.content
+            ?.parts || [];
+
+    const officialSet =
+        new Set(
+            officialChunkIndices
         );
 
-
-    if (
-        requiredTokens.length === 0
-    ) {
-        return false;
-    }
+    const officialSegments = [];
 
 
-    const officialSegmentTexts = [];
-
-
-    groundingSupports.forEach(
+    supports.forEach(
         support => {
 
-            const chunkIndices =
+            const indices =
                 Array.isArray(
-                    support
-                        ?.groundingChunkIndices
+                    support?.groundingChunkIndices
                 )
-                    ? support
-                        .groundingChunkIndices
+                    ? support.groundingChunkIndices
                     : [];
 
 
-            const hasOfficialChunk =
-                chunkIndices.some(
+            const isOfficial =
+                indices.some(
                     index =>
-                        officialSet.has(
-                            index
-                        )
+                        officialSet.has(index)
                 );
 
 
-            if (!hasOfficialChunk) {
+            if (!isOfficial) {
                 return;
             }
 
 
-            const segmentText =
-                support
-                    ?.segment
+            const segment =
+                support?.segment;
+
+
+            // Gunakan segment.text jika ada
+            if (
+                typeof segment?.text === "string" &&
+                segment.text.trim()
+            ) {
+
+                officialSegments.push(
+                    segment.text
+                );
+
+                return;
+            }
+
+
+            // ===============================
+            // FALLBACK UTF-8 OFFSET
+            // ===============================
+
+            const partIndex =
+                Number.isInteger(
+                    segment?.partIndex
+                )
+                    ? segment.partIndex
+                    : 0;
+
+            const partText =
+                parts?.[partIndex]
                     ?.text;
 
 
             if (
-                typeof segmentText ===
-                    "string"
+                typeof partText !== "string" ||
+                !Number.isFinite(
+                    segment?.startIndex
+                ) ||
+                !Number.isFinite(
+                    segment?.endIndex
+                )
             ) {
+                return;
+            }
 
-                officialSegmentTexts.push(
-                    segmentText
-                        .toLowerCase()
-                        .replace(/\s+/g, " ")
-                        .trim()
-                );
+
+            try {
+
+                const bytes =
+                    Buffer.from(
+                        partText,
+                        "utf8"
+                    );
+
+                const extracted =
+                    bytes
+                        .subarray(
+                            segment.startIndex,
+                            segment.endIndex
+                        )
+                        .toString("utf8")
+                        .trim();
+
+
+                if (extracted) {
+
+                    officialSegments.push(
+                        extracted
+                    );
+                }
+
+            } catch (error) {
+
+                // Ignore extraction error
             }
         }
     );
 
 
-    if (
-        officialSegmentTexts.length === 0
-    ) {
-        return false;
-    }
-
-
-    // Gabungkan HANYA output segments yang
-    // memang dipautkan kepada official chunks
-    const officialGroundedText =
-        officialSegmentTexts
-            .join(" ");
-
-
-    // Semua fakta sensitif dalam claim
-    // mesti wujud dalam grounded segments.
-    return requiredTokens.every(
-        token =>
-            officialGroundedText.includes(
-                token
-            )
-    );
+    return officialSegments
+        .join("\n");
 }
 
 
 // =========================================================
-// ANALYSE SENSITIVE CLAIM COVERAGE
+// ANALYSE SENSITIVE CLAIM COVERAGE V2
 // =========================================================
 
 function analyseSensitiveClaimCoverage(
@@ -960,156 +1060,28 @@ function analyseSensitiveClaimCoverage(
     officialChunkIndices = []
 ) {
 
-    const parts =
-        data?.candidates?.[0]
-            ?.content
-            ?.parts;
+    const responseText =
+        getGovernmentResponseText(
+            data
+        )
+            .replace(
+                /\[\[I4U_STATUS:(ACTIVE|AMENDED|REPLACED|CANCELLED|UNKNOWN)\]\]/gi,
+                ""
+            );
 
-    const groundingSupports =
-        data?.candidates?.[0]
-            ?.groundingMetadata
-            ?.groundingSupports || [];
 
-    const officialSet =
-        new Set(
-            officialChunkIndices
+    // ===============================
+    // FAKTA KRITIKAL DALAM JAWAPAN
+    // ===============================
+
+    const responseFacts =
+        extractCriticalGovernmentFacts(
+            responseText
         );
 
 
-    // ========================================
-    // RESPONSE PARTS
-    // Gemini offsets adalah UTF-8 BYTES
-    // dan relatif kepada setiap Part.
-    // ========================================
-
-    if (!Array.isArray(parts)) {
-
-        return {
-            required: false,
-            passed: true,
-            totalClaims: 0,
-            supportedClaims: 0,
-            unsupportedClaims: []
-        };
-    }
-
-
-    const encoder =
-        new TextEncoder();
-
-
-    const getByteLength =
-        value =>
-            encoder.encode(
-                String(value || "")
-            ).length;
-
-
-    const normalizeText =
-        value =>
-            String(value || "")
-                .toLowerCase()
-
-                // buang markdown formatting
-                .replace(/[*_`#>|]/g, " ")
-
-                // normalize punctuation/spacing
-                .replace(/\s+/g, " ")
-                .trim();
-
-
-    // ========================================
-    // FIND SENSITIVE CLAIMS PER PART
-    // ========================================
-
-    const sensitiveClaims = [];
-
-
-    parts.forEach(
-        (part, partIndex) => {
-
-            if (
-                typeof part?.text !==
-                "string"
-            ) {
-                return;
-            }
-
-
-            const text =
-                part.text;
-
-            const lines =
-                text.split("\n");
-
-            let currentByteOffset = 0;
-
-
-            lines.forEach(
-                (line, lineIndex) => {
-
-                    const start =
-                        currentByteOffset;
-
-                    const lineByteLength =
-                        getByteLength(
-                            line
-                        );
-
-                    const end =
-                        start +
-                        lineByteLength;
-
-                    const cleanLine =
-                        line.trim();
-
-
-                    if (
-                        cleanLine &&
-                        hasSensitiveGovernmentFact(
-                            cleanLine
-                        )
-                    ) {
-
-                        sensitiveClaims.push({
-
-                            text:
-                                cleanLine,
-
-                            partIndex:
-                                partIndex,
-
-                            start:
-                                start,
-
-                            end:
-                                end
-                        });
-                    }
-
-
-                    currentByteOffset =
-                        end;
-
-                    // \n = 1 byte UTF-8
-                    if (
-                        lineIndex <
-                        lines.length - 1
-                    ) {
-                        currentByteOffset += 1;
-                    }
-                }
-            );
-        }
-    );
-
-
-    // ========================================
-    // NO SENSITIVE FACT
-    // ========================================
-
     if (
-        sensitiveClaims.length === 0
+        responseFacts.length === 0
     ) {
 
         return {
@@ -1132,402 +1104,43 @@ function analyseSensitiveClaimCoverage(
     }
 
 
-    // ========================================
-    // CHECK CLAIM AGAINST OFFICIAL SUPPORT
-    // ========================================
+    // ===============================
+    // FAKTA DALAM OFFICIAL GROUNDING
+    // ===============================
 
-    const unsupportedClaims = [];
-
-    let supportedClaims = 0;
-
-
-    sensitiveClaims.forEach(
-        claim => {
-
-            let officiallySupported =
-                groundingSupports.some(
-                    support => {
-
-                        const chunkIndices =
-                            Array.isArray(
-                                support
-                                    ?.groundingChunkIndices
-                            )
-                                ? support
-                                    .groundingChunkIndices
-                                : [];
+    const officialGroundedText =
+        getOfficialGroundedGovernmentText(
+            data,
+            officialChunkIndices
+        );
 
 
-                        // Mesti ada sekurang-kurangnya
-                        // satu official grounding chunk
-                        const hasOfficialChunk =
-                            chunkIndices.some(
-                                index =>
-                                    officialSet.has(
-                                        index
-                                    )
-                            );
+    const officialFacts =
+        extractCriticalGovernmentFacts(
+            officialGroundedText
+        );
 
 
-                        if (!hasOfficialChunk) {
-                            return false;
-                        }
-
-
-                        const segment =
-                            support?.segment;
-
-
-                        if (!segment) {
-                            return false;
-                        }
-
-
-                        // =================================
-                        // PART INDEX
-                        // =================================
-
-                        const segmentPartIndex =
-                            Number.isInteger(
-                                segment?.partIndex
-                            )
-                                ? segment.partIndex
-                                : 0;
-
-
-                        if (
-                            segmentPartIndex !==
-                            claim.partIndex
-                        ) {
-                            return false;
-                        }
-
-
-                        // =================================
-                        // PRIMARY:
-                        // UTF-8 BYTE OFFSET OVERLAP
-                        // =================================
-
-                        if (
-                            Number.isFinite(
-                                segment?.startIndex
-                            ) &&
-                            Number.isFinite(
-                                segment?.endIndex
-                            )
-                        ) {
-
-                            const overlaps =
-                                segment.startIndex <
-                                    claim.end &&
-                                segment.endIndex >
-                                    claim.start;
-
-
-                            if (overlaps) {
-                                return true;
-                            }
-                        }
-
-
-                        // =================================
-                        // FALLBACK:
-                        // NORMALIZED SEGMENT TEXT
-                        // =================================
-
-                        if (
-                            typeof segment?.text ===
-                                "string"
-                        ) {
-
-                            const claimText =
-                                normalizeText(
-                                    claim.text
-                                );
-
-                            const segmentText =
-                                normalizeText(
-                                    segment.text
-                                );
-
-
-                            if (
-                                segmentText &&
-                                claimText &&
-                                (
-                                    claimText.includes(
-                                        segmentText
-                                    ) ||
-                                    segmentText.includes(
-                                        claimText
-                                    )
-                                )
-                            ) {
-
-                                return true;
-                            }
-                        }
-
-// =================================
-// FINAL FALLBACK:
-// SENSITIVE TOKEN COVERAGE
-// =================================
-
-if (
-    hasOfficialSensitiveTokenCoverage(
-        claim.text,
-        groundingSupports,
-        officialSet
-    )
-) {
-    return true;
-}
-
-// =================================
-// FALLBACK 2:
-// SENSITIVE VALUE + CONTEXT MATCH
-// =================================
-
-const claimTextNormalized =
-    normalizeText(
-        claim.text
-    );
-
-const segmentTextNormalized =
-    normalizeText(
-        segment?.text || ""
-    );
-
-
-// Ambil nilai sensitif seperti:
-// 90 hari, 180 hari, RM100, 10%
-const sensitiveValues =
-    claimTextNormalized.match(
-        /\b(?:rm\s*)?\d+(?:[.,]\d+)?\s*(?:hari|jam|bulan|malam|km|kilometer|%)?\b/g
-    ) || [];
-
-
-// Keyword konteks penting
-const contextKeywords = [
-    "gcr",
-    "gantian cuti rehat",
-    "pemberian awal",
-    "award wang tunai",
-    "cuti rehat",
-    "kelayakan",
-    "permohonan"
-];
-
-
-const matchingValue =
-    sensitiveValues.some(
-        value =>
-            value.trim().length > 0 &&
-            segmentTextNormalized.includes(
-                value.trim()
+    const officialFactKeys =
+        new Set(
+            officialFacts.map(
+                fact =>
+                    fact.key
             )
-    );
-
-
-// =================================
-// STRONG SENSITIVE VALUE
-// Nilai dengan unit yang tepat seperti:
-// 180 hari, RM60, 90%, 8 jam
-// =================================
-
-const strongValueMatch =
-    sensitiveValues.some(
-        value => {
-
-            const cleanValue =
-                value
-                    .trim()
-                    .toLowerCase();
-
-            const hasStrongUnit =
-                (
-                    cleanValue.startsWith("rm") ||
-                    cleanValue.includes("%") ||
-                    /\b(?:hari|jam|bulan|malam|km|kilometer)\b/i
-                        .test(cleanValue)
-                );
-
-
-            return (
-                hasStrongUnit &&
-                segmentTextNormalized.includes(
-                    cleanValue
-                )
-            );
-        }
-    );
-
-
-// Jika grounding rasmi sendiri mengandungi
-// nilai sensitif lengkap yang sama,
-// nilai itu dianggap disokong.
-if (strongValueMatch) {
-    return true;
-}
-
-
-const matchingContext =
-    contextKeywords.some(
-        keyword =>
-            claimTextNormalized.includes(
-                keyword
-            ) &&
-            segmentTextNormalized.includes(
-                keyword
-            )
-    );
-
-
-if (
-    matchingValue &&
-    matchingContext
-) {
-    return true;
-}
-
-                        return false;
-                    }
-                );
-
-                // ========================================
-// FINAL FALLBACK:
-// AGGREGATE ALL OFFICIAL SUPPORT SEGMENTS
-// ========================================
-
-if (!officiallySupported) {
-
-    const officialSupportText =
-        normalizeText(
-            groundingSupports
-
-                .filter(
-                    support => {
-
-                        const chunkIndices =
-                            Array.isArray(
-                                support
-                                    ?.groundingChunkIndices
-                            )
-                                ? support
-                                    .groundingChunkIndices
-                                : [];
-
-
-                        const hasOfficialChunk =
-                            chunkIndices.some(
-                                index =>
-                                    officialSet.has(
-                                        index
-                                    )
-                            );
-
-
-                        if (!hasOfficialChunk) {
-                            return false;
-                        }
-
-
-                        const segmentPartIndex =
-                            Number.isInteger(
-                                support?.segment?.partIndex
-                            )
-                                ? support.segment.partIndex
-                                : 0;
-
-
-                        return (
-                            segmentPartIndex ===
-                            claim.partIndex
-                        );
-                    }
-                )
-
-                .map(
-                    support =>
-                        support?.segment?.text || ""
-                )
-
-                .join(" ")
         );
 
 
-    const claimTextNormalized =
-        normalizeText(
-            claim.text
-        );
+    // ===============================
+    // SEMAK FAKTA SATU-SATU
+    // ===============================
 
-
-    // Nilai kukuh sahaja:
-    // RM60, 90 hari, 180 hari, 10%, 8 jam
-    const strongValues =
-        claimTextNormalized.match(
-            /\brm\s*\d+(?:[.,]\d+)?\b|\b\d+(?:[.,]\d+)?\s*(?:hari|jam|bulan|malam|km|kilometer|%)\b/gi
-        ) || [];
-
-
-    const contextKeywords = [
-
-        "gcr",
-        "gantian cuti rehat",
-        "pemberian awal",
-        "award wang tunai",
-        "penebusan",
-        "cuti rehat",
-        "kelayakan",
-        "permohonan"
-    ];
-
-
-    const valueSupported =
-        strongValues.some(
-            value =>
-                officialSupportText.includes(
-                    normalizeText(
-                        value
-                    )
+    const unsupportedFacts =
+        responseFacts.filter(
+            fact =>
+                !officialFactKeys.has(
+                    fact.key
                 )
         );
-
-
-    const contextSupported =
-        contextKeywords.some(
-            keyword =>
-                claimTextNormalized.includes(
-                    keyword
-                ) &&
-                officialSupportText.includes(
-                    keyword
-                )
-        );
-
-
-    if (
-        valueSupported &&
-        contextSupported
-    ) {
-
-        officiallySupported = true;
-    }
-}
-
-
-            if (officiallySupported) {
-
-                supportedClaims++;
-
-            } else {
-
-                unsupportedClaims.push(
-                    claim.text
-                );
-            }
-        }
-    );
 
 
     return {
@@ -1536,16 +1149,20 @@ if (!officiallySupported) {
             true,
 
         passed:
-            unsupportedClaims.length === 0,
+            unsupportedFacts.length === 0,
 
         totalClaims:
-            sensitiveClaims.length,
+            responseFacts.length,
 
         supportedClaims:
-            supportedClaims,
+            responseFacts.length -
+            unsupportedFacts.length,
 
         unsupportedClaims:
-            unsupportedClaims
+            unsupportedFacts.map(
+                fact =>
+                    fact.display
+            )
     };
 }
 
