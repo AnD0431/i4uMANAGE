@@ -1908,6 +1908,84 @@ gunakan [[I4U_STATUS:UNKNOWN]].
 }
 
 // =========================================================
+// TARGETED GOVERNMENT CLAIM RETRY
+// =========================================================
+
+function getTargetedClaimVerificationInstruction(
+    userMessage,
+    unsupportedClaims = [],
+    topic = "general-government"
+) {
+
+    const claims =
+        Array.isArray(unsupportedClaims)
+            ? unsupportedClaims
+            : [];
+
+
+    return `
+PENGESAHAN FAKTA KERAJAAN — CARIAN SASARAN.
+
+Soalan pengguna:
+
+"${userMessage}"
+
+Jawapan sebelumnya mempunyai fakta kritikal yang belum
+mempunyai grounding rasmi yang mencukupi:
+
+${claims.map(
+    claim => `- ${claim}`
+).join("\n")}
+
+ANDA WAJIB menjalankan Google Search semula dan mencari
+sumber rasmi kerajaan Malaysia yang secara khusus menyokong
+fakta-fakta tersebut.
+
+Topik:
+${topic}
+
+PERATURAN:
+
+1. Gunakan sumber rasmi dan autoritatif sahaja.
+
+2. Jika topik perkhidmatan awam, utamakan:
+   - jpa.gov.my
+   - docs.jpa.gov.my
+   - MyPPSM JPA
+
+3. Jangan gunakan pengetahuan dalaman model sebagai bukti.
+
+4. Jangan reka atau andaikan nilai seperti:
+   - RM;
+   - peratus;
+   - bilangan hari;
+   - tahun perkhidmatan;
+   - umur;
+   - pecahan;
+   - kadar;
+   - gred;
+   - tarikh.
+
+5. Jika sesuatu fakta tidak dapat disahkan daripada sumber
+   rasmi, JANGAN masukkan fakta itu dalam jawapan akhir.
+
+6. Jawab semula soalan pengguna secara lengkap menggunakan
+   hanya fakta yang berjaya disahkan.
+
+7. Semak status kuat kuasa dokumen semasa.
+
+8. Kekalkan satu penanda:
+   [[I4U_STATUS:ACTIVE]]
+   [[I4U_STATUS:AMENDED]]
+   [[I4U_STATUS:REPLACED]]
+   [[I4U_STATUS:CANCELLED]]
+   atau
+   [[I4U_STATUS:UNKNOWN]]
+   pada baris terakhir.
+`;
+}
+
+// =========================================================
 // MAIN HANDLER
 // =========================================================
 
@@ -2295,11 +2373,97 @@ if (
     }
 }
 
-        const sensitiveClaimCoverage =
+        let sensitiveClaimCoverage =
     analyseSensitiveClaimCoverage(
         data,
         verification.officialChunkIndices
     );
+
+    // =========================================================
+// ONE TARGETED RETRY FOR UNSUPPORTED CRITICAL FACTS
+// =========================================================
+
+if (
+    sensitiveClaimCoverage.required &&
+    !sensitiveClaimCoverage.passed &&
+    sensitiveClaimCoverage.unsupportedClaims.length > 0
+) {
+
+    console.warn(
+        "I4U_GOV_TARGETED_CLAIM_RETRY",
+        {
+            query:
+                latestUserMessage,
+
+            unsupportedClaims:
+                sensitiveClaimCoverage
+                    .unsupportedClaims
+        }
+    );
+
+
+    let claimRetryPayload =
+        appendSystemInstruction(
+            payload,
+            getTargetedClaimVerificationInstruction(
+                latestUserMessage,
+                sensitiveClaimCoverage
+                    .unsupportedClaims,
+                governmentTopic
+            )
+        );
+
+
+    claimRetryPayload =
+        addGoogleSearchTool(
+            claimRetryPayload
+        );
+
+
+    const claimRetryResult =
+        await callGemini(
+            GOOGLE_URL,
+            claimRetryPayload
+        );
+
+
+    if (
+        claimRetryResult.response.ok
+    ) {
+
+        const claimRetryVerification =
+            await analyseGrounding(
+                claimRetryResult.data,
+                governmentTopic
+            );
+
+
+        const claimRetryCoverage =
+            analyseSensitiveClaimCoverage(
+                claimRetryResult.data,
+                claimRetryVerification
+                    .officialChunkIndices
+            );
+
+
+        // Ganti jawapan asal HANYA apabila
+        // retry benar-benar berjaya disahkan.
+        if (
+            claimRetryVerification.verified &&
+            claimRetryCoverage.passed
+        ) {
+
+            data =
+                claimRetryResult.data;
+
+            verification =
+                claimRetryVerification;
+
+            sensitiveClaimCoverage =
+                claimRetryCoverage;
+        }
+    }
+}
 
 // ===============================
 // CURRENT STATUS GATE
