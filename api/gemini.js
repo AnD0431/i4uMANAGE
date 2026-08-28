@@ -1762,6 +1762,61 @@ function requiresStrictGovernmentVerification(
     );
 }
 
+function getMandatoryGovernmentSearchRetryInstruction(
+    userMessage,
+    topic
+) {
+
+    return `
+CARIAN RASMI WAJIB — PERCUBAAN PENGESAHAN.
+
+Jawapan sebelumnya tidak menjalankan Google Search.
+
+Untuk permintaan berikut:
+
+"${userMessage}"
+
+ANDA WAJIB menjalankan Google Search sebelum menjawab.
+
+JANGAN:
+- jawab menggunakan pengetahuan dalaman model sahaja;
+- membuat kesimpulan berdasarkan ingatan;
+- menentukan status ACTIVE, AMENDED, REPLACED atau CANCELLED
+  tanpa hasil carian rasmi.
+
+Topik kerajaan:
+${topic}
+
+Cari sumber rasmi kerajaan Malaysia yang paling autoritatif.
+
+Jika berkaitan perkhidmatan awam seperti:
+- Gantian Cuti Rehat (GCR);
+- cuti;
+- kemudahan;
+- kelayakan;
+- tatatertib;
+- skim perkhidmatan;
+
+utamakan:
+
+- jpa.gov.my
+- docs.jpa.gov.my
+- MyPPSM JPA
+
+Gunakan Google Search untuk mendapatkan dokumen atau halaman
+rasmi semasa.
+
+Selepas carian:
+1. jawab berdasarkan sumber rasmi sahaja;
+2. semak status kuat kuasa;
+3. jangan reka kadar, had, tarikh atau nombor pekeliling;
+4. kekalkan penanda [[I4U_STATUS:...]] yang diwajibkan.
+
+Jika carian rasmi masih tidak memberikan bukti mencukupi,
+gunakan [[I4U_STATUS:UNKNOWN]].
+`;
+}
+
 // =========================================================
 // MAIN HANDLER
 // =========================================================
@@ -2078,6 +2133,78 @@ if (governmentMode) {
                 governmentTopic
             );
 
+// =========================================================
+// ONE RETRY ONLY IF GOOGLE SEARCH WAS NOT EXECUTED
+// =========================================================
+
+if (
+    !verification.searched ||
+    verification.totalSources === 0
+) {
+
+    console.warn(
+        "I4U_GOV_SEARCH_NOT_TRIGGERED",
+        {
+            query:
+                latestUserMessage,
+
+            topic:
+                governmentTopic
+        }
+    );
+
+
+    let retryPayload =
+        appendSystemInstruction(
+            payload,
+            getMandatoryGovernmentSearchRetryInstruction(
+                latestUserMessage,
+                governmentTopic
+            )
+        );
+
+
+    // Pastikan search tool masih ada
+    retryPayload =
+        addGoogleSearchTool(
+            retryPayload
+        );
+
+
+    const retryResult =
+        await callGemini(
+            GOOGLE_URL,
+            retryPayload
+        );
+
+
+    if (
+        retryResult.response.ok
+    ) {
+
+        const retryVerification =
+            await analyseGrounding(
+                retryResult.data,
+                governmentTopic
+            );
+
+
+        // Hanya ganti result pertama
+        // jika retry benar-benar menjalankan Search
+        if (
+            retryVerification.searched &&
+            retryVerification.totalSources > 0
+        ) {
+
+            data =
+                retryResult.data;
+
+            verification =
+                retryVerification;
+        }
+    }
+}
+
         const sensitiveClaimCoverage =
     analyseSensitiveClaimCoverage(
         data,
@@ -2095,6 +2222,8 @@ const governmentDocumentStatus =
 
 
 const currentStatusVerified =
+    verification.searched &&
+    verification.officialSourceCount > 0 &&
     [
         "ACTIVE",
         "AMENDED",
