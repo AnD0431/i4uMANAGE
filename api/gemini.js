@@ -3391,159 +3391,185 @@ Google Search, gunakan:
 
 
     // ========================================
-    // Grounded official URLs
-    // ========================================
+// Grounded official URLs
+// ========================================
 
-    const officialSources =
-        Array.isArray(
-            verification?.officialSources
+const officialSources =
+    Array.isArray(
+        verification?.officialSources
+    )
+        ? verification.officialSources
+        : [];
+
+
+// ========================================
+// PILIH SUMBER RASMI YANG SPESIFIK
+// ========================================
+
+const currentSourceMap =
+    new Map();
+
+
+for (const source of officialSources) {
+
+    const uri =
+        String(
+            source?.uri || ""
+        ).trim();
+
+
+    if (!uri) {
+        continue;
+    }
+
+
+    // Tolak arkib / versi lama yang jelas
+    if (
+        isLikelyArchivedGovernmentSource(
+            source
         )
-            ? verification.officialSources
-            : [];
+    ) {
+        continue;
+    }
 
 
-    const groundedSourceMap =
-        new Map();
+    try {
+
+        const url =
+            new URL(uri);
 
 
-    officialSources.forEach(
-        source => {
-
-            const key =
-                canonicalizeGovernmentUrl(
-                    source?.uri
-                );
-
-
-            if (
-                key &&
-                !isLikelyArchivedGovernmentSource(
-                    source
-                )
-            ) {
-
-                groundedSourceMap.set(
-                    key,
-                    source
-                );
-            }
-        }
-    );
-
-
-    // ========================================
-    // Current URL MESTI sama dengan URL
-    // daripada official grounding.
-    // ========================================
-
-    const matchedSources = [];
-
-
-    declaredCurrentUrls.forEach(
-        declaredUrl => {
-
-            const key =
-                canonicalizeGovernmentUrl(
-                    declaredUrl
-                );
-
-
-            const source =
-                groundedSourceMap.get(
-                    key
-                );
-
-
-            if (source) {
-
-                matchedSources.push(
-                    source
-                );
-            }
-        }
-    );
-
-
-    // Dedupe
-    const uniqueMatchedSources = [
-        ...new Map(
-            matchedSources.map(
-                source => [
-                    canonicalizeGovernmentUrl(
-                        source.uri
-                    ),
-                    source
-                ]
+        // Domain mesti masih autoritatif
+        // untuk topic ini.
+        if (
+            !isAuthoritativeGovernmentHostname(
+                url.hostname,
+                topic
             )
-        ).values()
-    ];
+        ) {
+            continue;
+        }
 
 
-    const matchedCurrentUrls =
-        uniqueMatchedSources.map(
-            source =>
-                source.uri
+        // Jangan gunakan homepage sebagai
+        // dokumen semasa.
+        if (
+            !url.pathname ||
+            url.pathname === "/"
+        ) {
+            continue;
+        }
+
+
+        const key =
+            canonicalizeGovernmentUrl(
+                uri
+            );
+
+
+        if (!key) {
+            continue;
+        }
+
+
+        currentSourceMap.set(
+            key,
+            source
         );
 
 
-    // Semua URL yang model claim sebagai current
-    // mesti benar-benar datang daripada grounding rasmi.
-    const allDeclaredUrlsGrounded =
-        declaredCurrentUrls.length > 0 &&
-        uniqueMatchedSources.length ===
-            declaredCurrentUrls.length;
+    } catch (error) {
+
+        continue;
+    }
+}
 
 
-    const statusAllowed =
-        [
-            "ACTIVE",
-            "AMENDED",
-            "REPLACED"
-        ].includes(
-            documentStatus
-        );
+const selectedCurrentSources = [
+    ...currentSourceMap.values()
+];
 
 
-    const passed =
-        verification.searched &&
-        verification.verified &&
-        statusAllowed &&
-        allDeclaredUrlsGrounded &&
-        uniqueMatchedSources.length > 0;
+const matchedCurrentUrls =
+    selectedCurrentSources.map(
+        source =>
+            source.uri
+    );
 
 
-    return {
+// ========================================
+// STATUS DOKUMEN
+// ========================================
 
-        attempted:
-            true,
+const statusAllowed =
+    [
+        "ACTIVE",
+        "AMENDED",
+        "REPLACED"
+    ].includes(
+        documentStatus
+    );
 
-        passed:
-            passed,
 
-        searched:
-            verification.searched,
+// ========================================
+// CURRENT DOCUMENT GATE
+//
+// Kita TIDAK lagi bergantung kepada model
+// menaip I4U_CURRENT_URL secara manual.
+//
+// Sumber mesti:
+// - datang daripada Google grounding
+// - domain rasmi
+// - bukan homepage
+// - bukan arkib yang jelas
+// - status current boleh disahkan
+// ========================================
 
-        verified:
-            verification.verified,
+const passed =
+    verification.searched &&
+    verification.verified &&
+    statusAllowed &&
+    selectedCurrentSources.length > 0;
 
-        documentStatus:
-            documentStatus,
 
-        officialSourceCount:
-            uniqueMatchedSources.length,
+return {
 
-        officialSources:
-            uniqueMatchedSources,
+    attempted:
+        true,
 
-        declaredCurrentUrls:
-            declaredCurrentUrls,
+    passed:
+        passed,
 
-        matchedCurrentUrls:
-            matchedCurrentUrls,
+    searched:
+        verification.searched,
 
-        searchQueries:
-            verification.searchQueries || []
-    };
+    verified:
+        verification.verified,
+
+    documentStatus:
+        documentStatus,
+
+    officialSourceCount:
+        selectedCurrentSources.length,
+
+    officialSources:
+        selectedCurrentSources,
+
+
+    // Kekalkan untuk debug sahaja.
+    // Tidak lagi digunakan sebagai syarat PASS.
+    declaredCurrentUrls:
+        declaredCurrentUrls,
+
+    matchedCurrentUrls:
+        matchedCurrentUrls,
+
+    rawOfficialSourceCount:
+        officialSources.length,
+
+    searchQueries:
+        verification.searchQueries || []
+};
 }
 
 // =========================================================
