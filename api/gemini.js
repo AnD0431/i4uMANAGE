@@ -1320,6 +1320,31 @@ TOPIK DIKESAN: KERAJAAN UMUM.
 Utamakan laman rasmi kerajaan Malaysia
 berdomain .gov.my dan badan induk yang
 bertanggungjawab terhadap perkara tersebut.
+
+PENTING UNTUK MAKLUMAT TERKINI:
+
+- Jika terdapat versi pekeliling lama dan versi semasa,
+  gunakan HANYA versi yang masih berkuat kuasa.
+
+- Jangan gunakan kadar, gred, kategori atau jadual daripada
+  dokumen arkib / versi yang telah diganti sebagai jawapan semasa.
+
+- Jika struktur gred telah berubah, gunakan struktur gred
+  yang dinyatakan dalam pekeliling terkini.
+
+- Jangan cuba menukar atau memetakan gred lama kepada
+  struktur gred semasa menggunakan andaian sendiri.
+
+- Untuk soalan yang meminta "kadar terkini", jawab kadar
+  utama yang diminta terlebih dahulu.
+
+- Kadar pecahan seperti 20%, 40% atau syarat tambahan
+  hanya perlu dihuraikan jika ia relevan secara langsung
+  atau pengguna memintanya.
+
+- Jika hasil carian menemukan dokumen arkib dan dokumen
+  semasa, dokumen arkib hanya boleh digunakan untuk
+  memahami sejarah, bukan sebagai sumber nilai semasa.
 `;
     }
 }
