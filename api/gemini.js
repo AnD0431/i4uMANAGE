@@ -655,6 +655,28 @@ function hasSensitiveGovernmentFact(
     const value =
         String(text || "");
 
+        // ========================================
+// REFERENCE-ONLY SENTENCES
+// Jangan jadikan arahan rujukan sebagai
+// sensitive factual claim
+// ========================================
+
+const normalizedValue =
+    value
+        .toLowerCase()
+        .trim();
+
+
+if (
+    normalizedValue.startsWith("sila rujuk") ||
+    normalizedValue.startsWith("rujuk portal") ||
+    normalizedValue.startsWith("rujuk laman") ||
+    normalizedValue.startsWith("untuk maklumat lanjut") ||
+    normalizedValue.startsWith("untuk pengesahan")
+) {
+    return false;
+}
+
 
     const patterns = [
 
@@ -1215,6 +1237,71 @@ if (
         groundingSupports,
         officialSet
     )
+) {
+    return true;
+}
+
+// =================================
+// FALLBACK 2:
+// SENSITIVE VALUE + CONTEXT MATCH
+// =================================
+
+const claimTextNormalized =
+    normalizeText(
+        claim.text
+    );
+
+const segmentTextNormalized =
+    normalizeText(
+        segment?.text || ""
+    );
+
+
+// Ambil nilai sensitif seperti:
+// 90 hari, 180 hari, RM100, 10%
+const sensitiveValues =
+    claimTextNormalized.match(
+        /\b(?:rm\s*)?\d+(?:[.,]\d+)?\s*(?:hari|jam|bulan|malam|km|kilometer|%)?\b/g
+    ) || [];
+
+
+// Keyword konteks penting
+const contextKeywords = [
+    "gcr",
+    "gantian cuti rehat",
+    "pemberian awal",
+    "award wang tunai",
+    "cuti rehat",
+    "kelayakan",
+    "permohonan"
+];
+
+
+const matchingValue =
+    sensitiveValues.some(
+        value =>
+            value.trim().length > 0 &&
+            segmentTextNormalized.includes(
+                value.trim()
+            )
+    );
+
+
+const matchingContext =
+    contextKeywords.some(
+        keyword =>
+            claimTextNormalized.includes(
+                keyword
+            ) &&
+            segmentTextNormalized.includes(
+                keyword
+            )
+    );
+
+
+if (
+    matchingValue &&
+    matchingContext
 ) {
     return true;
 }
