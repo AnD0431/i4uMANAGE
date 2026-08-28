@@ -2954,6 +2954,461 @@ JANGAN beri penerangan tambahan.
 }
 
 // =========================================================
+// CANONICAL GOVERNMENT URL
+// Untuk compare URL yang model declare dengan
+// URL yang benar-benar datang daripada grounding rasmi.
+// =========================================================
+
+function canonicalizeGovernmentUrl(
+    value = ""
+) {
+
+    try {
+
+        const url =
+            new URL(
+                String(value || "")
+                    .trim()
+            );
+
+
+        url.hash = "";
+        url.search = "";
+
+
+        let pathname =
+            url.pathname
+                .replace(/\/+$/, "");
+
+
+        try {
+            pathname =
+                decodeURI(pathname);
+        } catch (error) {
+            // Kekalkan pathname asal
+        }
+
+
+        return (
+            `${url.protocol}//${url.hostname}${pathname}`
+        )
+            .toLowerCase()
+            .trim();
+
+
+    } catch (error) {
+
+        return "";
+    }
+}
+
+
+// =========================================================
+// OBVIOUS ARCHIVE SOURCE CHECK
+// Ini cuma first filter.
+// Status sebenar masih ditentukan oleh search gate.
+// =========================================================
+
+function isLikelyArchivedGovernmentSource(
+    source = {}
+) {
+
+    const uri =
+        String(
+            source?.uri || ""
+        )
+            .toLowerCase();
+
+
+    const title =
+        String(
+            source?.title || ""
+        )
+            .toLowerCase();
+
+
+    const archivePath =
+        /\/(?:arkib|archive|old|legacy)(?:\/|$)/i;
+
+
+    const archiveTitle =
+        /\b(?:arkib|archive|versi lama|dokumen lama)\b/i;
+
+
+    return (
+        archivePath.test(uri) ||
+        archiveTitle.test(title)
+    );
+}
+
+
+// =========================================================
+// CURRENT GOVERNMENT DOCUMENT GATE
+// Cari dokumen SEMASA dari kosong.
+// Jangan percaya source jawapan pertama.
+// =========================================================
+
+async function discoverCurrentGovernmentSources(
+    googleUrl,
+    userMessage,
+    topic,
+    checkedAt
+) {
+
+    const prompt = `
+CURRENT GOVERNMENT DOCUMENT DISCOVERY.
+
+TUGAS ANDA BUKAN MENJAWAB KADAR ATAU SYARAT.
+
+Tugas anda ialah menentukan dokumen rasmi kerajaan
+Malaysia yang sedang berkuat kuasa dan mengawal
+soalan berikut:
+
+"${userMessage}"
+
+Topik:
+${topic}
+
+Masa semakan:
+${checkedAt}
+
+
+ANDA WAJIB MENJALANKAN GOOGLE SEARCH.
+
+
+PERATURAN:
+
+1. Gunakan sumber rasmi kerajaan Malaysia sahaja.
+
+2. Cari dokumen / pekeliling / ceraian / arahan /
+   garis panduan yang PALING TERKINI dan sedang
+   berkuat kuasa.
+
+3. Semak sama ada terdapat:
+   - versi lebih baharu;
+   - pindaan;
+   - dokumen pengganti;
+   - pembatalan;
+   - pemansuhan;
+   - atau versi arkib.
+
+4. Jika dokumen lama telah diganti,
+   JANGAN declare URL dokumen lama sebagai current.
+
+5. Jika terdapat halaman arkib dan dokumen semasa,
+   pilih dokumen semasa sahaja.
+
+6. Jangan senaraikan kadar, amaun, gred,
+   peratus atau nilai dasar.
+   Fokus HANYA kepada identiti dokumen semasa.
+
+7. Jangan gunakan pengetahuan dalaman model
+   sebagai bukti status.
+
+8. Setiap URL yang anda declare MESTI datang
+   daripada sumber rasmi yang ditemui melalui
+   Google Search dalam request ini.
+
+9. Maksimum 3 dokumen semasa jika lebih daripada
+   satu dokumen benar-benar diperlukan.
+
+10. Jika status semasa tidak boleh dipastikan,
+    jangan teka.
+
+
+OUTPUT WAJIB:
+
+Untuk setiap dokumen semasa:
+
+I4U_CURRENT_URL|https://domain.gov.my/path/document
+
+Kemudian SATU status pada baris terakhir:
+
+[[I4U_STATUS:ACTIVE]]
+atau
+[[I4U_STATUS:AMENDED]]
+atau
+[[I4U_STATUS:REPLACED]]
+atau
+[[I4U_STATUS:CANCELLED]]
+atau
+[[I4U_STATUS:UNKNOWN]]
+
+JANGAN masukkan URL lama atau URL arkib.
+`;
+
+
+    const payload = {
+
+        contents: [
+            {
+                role:
+                    "user",
+
+                parts: [
+                    {
+                        text:
+                            prompt
+                    }
+                ]
+            }
+        ],
+
+        tools: [
+            {
+                google_search: {}
+            }
+        ]
+    };
+
+
+    const result =
+        await callGemini(
+            googleUrl,
+            payload
+        );
+
+
+    if (!result.response.ok) {
+
+        return {
+
+            attempted:
+                true,
+
+            passed:
+                false,
+
+            searched:
+                false,
+
+            verified:
+                false,
+
+            documentStatus:
+                "UNKNOWN",
+
+            officialSourceCount:
+                0,
+
+            officialSources:
+                [],
+
+            declaredCurrentUrls:
+                [],
+
+            matchedCurrentUrls:
+                [],
+
+            searchQueries:
+                []
+        };
+    }
+
+
+    const verification =
+        await analyseGrounding(
+            result.data,
+            topic
+        );
+
+
+    const documentStatus =
+        getGovernmentDocumentStatus(
+            result.data
+        );
+
+
+    const responseText =
+        getGovernmentResponseText(
+            result.data
+        );
+
+
+    // ========================================
+    // URL yang model declare sebagai CURRENT
+    // ========================================
+
+    const declaredCurrentUrls = [
+        ...new Set(
+            [
+                ...responseText.matchAll(
+                    /^I4U_CURRENT_URL\|(.+)$/gmi
+                )
+            ]
+                .map(
+                    match =>
+                        String(
+                            match[1] || ""
+                        ).trim()
+                )
+                .filter(
+                    url =>
+                        url &&
+                        url.toUpperCase() !==
+                            "UNKNOWN"
+                )
+        )
+    ].slice(0, 3);
+
+
+    // ========================================
+    // Grounded official URLs
+    // ========================================
+
+    const officialSources =
+        Array.isArray(
+            verification?.officialSources
+        )
+            ? verification.officialSources
+            : [];
+
+
+    const groundedSourceMap =
+        new Map();
+
+
+    officialSources.forEach(
+        source => {
+
+            const key =
+                canonicalizeGovernmentUrl(
+                    source?.uri
+                );
+
+
+            if (
+                key &&
+                !isLikelyArchivedGovernmentSource(
+                    source
+                )
+            ) {
+
+                groundedSourceMap.set(
+                    key,
+                    source
+                );
+            }
+        }
+    );
+
+
+    // ========================================
+    // Current URL MESTI sama dengan URL
+    // daripada official grounding.
+    // ========================================
+
+    const matchedSources = [];
+
+
+    declaredCurrentUrls.forEach(
+        declaredUrl => {
+
+            const key =
+                canonicalizeGovernmentUrl(
+                    declaredUrl
+                );
+
+
+            const source =
+                groundedSourceMap.get(
+                    key
+                );
+
+
+            if (source) {
+
+                matchedSources.push(
+                    source
+                );
+            }
+        }
+    );
+
+
+    // Dedupe
+    const uniqueMatchedSources = [
+        ...new Map(
+            matchedSources.map(
+                source => [
+                    canonicalizeGovernmentUrl(
+                        source.uri
+                    ),
+                    source
+                ]
+            )
+        ).values()
+    ];
+
+
+    const matchedCurrentUrls =
+        uniqueMatchedSources.map(
+            source =>
+                source.uri
+        );
+
+
+    // Semua URL yang model claim sebagai current
+    // mesti benar-benar datang daripada grounding rasmi.
+    const allDeclaredUrlsGrounded =
+        declaredCurrentUrls.length > 0 &&
+        uniqueMatchedSources.length ===
+            declaredCurrentUrls.length;
+
+
+    const statusAllowed =
+        [
+            "ACTIVE",
+            "AMENDED",
+            "REPLACED"
+        ].includes(
+            documentStatus
+        );
+
+
+    const passed =
+        verification.searched &&
+        verification.verified &&
+        statusAllowed &&
+        allDeclaredUrlsGrounded &&
+        uniqueMatchedSources.length > 0;
+
+
+    return {
+
+        attempted:
+            true,
+
+        passed:
+            passed,
+
+        searched:
+            verification.searched,
+
+        verified:
+            verification.verified,
+
+        documentStatus:
+            documentStatus,
+
+        officialSourceCount:
+            uniqueMatchedSources.length,
+
+        officialSources:
+            uniqueMatchedSources,
+
+        declaredCurrentUrls:
+            declaredCurrentUrls,
+
+        matchedCurrentUrls:
+            matchedCurrentUrls,
+
+        searchQueries:
+            verification.searchQueries || []
+    };
+}
+
+// =========================================================
 // MAIN HANDLER
 // =========================================================
 
@@ -3341,6 +3796,49 @@ if (
     }
 }
 
+// =========================================================
+// CURRENT DOCUMENT GATE
+// WAJIB sebelum fakta kerajaan boleh dianggap semasa.
+// =========================================================
+
+const currentDocumentGate =
+    await discoverCurrentGovernmentSources(
+        GOOGLE_URL,
+        latestUserMessage,
+        governmentTopic,
+        checkedAt
+    );
+
+
+console.warn(
+    "I4U_GOV_CURRENT_DOC_GATE_RESULT",
+    {
+        passed:
+            currentDocumentGate.passed,
+
+        searched:
+            currentDocumentGate.searched,
+
+        verified:
+            currentDocumentGate.verified,
+
+        documentStatus:
+            currentDocumentGate.documentStatus,
+
+        declaredCurrentUrls:
+            currentDocumentGate
+                .declaredCurrentUrls,
+
+        matchedCurrentUrls:
+            currentDocumentGate
+                .matchedCurrentUrls,
+
+        officialSources:
+            currentDocumentGate
+                .officialSourceCount
+    }
+);
+
         let sensitiveClaimCoverage =
     analyseSensitiveClaimCoverage(
         data,
@@ -3472,6 +3970,7 @@ claimRetryPayload =
 // =========================================================
 
 if (
+    currentDocumentGate.passed &&
     claimRetryVerification.verified &&
     claimRetryCoverage.required &&
     !claimRetryCoverage.passed &&
@@ -3484,10 +3983,8 @@ let fullDocumentVerification =
     await verifyUnsupportedClaimsWithOfficialUrls(
         GOOGLE_URL,
         latestUserMessage,
-        claimRetryCoverage
-            .unsupportedClaims,
-        claimRetryVerification
-            .officialSources,
+        claimRetryCoverage.unsupportedClaims,
+        currentDocumentGate.officialSources,
         governmentTopic
     );
 
@@ -3513,7 +4010,7 @@ if (
             latestUserMessage,
             claimRetryCoverage
                 .unsupportedClaims,
-            claimRetryVerification
+            currentDocumentGate
                 .officialSources,
             governmentTopic
         );
@@ -3608,14 +4105,16 @@ if (
 // ===============================
 
 const governmentDocumentStatus =
-    getGovernmentDocumentStatus(
-        data
-    );
+    currentDocumentGate.passed
+        ? currentDocumentGate
+            .documentStatus
+        : "UNKNOWN";
 
 
 const currentStatusVerified =
-    verification.searched &&
-    verification.officialSourceCount > 0 &&
+    currentDocumentGate.passed &&
+    currentDocumentGate
+        .officialSourceCount > 0 &&
     [
         "ACTIVE",
         "AMENDED",
@@ -3628,7 +4127,7 @@ const currentStatusVerified =
         // FAIL CLOSED
         // ===============================
 
-        if (!verification.verified || !currentStatusVerified || !sensitiveClaimCoverage.passed) {
+        if (!verification.verified || !currentDocumentGate.passed || !currentStatusVerified || !sensitiveClaimCoverage.passed) {
 
            console.warn(
     "Verified Government Mode failed.",
@@ -3669,6 +4168,35 @@ const currentStatusVerified =
 
 // Buang marker dalaman sebelum dihantar ke frontend
 removeGovernmentStatusMarker(data);
+
+// Gunakan hanya sumber yang lulus
+// Current Document Gate.
+verification = {
+
+    ...verification,
+
+    officialSourceCount:
+        currentDocumentGate
+            .officialSourceCount,
+
+    officialSources:
+        currentDocumentGate
+            .officialSources,
+
+    searchQueries: [
+        ...new Set([
+            ...(
+                verification
+                    .searchQueries || []
+            ),
+
+            ...(
+                currentDocumentGate
+                    .searchQueries || []
+            )
+        ])
+    ]
+};
 
         data.i4uVerification = {
 
