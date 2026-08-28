@@ -2228,7 +2228,7 @@ JANGAN beri penerangan tambahan.
     };
 
 
-    const result =
+    let result =
         await callGemini(
             googleUrl,
             verifierPayload
@@ -3206,11 +3206,117 @@ JANGAN masukkan URL lama atau URL arkib.
     }
 
 
-    const verification =
+    let verification =
         await analyseGrounding(
             result.data,
             topic
         );
+
+        // =========================================================
+// RETRY CURRENT-DOCUMENT SEARCH JIKA SEARCH TAK TRIGGER
+// =========================================================
+
+if (
+    !verification.searched ||
+    verification.totalSources === 0
+) {
+
+    console.warn(
+        "I4U_CURRENT_DOC_SEARCH_NOT_TRIGGERED",
+        {
+            query:
+                userMessage,
+
+            topic:
+                topic
+        }
+    );
+
+
+    const retryPayload = {
+
+        contents: [
+            {
+                role:
+                    "user",
+
+                parts: [
+                    {
+                        text:
+`${prompt}
+
+PENTING — GOOGLE SEARCH WAJIB.
+
+Percubaan sebelumnya tidak menjalankan Google Search.
+
+Jalankan Google Search SEKARANG.
+
+JANGAN jawab daripada pengetahuan dalaman model.
+
+Cari dokumen rasmi kerajaan Malaysia yang PALING TERKINI
+dan sedang berkuat kuasa untuk soalan pengguna.
+
+JANGAN keluarkan homepage seperti:
+
+https://ppp.treasury.gov.my
+https://jpa.gov.my
+https://mof.gov.my
+
+I4U_CURRENT_URL mesti URL TEPAT kepada:
+- PDF semasa; atau
+- halaman dokumen/ceraian/pekeliling semasa.
+
+Contoh format:
+
+I4U_CURRENT_URL|https://domain.gov.my/path/dokumen-semasa.pdf
+
+Jika URL dokumen semasa tidak dapat dikenal pasti daripada
+Google Search, gunakan:
+
+[[I4U_STATUS:UNKNOWN]]
+`
+                    }
+                ]
+            }
+        ],
+
+        tools: [
+            {
+                google_search: {}
+            }
+        ]
+    };
+
+
+    const retryResult =
+        await callGemini(
+            googleUrl,
+            retryPayload
+        );
+
+
+    if (retryResult.response.ok) {
+
+        const retryVerification =
+            await analyseGrounding(
+                retryResult.data,
+                topic
+            );
+
+
+        if (
+            retryVerification.searched &&
+            retryVerification.totalSources > 0
+        ) {
+
+            result =
+                retryResult;
+
+            verification =
+                retryVerification;
+        }
+    }
+}
 
 
     const documentStatus =
@@ -3243,11 +3349,43 @@ JANGAN masukkan URL lama atau URL arkib.
                         ).trim()
                 )
                 .filter(
-                    url =>
-                        url &&
-                        url.toUpperCase() !==
-                            "UNKNOWN"
-                )
+    value => {
+
+        if (
+            !value ||
+            value.toUpperCase() ===
+                "UNKNOWN"
+        ) {
+            return false;
+        }
+
+
+        try {
+
+            const url =
+                new URL(value);
+
+
+            // Tolak homepage/domain root.
+            // Current Document Gate perlukan
+            // URL dokumen sebenar.
+            if (
+                !url.pathname ||
+                url.pathname === "/"
+            ) {
+                return false;
+            }
+
+
+            return true;
+
+
+        } catch (error) {
+
+            return false;
+        }
+    }
+)
         )
     ].slice(0, 3);
 
