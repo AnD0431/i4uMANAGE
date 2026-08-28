@@ -801,22 +801,27 @@ function extractCriticalGovernmentFacts(text = "") {
         );
     }
 
+// ===============================
+// PECAHAN DASAR YANG LAZIM
+// Elak nombor rujukan seperti 228/26
+// ===============================
 
-    // ===============================
-    // PECAHAN
-    // ===============================
+for (
+    const match of value.matchAll(
+        /\b(?:1\s*\/\s*2|1\s*\/\s*3|2\s*\/\s*3|1\s*\/\s*4|3\s*\/\s*4)\b/g
+    )
+) {
 
-    for (
-        const match of value.matchAll(
-            /\b(\d+)\s*\/\s*(\d+)\b/g
-        )
-    ) {
+    const fraction =
+        match[0]
+            .replace(/\s+/g, "");
 
-        addFact(
-            `fraction:${match[1]}/${match[2]}`,
-            `${match[1]}/${match[2]}`
-        );
-    }
+
+    addFact(
+        `fraction:${fraction}`,
+        fraction
+    );
+}
 
 
     // ===============================
@@ -1926,62 +1931,89 @@ function getTargetedClaimVerificationInstruction(
     return `
 PENGESAHAN FAKTA KERAJAAN — CARIAN SASARAN.
 
-Soalan pengguna:
+SOALAN ASAL PENGGUNA:
 
 "${userMessage}"
 
-Jawapan sebelumnya mempunyai fakta kritikal yang belum
-mempunyai grounding rasmi yang mencukupi:
+Fakta berikut telah dikesan dalam jawapan pertama tetapi
+belum mempunyai grounding rasmi yang mencukupi:
 
-${claims.map(
-    claim => `- ${claim}`
-).join("\n")}
+${claims
+    .map(claim => `- ${claim}`)
+    .join("\n")}
 
-ANDA WAJIB menjalankan Google Search semula dan mencari
-sumber rasmi kerajaan Malaysia yang secara khusus menyokong
-fakta-fakta tersebut.
+PENTING:
+
+Senarai di atas BUKAN fakta yang perlu dipertahankan.
+Ia ialah calon fakta yang perlu DISAHKAN, DIBETULKAN
+atau DIBUANG.
+
+ANDA WAJIB menjalankan Google Search menggunakan
+sumber rasmi kerajaan Malaysia.
 
 Topik:
 ${topic}
 
-PERATURAN:
 
-1. Gunakan sumber rasmi dan autoritatif sahaja.
+PERATURAN WAJIB:
 
-2. Jika topik perkhidmatan awam, utamakan:
+1. JAWAB HANYA perkara yang ditanya oleh pengguna.
+
+2. Jika fakta dalam senarai unsupported:
+   - salah;
+   - telah dipinda;
+   - telah diganti;
+   - sudah tidak berkuat kuasa;
+   - atau tidak berkaitan dengan soalan;
+
+   JANGAN masukkan fakta tersebut dalam jawapan akhir.
+
+3. Untuk soalan yang meminta maklumat semasa / terkini /
+   sedang berkuat kuasa:
+
+   - gunakan HANYA nilai, kadar, syarat dan peraturan semasa;
+   - sejarah pindaan boleh digunakan untuk tujuan semakan;
+   - tetapi JANGAN paparkan nilai lama dalam jawapan akhir
+     kecuali pengguna secara khusus meminta sejarah perubahan.
+
+4. Jangan menambah fakta daripada topik berkaitan yang
+   tidak ditanya.
+
+   Contohnya, jika pengguna bertanya kaedah pengumpulan
+   dan had maksimum sesuatu kemudahan, jangan secara
+   automatik menambah syarat permohonan, kelayakan lain,
+   pembayaran awal atau proses persaraan jika tidak diperlukan.
+
+5. Jangan masukkan nombor, tarikh, kadar, tempoh, gred,
+   amaun atau peratus hanya kerana ia muncul dalam dokumen
+   sejarah atau contoh pengiraan.
+
+6. Gunakan sumber rasmi dan autoritatif sahaja.
+
+7. Untuk perkhidmatan awam, utamakan:
    - jpa.gov.my
    - docs.jpa.gov.my
    - MyPPSM JPA
 
-3. Jangan gunakan pengetahuan dalaman model sebagai bukti.
+8. Jangan gunakan pengetahuan dalaman model sebagai bukti.
 
-4. Jangan reka atau andaikan nilai seperti:
-   - RM;
-   - peratus;
-   - bilangan hari;
-   - tahun perkhidmatan;
-   - umur;
-   - pecahan;
-   - kadar;
-   - gred;
-   - tarikh.
+9. Jika fakta semasa tidak dapat disahkan daripada sumber
+   rasmi, jangan teka. Nyatakan bahawa fakta tersebut tidak
+   dapat disahkan.
 
-5. Jika sesuatu fakta tidak dapat disahkan daripada sumber
-   rasmi, JANGAN masukkan fakta itu dalam jawapan akhir.
+10. Jawapan akhir mestilah ringkas, terus kepada soalan
+    dan menggunakan fakta semasa sahaja.
 
-6. Jawab semula soalan pengguna secara lengkap menggunakan
-   hanya fakta yang berjaya disahkan.
+11. Semak status kuat kuasa dokumen.
 
-7. Semak status kuat kuasa dokumen semasa.
+12. Letakkan SATU penanda pada baris terakhir:
 
-8. Kekalkan satu penanda:
-   [[I4U_STATUS:ACTIVE]]
-   [[I4U_STATUS:AMENDED]]
-   [[I4U_STATUS:REPLACED]]
-   [[I4U_STATUS:CANCELLED]]
-   atau
-   [[I4U_STATUS:UNKNOWN]]
-   pada baris terakhir.
+[[I4U_STATUS:ACTIVE]]
+[[I4U_STATUS:AMENDED]]
+[[I4U_STATUS:REPLACED]]
+[[I4U_STATUS:CANCELLED]]
+atau
+[[I4U_STATUS:UNKNOWN]]
 `;
 }
 
