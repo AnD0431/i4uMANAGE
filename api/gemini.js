@@ -2446,6 +2446,514 @@ JANGAN beri penerangan tambahan.
 }
 
 // =========================================================
+// FETCH OFFICIAL PDF + VERIFY CLAIMS DIRECTLY
+// Fallback apabila URL Context gagal retrieve.
+// =========================================================
+
+async function verifyUnsupportedClaimsWithFetchedOfficialPdfs(
+    googleUrl,
+    userMessage,
+    unsupportedClaims = [],
+    officialSources = [],
+    topic = "general-government"
+) {
+
+    const claims = [
+        ...new Set(
+            (
+                Array.isArray(unsupportedClaims)
+                    ? unsupportedClaims
+                    : []
+            )
+                .map(value =>
+                    String(value || "").trim()
+                )
+                .filter(Boolean)
+        )
+    ].slice(0, 20);
+
+
+    if (claims.length === 0) {
+
+        return {
+            attempted: false,
+            retrieved: false,
+            passed: false,
+            totalClaims: 0,
+            supportedClaims: [],
+            unsupportedClaims: [],
+            fetchedUrls: []
+        };
+    }
+
+
+    const urls = [
+        ...new Set(
+            (
+                Array.isArray(officialSources)
+                    ? officialSources
+                    : []
+            )
+                .map(source =>
+                    String(source?.uri || "").trim()
+                )
+                .filter(Boolean)
+        )
+    ].slice(0, 4);
+
+
+    const MAX_PDF_BYTES =
+        12 * 1024 * 1024; // 12 MB setiap PDF
+
+    const fetchedPdfs = [];
+
+
+    // ========================================
+    // DOWNLOAD PDF FROM VERIFIED OFFICIAL URL
+    // ========================================
+
+    for (const uri of urls) {
+
+        if (fetchedPdfs.length >= 3) {
+            break;
+        }
+
+
+        try {
+
+            const parsedUrl =
+                new URL(uri);
+
+
+            // HTTPS sahaja
+            if (parsedUrl.protocol !== "https:") {
+                continue;
+            }
+
+
+            // WAJIB masih domain rasmi yang
+            // dibenarkan oleh topic router.
+            if (
+                !isAuthoritativeGovernmentHostname(
+                    parsedUrl.hostname,
+                    topic
+                )
+            ) {
+                continue;
+            }
+
+
+            const controller =
+                new AbortController();
+
+
+            const timeout =
+                setTimeout(
+                    () => controller.abort(),
+                    12000
+                );
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        uri,
+                        {
+                            method: "GET",
+
+                            redirect:
+                                "follow",
+
+                            signal:
+                                controller.signal,
+
+                            headers: {
+                                "User-Agent":
+                                    "Mozilla/5.0 i4uManage-Sarah"
+                            }
+                        }
+                    );
+
+
+                if (!response.ok) {
+                    continue;
+                }
+
+
+                const contentType =
+                    String(
+                        response.headers.get(
+                            "content-type"
+                        ) || ""
+                    )
+                        .toLowerCase()
+                        .split(";")[0]
+                        .trim();
+
+
+                const looksLikePdf =
+                    contentType ===
+                        "application/pdf" ||
+                    parsedUrl.pathname
+                        .toLowerCase()
+                        .endsWith(".pdf");
+
+
+                // Buat masa ini fallback ini
+                // khusus untuk dokumen PDF rasmi.
+                if (!looksLikePdf) {
+                    continue;
+                }
+
+
+                const contentLength =
+                    Number(
+                        response.headers.get(
+                            "content-length"
+                        )
+                    );
+
+
+                if (
+                    Number.isFinite(contentLength) &&
+                    contentLength >
+                        MAX_PDF_BYTES
+                ) {
+                    continue;
+                }
+
+
+                const arrayBuffer =
+                    await response.arrayBuffer();
+
+
+                if (
+                    arrayBuffer.byteLength === 0 ||
+                    arrayBuffer.byteLength >
+                        MAX_PDF_BYTES
+                ) {
+                    continue;
+                }
+
+
+                const base64 =
+                    Buffer
+                        .from(arrayBuffer)
+                        .toString("base64");
+
+
+                fetchedPdfs.push({
+                    uri,
+                    data:
+                        base64
+                });
+
+
+            } finally {
+
+                clearTimeout(
+                    timeout
+                );
+            }
+
+
+        } catch (error) {
+
+            console.warn(
+                "Official PDF fetch failed:",
+                uri,
+                error?.message || error
+            );
+        }
+    }
+
+
+    // ========================================
+    // TIADA PDF BERJAYA DOWNLOAD
+    // ========================================
+
+    if (fetchedPdfs.length === 0) {
+
+        return {
+
+            attempted:
+                true,
+
+            retrieved:
+                false,
+
+            passed:
+                false,
+
+            totalClaims:
+                claims.length,
+
+            supportedClaims:
+                [],
+
+            unsupportedClaims:
+                claims,
+
+            fetchedUrls:
+                []
+        };
+    }
+
+
+    // ========================================
+    // PROMPT VERIFIER
+    // ========================================
+
+    const numberedClaims =
+        claims
+            .map(
+                (claim, index) =>
+                    `${index + 1}. ${claim}`
+            )
+            .join("\n");
+
+
+    const prompt = `
+FULL-DOCUMENT GOVERNMENT FACT VERIFICATION.
+
+SOALAN ASAL:
+
+"${userMessage}"
+
+TOPIK:
+
+${topic}
+
+
+FAKTA CALON YANG PERLU DISAHKAN:
+
+${numberedClaims}
+
+
+PENTING:
+
+Senarai di atas BUKAN fakta yang dianggap benar.
+
+Semak setiap fakta menggunakan kandungan PDF rasmi
+yang diberikan bersama request ini.
+
+
+PERATURAN:
+
+1. SUPPORTED hanya jika dokumen rasmi secara jelas
+   menyokong fakta tersebut dalam konteks soalan.
+
+2. Jika pengguna meminta maklumat terkini / semasa /
+   sedang berkuat kuasa, fakta lama atau sejarah pindaan
+   TIDAK BOLEH dianggap sebagai fakta semasa.
+
+3. Jangan menganggap fakta benar hanya kerana nombor
+   yang sama muncul di bahagian lain PDF.
+
+4. Semak kandungan jadual, lampiran, nota kaki,
+   kadar, gred dan tarikh kuat kuasa.
+
+5. Jika struktur gred lama telah diganti,
+   jangan gunakan gred lama sebagai fakta semasa.
+
+6. Jangan gunakan pengetahuan dalaman model sebagai bukti.
+
+7. Jika tidak jelas, tandakan UNSUPPORTED.
+
+
+OUTPUT WAJIB:
+
+I4U_FACT|1|SUPPORTED
+I4U_FACT|2|UNSUPPORTED
+
+Satu baris untuk setiap fakta.
+JANGAN beri penerangan tambahan.
+`;
+
+
+    // PDF mesti dihantar sebagai inline_data.
+    const pdfParts =
+        fetchedPdfs.map(
+            pdf => ({
+                inline_data: {
+
+                    mime_type:
+                        "application/pdf",
+
+                    data:
+                        pdf.data
+                }
+            })
+        );
+
+
+    const verifierPayload = {
+
+        contents: [
+            {
+                role:
+                    "user",
+
+                parts: [
+
+                    ...pdfParts,
+
+                    {
+                        text:
+                            prompt
+                    }
+                ]
+            }
+        ]
+    };
+
+
+    const result =
+        await callGemini(
+            googleUrl,
+            verifierPayload
+        );
+
+
+    if (!result.response.ok) {
+
+        return {
+
+            attempted:
+                true,
+
+            retrieved:
+                true,
+
+            passed:
+                false,
+
+            totalClaims:
+                claims.length,
+
+            supportedClaims:
+                [],
+
+            unsupportedClaims:
+                claims,
+
+            fetchedUrls:
+                fetchedPdfs.map(
+                    pdf => pdf.uri
+                ),
+
+            apiStatus:
+                result.response.status
+        };
+    }
+
+
+    // ========================================
+    // PARSE VERDICT
+    // ========================================
+
+    const verifierText =
+        getGovernmentResponseText(
+            result.data
+        );
+
+
+    const decisions =
+        new Map();
+
+
+    const decisionPattern =
+        /I4U_FACT\|(\d+)\|(SUPPORTED|UNSUPPORTED)/gi;
+
+
+    for (
+        const match of verifierText.matchAll(
+            decisionPattern
+        )
+    ) {
+
+        const index =
+            Number(match[1]) - 1;
+
+
+        if (
+            index >= 0 &&
+            index < claims.length
+        ) {
+
+            decisions.set(
+                index,
+                match[2].toUpperCase()
+            );
+        }
+    }
+
+
+    const supportedClaims = [];
+
+    const remainingClaims = [];
+
+
+    claims.forEach(
+        (claim, index) => {
+
+            if (
+                decisions.get(index) ===
+                "SUPPORTED"
+            ) {
+
+                supportedClaims.push(
+                    claim
+                );
+
+            } else {
+
+                remainingClaims.push(
+                    claim
+                );
+            }
+        }
+    );
+
+
+    const allClaimsClassified =
+        decisions.size ===
+        claims.length;
+
+
+    return {
+
+        attempted:
+            true,
+
+        retrieved:
+            true,
+
+        passed:
+            allClaimsClassified &&
+            remainingClaims.length === 0,
+
+        totalClaims:
+            claims.length,
+
+        supportedClaims:
+            supportedClaims,
+
+        unsupportedClaims:
+            remainingClaims,
+
+        fetchedUrls:
+            fetchedPdfs.map(
+                pdf => pdf.uri
+            ),
+
+        allClaimsClassified:
+            allClaimsClassified
+    };
+}
+
+// =========================================================
 // MAIN HANDLER
 // =========================================================
 
@@ -2972,8 +3480,35 @@ if (
         .length > 0
 ) {
 
-    const urlContextVerification =
-        await verifyUnsupportedClaimsWithOfficialUrls(
+let fullDocumentVerification =
+    await verifyUnsupportedClaimsWithOfficialUrls(
+        GOOGLE_URL,
+        latestUserMessage,
+        claimRetryCoverage
+            .unsupportedClaims,
+        claimRetryVerification
+            .officialSources,
+        governmentTopic
+    );
+
+
+console.warn(
+    "I4U_GOV_URL_CONTEXT_RESULT",
+    fullDocumentVerification
+);
+
+
+// =========================================================
+// URL CONTEXT GAGAL?
+// SERVER DOWNLOAD PDF SENDIRI
+// =========================================================
+
+if (
+    !fullDocumentVerification.retrieved
+) {
+
+    fullDocumentVerification =
+        await verifyUnsupportedClaimsWithFetchedOfficialPdfs(
             GOOGLE_URL,
             latestUserMessage,
             claimRetryCoverage
@@ -2985,39 +3520,45 @@ if (
 
 
     console.warn(
-        "I4U_GOV_URL_CONTEXT_RESULT",
-        urlContextVerification
+        "I4U_GOV_FETCHED_PDF_RESULT",
+        fullDocumentVerification
     );
+}
 
 
-    // Semua unsupported facts telah
-    // disahkan terus daripada dokumen rasmi.
-    if (
-        urlContextVerification.passed
-    ) {
+// =========================================================
+// FULL DOCUMENT VERIFIED
+// =========================================================
 
-        claimRetryCoverage = {
+if (
+    fullDocumentVerification.passed
+) {
 
-            ...claimRetryCoverage,
+    claimRetryCoverage = {
 
-            passed:
-                true,
+        ...claimRetryCoverage,
 
-            supportedClaims:
-                claimRetryCoverage
-                    .totalClaims,
+        passed:
+            true,
 
-            unsupportedClaims:
-                [],
+        supportedClaims:
+            claimRetryCoverage
+                .totalClaims,
 
-            urlContextVerified:
-                true,
+        unsupportedClaims:
+            [],
 
-            urlContextSources:
-                urlContextVerification
-                    .retrievedUrls
-        };
-    }
+        fullDocumentVerified:
+            true,
+
+        fullDocumentSources:
+            fullDocumentVerification
+                .fetchedUrls ||
+            fullDocumentVerification
+                .retrievedUrls ||
+            []
+    };
+}
 }
 
             console.warn(
