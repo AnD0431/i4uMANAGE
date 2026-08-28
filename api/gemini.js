@@ -2379,8 +2379,8 @@ if (
         verification.officialChunkIndices
     );
 
-    // =========================================================
-// ONE TARGETED RETRY FOR UNSUPPORTED CRITICAL FACTS
+// =========================================================
+// TARGETED RETRY FOR UNSUPPORTED GOVERNMENT FACTS
 // =========================================================
 
 if (
@@ -2392,12 +2392,9 @@ if (
     console.warn(
         "I4U_GOV_TARGETED_CLAIM_RETRY",
         {
-            query:
-                latestUserMessage,
-
+            query: latestUserMessage,
             unsupportedClaims:
-                sensitiveClaimCoverage
-                    .unsupportedClaims
+                sensitiveClaimCoverage.unsupportedClaims
         }
     );
 
@@ -2407,8 +2404,7 @@ if (
             payload,
             getTargetedClaimVerificationInstruction(
                 latestUserMessage,
-                sensitiveClaimCoverage
-                    .unsupportedClaims,
+                sensitiveClaimCoverage.unsupportedClaims,
                 governmentTopic
             )
         );
@@ -2427,9 +2423,7 @@ if (
         );
 
 
-    if (
-        claimRetryResult.response.ok
-    ) {
+    if (claimRetryResult.response.ok) {
 
         const claimRetryVerification =
             await analyseGrounding(
@@ -2446,8 +2440,8 @@ if (
             );
 
 
-        // Ganti jawapan asal HANYA apabila
-        // retry benar-benar berjaya disahkan.
+        // Gunakan jawapan retry HANYA jika
+        // semua verification berjaya
         if (
             claimRetryVerification.verified &&
             claimRetryCoverage.passed
@@ -2528,6 +2522,9 @@ const currentStatusVerified =
         // ===============================
         // VERIFIED RESPONSE
         // ===============================
+
+// Buang marker dalaman sebelum dihantar ke frontend
+removeGovernmentStatusMarker(data);
 
         data.i4uVerification = {
 
