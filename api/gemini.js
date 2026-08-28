@@ -2439,6 +2439,28 @@ if (
                     .officialChunkIndices
             );
 
+            console.warn(
+    "I4U_GOV_TARGETED_RETRY_RESULT",
+    {
+        searched:
+            claimRetryVerification.searched,
+
+        verified:
+            claimRetryVerification.verified,
+
+        officialSources:
+            claimRetryVerification
+                .officialSourceCount,
+
+        totalSources:
+            claimRetryVerification
+                .totalSources,
+
+        claimCoverage:
+            claimRetryCoverage
+    }
+);
+
 
         // Gunakan jawapan retry HANYA jika
         // semua verification berjaya
