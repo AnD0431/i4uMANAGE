@@ -1329,6 +1329,48 @@ const matchingValue =
     );
 
 
+// =================================
+// STRONG SENSITIVE VALUE
+// Nilai dengan unit yang tepat seperti:
+// 180 hari, RM60, 90%, 8 jam
+// =================================
+
+const strongValueMatch =
+    sensitiveValues.some(
+        value => {
+
+            const cleanValue =
+                value
+                    .trim()
+                    .toLowerCase();
+
+            const hasStrongUnit =
+                (
+                    cleanValue.startsWith("rm") ||
+                    cleanValue.includes("%") ||
+                    /\b(?:hari|jam|bulan|malam|km|kilometer)\b/i
+                        .test(cleanValue)
+                );
+
+
+            return (
+                hasStrongUnit &&
+                segmentTextNormalized.includes(
+                    cleanValue
+                )
+            );
+        }
+    );
+
+
+// Jika grounding rasmi sendiri mengandungi
+// nilai sensitif lengkap yang sama,
+// nilai itu dianggap disokong.
+if (strongValueMatch) {
+    return true;
+}
+
+
 const matchingContext =
     contextKeywords.some(
         keyword =>
