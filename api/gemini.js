@@ -1144,7 +1144,7 @@ function analyseSensitiveClaimCoverage(
     sensitiveClaims.forEach(
         claim => {
 
-            const officiallySupported =
+            let officiallySupported =
                 groundingSupports.some(
                     support => {
 
@@ -1393,6 +1393,127 @@ if (
                         return false;
                     }
                 );
+
+                // ========================================
+// FINAL FALLBACK:
+// AGGREGATE ALL OFFICIAL SUPPORT SEGMENTS
+// ========================================
+
+if (!officiallySupported) {
+
+    const officialSupportText =
+        normalizeText(
+            groundingSupports
+
+                .filter(
+                    support => {
+
+                        const chunkIndices =
+                            Array.isArray(
+                                support
+                                    ?.groundingChunkIndices
+                            )
+                                ? support
+                                    .groundingChunkIndices
+                                : [];
+
+
+                        const hasOfficialChunk =
+                            chunkIndices.some(
+                                index =>
+                                    officialSet.has(
+                                        index
+                                    )
+                            );
+
+
+                        if (!hasOfficialChunk) {
+                            return false;
+                        }
+
+
+                        const segmentPartIndex =
+                            Number.isInteger(
+                                support?.segment?.partIndex
+                            )
+                                ? support.segment.partIndex
+                                : 0;
+
+
+                        return (
+                            segmentPartIndex ===
+                            claim.partIndex
+                        );
+                    }
+                )
+
+                .map(
+                    support =>
+                        support?.segment?.text || ""
+                )
+
+                .join(" ")
+        );
+
+
+    const claimTextNormalized =
+        normalizeText(
+            claim.text
+        );
+
+
+    // Nilai kukuh sahaja:
+    // RM60, 90 hari, 180 hari, 10%, 8 jam
+    const strongValues =
+        claimTextNormalized.match(
+            /\brm\s*\d+(?:[.,]\d+)?\b|\b\d+(?:[.,]\d+)?\s*(?:hari|jam|bulan|malam|km|kilometer|%)\b/gi
+        ) || [];
+
+
+    const contextKeywords = [
+
+        "gcr",
+        "gantian cuti rehat",
+        "pemberian awal",
+        "award wang tunai",
+        "penebusan",
+        "cuti rehat",
+        "kelayakan",
+        "permohonan"
+    ];
+
+
+    const valueSupported =
+        strongValues.some(
+            value =>
+                officialSupportText.includes(
+                    normalizeText(
+                        value
+                    )
+                )
+        );
+
+
+    const contextSupported =
+        contextKeywords.some(
+            keyword =>
+                claimTextNormalized.includes(
+                    keyword
+                ) &&
+                officialSupportText.includes(
+                    keyword
+                )
+        );
+
+
+    if (
+        valueSupported &&
+        contextSupported
+    ) {
+
+        officiallySupported = true;
+    }
+}
 
 
             if (officiallySupported) {
