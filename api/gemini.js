@@ -719,6 +719,173 @@ function getGovernmentResponseText(
         .join("\n");
 }
 
+// =========================================================
+// EXTRACT SENSITIVE TOKENS FROM GOVERNMENT CLAIM
+// =========================================================
+
+function extractSensitiveGovernmentTokens(
+    text = ""
+) {
+
+    const value =
+        String(text || "");
+
+    const tokens =
+        new Set();
+
+
+    const patterns = [
+
+        // 180 hari / 15 tahun / 45 tahun
+        /\b\d+(?:\.\d+)?\s*(?:hari|tahun|bulan|jam|malam)\b/gi,
+
+        // 1/2
+        /\b\d+\s*\/\s*\d+\b/g,
+
+        // RM100 / RM 1,500.00
+        /\bRM\s?\d[\d,.]*/gi,
+
+        // 10%
+        /\b\d+(?:\.\d+)?\s?%/g,
+
+        // PP.1.3.1 / SR.5.1.5
+        /\b[A-Z]{1,6}\.\d+(?:\.\d+)+\b/gi,
+
+        // Akta 227
+        /\bAkta\s+\d+\b/gi
+    ];
+
+
+    patterns.forEach(
+        pattern => {
+
+            const matches =
+                value.match(pattern) || [];
+
+
+            matches.forEach(
+                match => {
+
+                    const normalized =
+                        match
+                            .toLowerCase()
+                            .replace(/\s+/g, " ")
+                            .trim();
+
+                    tokens.add(
+                        normalized
+                    );
+                }
+            );
+        }
+    );
+
+
+    return [
+        ...tokens
+    ];
+}
+
+
+// =========================================================
+// TOKEN COVERAGE AGAINST OFFICIAL GROUNDED SEGMENTS
+// =========================================================
+
+function hasOfficialSensitiveTokenCoverage(
+    claimText,
+    groundingSupports,
+    officialSet
+) {
+
+    const requiredTokens =
+        extractSensitiveGovernmentTokens(
+            claimText
+        );
+
+
+    if (
+        requiredTokens.length === 0
+    ) {
+        return false;
+    }
+
+
+    const officialSegmentTexts = [];
+
+
+    groundingSupports.forEach(
+        support => {
+
+            const chunkIndices =
+                Array.isArray(
+                    support
+                        ?.groundingChunkIndices
+                )
+                    ? support
+                        .groundingChunkIndices
+                    : [];
+
+
+            const hasOfficialChunk =
+                chunkIndices.some(
+                    index =>
+                        officialSet.has(
+                            index
+                        )
+                );
+
+
+            if (!hasOfficialChunk) {
+                return;
+            }
+
+
+            const segmentText =
+                support
+                    ?.segment
+                    ?.text;
+
+
+            if (
+                typeof segmentText ===
+                    "string"
+            ) {
+
+                officialSegmentTexts.push(
+                    segmentText
+                        .toLowerCase()
+                        .replace(/\s+/g, " ")
+                        .trim()
+                );
+            }
+        }
+    );
+
+
+    if (
+        officialSegmentTexts.length === 0
+    ) {
+        return false;
+    }
+
+
+    // Gabungkan HANYA output segments yang
+    // memang dipautkan kepada official chunks
+    const officialGroundedText =
+        officialSegmentTexts
+            .join(" ");
+
+
+    // Semua fakta sensitif dalam claim
+    // mesti wujud dalam grounded segments.
+    return requiredTokens.every(
+        token =>
+            officialGroundedText.includes(
+                token
+            )
+    );
+}
+
 
 // =========================================================
 // ANALYSE SENSITIVE CLAIM COVERAGE
@@ -1037,6 +1204,20 @@ function analyseSensitiveClaimCoverage(
                             }
                         }
 
+// =================================
+// FINAL FALLBACK:
+// SENSITIVE TOKEN COVERAGE
+// =================================
+
+if (
+    hasOfficialSensitiveTokenCoverage(
+        claim.text,
+        groundingSupports,
+        officialSet
+    )
+) {
+    return true;
+}
 
                         return false;
                     }
