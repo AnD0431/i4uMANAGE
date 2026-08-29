@@ -4254,15 +4254,24 @@ const governmentMode =
         // BUILD PAYLOAD
         // ===============================
 
-        let payload = {
+let payload = {
     ...clientPayload
 };
 
-payload =
-    appendSystemInstruction(
-        payload,
-        getKertasKerjaInstruction()
-    );
+
+// ========================================
+// KERTAS KERJA INSTRUCTION
+// HANYA APABILA WORKFLOW KERTAS KERJA AKTIF
+// ========================================
+
+if (kertasKerjaMode) {
+
+    payload =
+        appendSystemInstruction(
+            payload,
+            getKertasKerjaInstruction()
+        );
+}
 
 
 // ========================================
