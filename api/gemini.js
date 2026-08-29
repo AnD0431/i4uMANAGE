@@ -425,20 +425,27 @@ const GOVERNMENT_AUTHORITY_DOMAINS = {
         "mof.gov.my",
         "treasury.gov.my",
         "ppp.treasury.gov.my",
-        "anm.gov.my"
+        "anm.gov.my",
+        "gov.my"
     ],
 
     "public-service": [
         "jpa.gov.my",
-        "docs.jpa.gov.my"
+        "docs.jpa.gov.my",
+        "mof.gov.my",
+        "gov.my"
     ],
 
     "health": [
-        "moh.gov.my"
+        "moh.gov.my",
+        "gov.my"
     ],
 
     "general-government": [
-        "gov.my"
+        "gov.my",
+        "jpa.gov.my",
+        "mof.gov.my",
+        "moh.gov.my"
     ]
 };
 
@@ -1180,70 +1187,105 @@ function getGovernmentInstruction(
 ) {
 
     return `
-VERIFIED GOVERNMENT MODE — ARAHAN SERVER.
+SARAH GOVERNMENT MODE — MAKLUMAT PENJAWAT AWAM SEMASA.
 
-Soalan semasa telah dikesan sebagai berkaitan kerajaan Malaysia, penjawat awam, JKNT atau KKM.
+Soalan ini berkaitan kerajaan Malaysia atau
+perkhidmatan awam.
 
-Anda WAJIB menggunakan Google Search sebelum memberikan fakta berkaitan:
+MATLAMAT UTAMA:
+
+Berikan jawapan yang berguna, tepat dan semasa
+kepada pengguna.
+
+Gunakan Google Search untuk mendapatkan maklumat
+terkini apabila soalan melibatkan perkara yang
+boleh berubah seperti:
+
 - pekeliling;
-- ceraian;
-- kadar;
+- MyPPSM / ceraian;
+- cuti;
 - elaun;
 - tuntutan;
-- kelayakan;
-- cuti;
-- tatatertib;
+- lojing;
+- perjalanan rasmi;
+- kadar;
 - gred;
-- perolehan;
+- kelayakan;
+- pemangkuan;
+- kenaikan pangkat;
+- tatatertib;
+- skim perkhidmatan;
 - kewangan kerajaan;
-- dasar;
+- perolehan;
 - prosedur;
+- dasar;
 - tarikh kuat kuasa;
-- atau peraturan perkhidmatan awam.
+- kemudahan penjawat awam.
 
 UTAMAKAN sumber rasmi kerajaan Malaysia.
 
-Keutamaan sumber mengikut topik:
+Antara sumber utama:
 
-1. JPA / MyPPSM
-   - perkhidmatan awam
-   - cuti
-   - tatatertib
-   - elaun
-   - kemudahan
-   - skim perkhidmatan
+- JPA / MyPPSM
+- SPA
+- Kementerian Kewangan
+- Portal Pekeliling Perbendaharaan
+- Jabatan Akauntan Negara
+- KKM
+- KWAP
+- AGC
+- kementerian / jabatan kerajaan berkaitan
+- laman rasmi .gov.my
 
-2. Kementerian Kewangan / Perbendaharaan
-   - kewangan
-   - perolehan
-   - tuntutan
-   - Arahan Perbendaharaan
+PERATURAN MAKLUMAT SEMASA:
 
-3. KKM
-   - dasar dan polisi kesihatan
+1. Jika pengguna bertanya "terkini", "semasa",
+   "berkuat kuasa" atau maksud yang sama,
+   gunakan maklumat PALING TERKINI yang ditemui.
 
-4. Jabatan Akauntan Negara
-   - pembayaran dan perakaunan kerajaan
+2. Jika terdapat versi lama dan versi baharu,
+   gunakan versi baharu.
 
-Gunakan sumber .gov.my atau sumber rasmi badan kerajaan yang memiliki dasar.
+3. Jangan gunakan kadar, gred atau syarat lama
+   sebagai jawapan semasa jika telah diganti.
 
-JANGAN gunakan blog, forum, media sosial atau laman sektor swasta sebagai autoriti utama untuk dasar kerajaan.
+4. Dokumen arkib boleh digunakan untuk memahami
+   sejarah tetapi BUKAN sebagai nilai semasa.
+
+5. Jika struktur gred telah berubah, gunakan
+   struktur gred dalam dokumen semasa.
+
+6. Jangan cuba memetakan gred lama kepada gred
+   baharu menggunakan andaian sendiri.
+
+7. Jika dua sumber rasmi bercanggah, utamakan
+   sumber yang lebih baharu dan badan yang
+   mempunyai bidang kuasa terhadap perkara itu.
+
+8. Jawab perkara yang pengguna tanya dahulu.
+   Jangan penuhkan jawapan dengan sejarah yang
+   tidak diminta.
+
+9. Jangan reka nombor pekeliling, kadar,
+   amaun, tarikh, gred atau kelayakan.
+
+10. Jangan dakwa sesuatu sebagai telah disahkan
+    jika carian rasmi tidak menyokongnya.
 
 PENTING:
-- Semak sama ada maklumat masih berkuat kuasa.
-- Jika terdapat versi lebih baharu, utamakan versi terkini.
-- Semak jika pekeliling lama telah dipinda, diganti atau dibatalkan.
-- Jangan reka nombor pekeliling, kadar, tarikh atau seksyen.
-- Jangan beri angka spesifik jika tidak disokong sumber rasmi.
-- Jangan dakwa sesuatu sebagai "terkini" tanpa carian web.
-- Jangan gunakan pengetahuan dalaman model sahaja untuk fakta kerajaan yang boleh berubah.
 
-Masa semakan server:
+Kegagalan mendapatkan satu sumber atau satu
+grounding snippet TIDAK bermaksud anda perlu
+berhenti menjawab.
+
+Berikan jawapan terbaik berdasarkan hasil carian
+yang tersedia.
+
+Masa semakan:
 ${checkedAt}
 
-Jika sumber rasmi tidak mencukupi, nyatakan bahawa maklumat tersebut tidak dapat disahkan daripada sumber rasmi semasa.
-
-Jangan taip URL secara manual dalam jawapan kerana aplikasi akan memaparkan sumber grounding secara berasingan.
+Jangan taip URL secara manual dalam jawapan.
+Aplikasi akan memaparkan sumber grounding.
 `;
 }
 
@@ -1356,80 +1398,52 @@ PENTING UNTUK MAKLUMAT TERKINI:
 function getCurrentStatusInstruction() {
 
     return `
-SEMAKAN STATUS KUAT KUASA — WAJIB.
+STATUS MAKLUMAT KERAJAAN.
 
-Sebelum memberikan jawapan berdasarkan:
-- pekeliling;
-- ceraian;
-- surat edaran;
-- arahan;
-- garis panduan;
-- polisi;
-- peraturan;
-- undang-undang;
-- kadar;
-- kelayakan;
-- prosedur kerajaan;
+Semasa membuat carian, cuba tentukan sama ada
+dokumen atau dasar yang digunakan:
 
-anda WAJIB menentukan status dokumen yang dirujuk.
+- masih aktif;
+- telah dipinda;
+- telah diganti;
+- telah dibatalkan;
+- atau status tidak dapat dipastikan.
 
-Semak daripada sumber rasmi sama ada dokumen tersebut:
+Gunakan dokumen yang paling terkini untuk
+jawapan semasa.
 
-1. MASIH BERKUAT KUASA;
-2. TELAH DIPINDA;
-3. TELAH DIGANTI oleh dokumen yang lebih baharu;
-4. TELAH DIBATALKAN / DIMANSUHKAN;
-5. atau STATUS TIDAK DAPAT DIPASTIKAN.
-
-PERATURAN:
-
-- Jangan gunakan dokumen yang telah dibatalkan sebagai dasar semasa.
-- Jika dokumen telah diganti, gunakan dokumen pengganti terkini.
-- Jika terdapat pindaan, gunakan versi yang mengandungi pindaan terkini.
-- Jika terdapat beberapa versi, utamakan versi dengan tarikh kuat kuasa paling baharu.
-- Jangan anggap dokumen lama masih aktif hanya kerana ia masih boleh ditemui melalui Google Search.
-- Jangan gunakan halaman arkib sebagai bukti bahawa sesuatu peraturan masih berkuat kuasa.
-- Semak tarikh kuat kuasa jika dinyatakan.
-- Semak kenyataan seperti:
-  "dibatalkan",
-  "dimansuhkan",
-  "digantikan",
-  "dipinda",
-  "berkuat kuasa",
-  "berkuat kuasa mulai",
-  "superseded",
-  atau kenyataan lain yang membawa maksud sama.
-
-Jika status semasa tidak dapat dipastikan daripada
-sumber rasmi kerajaan:
-
-JANGAN berikan kadar, kelayakan, peraturan,
-nombor pekeliling atau fakta khusus tersebut.
-
-Sebaliknya nyatakan bahawa status kuat kuasa
-tidak dapat disahkan daripada sumber rasmi semasa.
-
-Untuk jawapan akhir, gunakan hanya dasar atau
-dokumen yang paling terkini dan masih berkuat kuasa.
-
-ANDA WAJIB letakkan SATU penanda status pada BARIS PALING AKHIR jawapan:
+Letakkan SATU marker pada baris terakhir:
 
 [[I4U_STATUS:ACTIVE]]
-jika dasar / dokumen semasa telah disahkan masih berkuat kuasa.
+
+jika dokumen / dasar semasa masih berkuat kuasa.
 
 [[I4U_STATUS:AMENDED]]
-jika dokumen asal telah dipinda dan jawapan menggunakan pindaan terkini yang masih berkuat kuasa.
+
+jika versi semasa mengandungi pindaan.
 
 [[I4U_STATUS:REPLACED]]
-jika dokumen lama telah diganti dan jawapan menggunakan dokumen pengganti terkini.
+
+jika dokumen lama telah diganti dan jawapan
+menggunakan dokumen pengganti.
 
 [[I4U_STATUS:CANCELLED]]
-jika dokumen yang ditanya telah dibatalkan atau dimansuhkan dan tiada dasar pengganti yang boleh disahkan.
+
+jika dokumen yang ditanya telah dibatalkan
+dan tiada pengganti yang dapat dikenal pasti.
 
 [[I4U_STATUS:UNKNOWN]]
-jika status kuat kuasa tidak dapat dipastikan.
 
-JANGAN gunakan ACTIVE, AMENDED atau REPLACED kecuali status tersebut disokong oleh sumber rasmi semasa.
+jika status tidak dapat dipastikan.
+
+PENTING:
+
+Status UNKNOWN tidak bermaksud anda perlu
+berhenti menjawab.
+
+Masih berikan jawapan terbaik berdasarkan
+hasil carian yang tersedia tetapi jangan
+mendakwa status tersebut telah disahkan.
 `;
 }
 
@@ -3961,324 +3975,75 @@ if (
 }
 
 // =========================================================
-// CURRENT DOCUMENT GATE
-// WAJIB sebelum fakta kerajaan boleh dianggap semasa.
+// GOVERNMENT MODE SIMPLE V2
+//
+// Sarah tetap menjawab.
+// Verification menentukan TAHAP KEYAKINAN,
+// bukan menentukan sama ada Sarah boleh bercakap.
 // =========================================================
 
-const currentDocumentGate =
-    await discoverCurrentGovernmentSources(
-        GOOGLE_URL,
-        latestUserMessage,
-        governmentTopic,
-        checkedAt
-    );
 
-
-console.warn(
-    "I4U_GOV_CURRENT_DOC_GATE_RESULT",
-    {
-        passed:
-            currentDocumentGate.passed,
-
-        searched:
-            currentDocumentGate.searched,
-
-        verified:
-            currentDocumentGate.verified,
-
-        documentStatus:
-            currentDocumentGate.documentStatus,
-
-        declaredCurrentUrls:
-            currentDocumentGate
-                .declaredCurrentUrls,
-
-        matchedCurrentUrls:
-            currentDocumentGate
-                .matchedCurrentUrls,
-
-        officialSources:
-            currentDocumentGate
-                .officialSourceCount
-    }
-);
-
-        let sensitiveClaimCoverage =
-    analyseSensitiveClaimCoverage(
-        data,
-        verification.officialChunkIndices
-    );
-
-// =========================================================
-// TARGETED RETRY FOR UNSUPPORTED GOVERNMENT FACTS
-// =========================================================
-
-if (
-    sensitiveClaimCoverage.required &&
-    !sensitiveClaimCoverage.passed &&
-    sensitiveClaimCoverage.unsupportedClaims.length > 0
-) {
-
-    console.warn(
-        "I4U_GOV_TARGETED_CLAIM_RETRY",
-        {
-            query: latestUserMessage,
-            unsupportedClaims:
-                sensitiveClaimCoverage.unsupportedClaims
-        }
-    );
-
-
-   // =========================================================
-// FRESH TARGETED GOVERNMENT RESEARCH REQUEST
-// Jangan bawa seluruh conversation lama.
-// =========================================================
-
-let claimRetryPayload = {
-
-    contents: [
-        {
-            role: "user",
-
-            parts: [
-                {
-                    text:
-                        getTargetedClaimVerificationInstruction(
-                            latestUserMessage,
-                            sensitiveClaimCoverage
-                                .unsupportedClaims,
-                            governmentTopic
-                        )
-                }
-            ]
-        }
-    ],
-
-
-    system_instruction: {
-
-        parts: [
-
-            {
-                text:
-                    getGovernmentInstruction(
-                        checkedAt
-                    )
-            },
-
-            {
-                text:
-                    getCurrentStatusInstruction()
-            },
-
-            {
-                text:
-                    getGovernmentTopicInstruction(
-                        governmentTopic
-                    )
-            },
-
-            {
-                text: `
-INI IALAH PERMINTAAN PENYELIDIKAN SEMASA.
-
-Gunakan Google Search untuk mendapatkan maklumat
-semasa daripada sumber rasmi kerajaan Malaysia.
-
-Jangan bergantung kepada conversation terdahulu,
-memori model atau pengetahuan latihan.
-
-Jika Google Search tidak digunakan atau tiada sumber
-rasmi ditemui, jangan menganggap fakta tersebut telah
-disahkan.
-`
-            }
-
-        ]
-    }
-};
-
-
-// Enable Google Search pada fresh request
-claimRetryPayload =
-    addGoogleSearchTool(
-        claimRetryPayload
-    );
-
-
-    const claimRetryResult =
-        await callGemini(
-            GOOGLE_URL,
-            claimRetryPayload
-        );
-
-
-    if (claimRetryResult.response.ok) {
-
-        const claimRetryVerification =
-            await analyseGrounding(
-                claimRetryResult.data,
-                governmentTopic
-            );
-
-
-        let claimRetryCoverage =
-            analyseSensitiveClaimCoverage(
-                claimRetryResult.data,
-                claimRetryVerification
-                    .officialChunkIndices
-            );
-
-            // =========================================================
-// FULL DOCUMENT VERIFICATION WITH URL CONTEXT
-// =========================================================
-
-if (
-    currentDocumentGate.passed &&
-    claimRetryVerification.verified &&
-    claimRetryCoverage.required &&
-    !claimRetryCoverage.passed &&
-    claimRetryCoverage
-        .unsupportedClaims
-        .length > 0
-) {
-
-let fullDocumentVerification =
-    await verifyUnsupportedClaimsWithOfficialUrls(
-        GOOGLE_URL,
-        latestUserMessage,
-        claimRetryCoverage.unsupportedClaims,
-        currentDocumentGate.officialSources,
-        governmentTopic
-    );
-
-
-console.warn(
-    "I4U_GOV_URL_CONTEXT_RESULT",
-    fullDocumentVerification
-);
-
-
-// =========================================================
-// URL CONTEXT GAGAL?
-// SERVER DOWNLOAD PDF SENDIRI
-// =========================================================
-
-if (
-    !fullDocumentVerification.retrieved
-) {
-
-    fullDocumentVerification =
-        await verifyUnsupportedClaimsWithFetchedOfficialPdfs(
-            GOOGLE_URL,
-            latestUserMessage,
-            claimRetryCoverage
-                .unsupportedClaims,
-            currentDocumentGate
-                .officialSources,
-            governmentTopic
-        );
-
-
-    console.warn(
-        "I4U_GOV_FETCHED_PDF_RESULT",
-        fullDocumentVerification
-    );
-}
-
-
-// =========================================================
-// FULL DOCUMENT VERIFIED
-// =========================================================
-
-if (
-    fullDocumentVerification.passed
-) {
-
-    claimRetryCoverage = {
-
-        ...claimRetryCoverage,
-
-        passed:
-            true,
-
-        supportedClaims:
-            claimRetryCoverage
-                .totalClaims,
-
-        unsupportedClaims:
-            [],
-
-        fullDocumentVerified:
-            true,
-
-        fullDocumentSources:
-            fullDocumentVerification
-                .fetchedUrls ||
-            fullDocumentVerification
-                .retrievedUrls ||
-            []
-    };
-}
-}
-
-            console.warn(
-    "I4U_GOV_TARGETED_RETRY_RESULT",
-    {
-        searched:
-            claimRetryVerification.searched,
-
-        verified:
-            claimRetryVerification.verified,
-
-        officialSources:
-            claimRetryVerification
-                .officialSourceCount,
-
-        totalSources:
-            claimRetryVerification
-                .totalSources,
-
-        claimCoverage:
-            claimRetryCoverage
-    }
-);
-
-
-        // Gunakan jawapan retry HANYA jika
-        // semua verification berjaya
-        if (
-            claimRetryVerification.verified &&
-            claimRetryCoverage.passed
-        ) {
-
-            data =
-                claimRetryResult.data;
-
-            verification =
-                claimRetryVerification;
-
-            sensitiveClaimCoverage =
-                claimRetryCoverage;
-        }
-    }
-}
-
-// ===============================
-// CURRENT STATUS GATE
-// ===============================
+// ========================================
+// STATUS DARIPADA JAWAPAN MODEL
+// ========================================
 
 const governmentDocumentStatus =
-    currentDocumentGate.passed
-        ? currentDocumentGate
-            .documentStatus
-        : "UNKNOWN";
+    getGovernmentDocumentStatus(
+        data
+    );
 
 
-const currentStatusVerified =
-    currentDocumentGate.passed &&
-    currentDocumentGate
-        .officialSourceCount > 0 &&
+// ========================================
+// BUANG SUMBER ARKIB YANG JELAS
+// DARIPADA SENARAI RUJUKAN UTAMA
+// ========================================
+
+const usableOfficialSources =
+    (
+        Array.isArray(
+            verification.officialSources
+        )
+            ? verification.officialSources
+            : []
+    )
+        .filter(
+            source =>
+                !isLikelyArchivedGovernmentSource(
+                    source
+                )
+        );
+
+
+// Jika filter arkib menyebabkan kosong,
+// kekalkan sumber rasmi asal untuk rujukan.
+// Kita cuma tidak akan beri status VERIFIED.
+const displayOfficialSources =
+    usableOfficialSources.length > 0
+        ? usableOfficialSources
+        : (
+            Array.isArray(
+                verification.officialSources
+            )
+                ? verification.officialSources
+                : []
+        );
+
+
+// ========================================
+// ADA GROUNDING RASMI?
+// ========================================
+
+const hasOfficialGrounding =
+    verification.searched &&
+    verification.hasOfficialSupport &&
+    displayOfficialSources.length > 0;
+
+
+// ========================================
+// STATUS SEMASA YANG BOLEH DITERIMA
+// ========================================
+
+const hasCurrentStatus =
     [
         "ACTIVE",
         "AMENDED",
@@ -4287,94 +4052,120 @@ const currentStatusVerified =
         governmentDocumentStatus
     );
 
-        // ===============================
-        // FAIL CLOSED
-        // ===============================
 
-        if (!verification.verified || !currentDocumentGate.passed || !currentStatusVerified || !sensitiveClaimCoverage.passed) {
+// ========================================
+// VERIFIED = HIJAU
+//
+// Hanya untuk jawapan yang:
+// - Search digunakan;
+// - ada grounding rasmi;
+// - ada sumber rasmi;
+// - status semasa dikenal pasti.
+//
+// Jika tidak, jawapan MASIH DIPAPARKAN.
+// ========================================
 
-           console.warn(
-    "Verified Government Mode failed.",
-    {
-        query:
-            latestUserMessage,
+const governmentVerified =
+    hasOfficialGrounding &&
+    hasCurrentStatus &&
+    usableOfficialSources.length > 0;
 
-        searched:
-            verification.searched,
 
-        officialSources:
-            verification
-                .officialSourceCount,
+// ========================================
+// TAHAP VERIFICATION
+// ========================================
 
-        documentStatus:
-            governmentDocumentStatus,
+let verificationLevel =
+    "limited";
 
-        claimCoverage:
-            sensitiveClaimCoverage,
-    }
+
+if (governmentVerified) {
+
+    verificationLevel =
+        "verified";
+
+} else if (!verification.searched) {
+
+    verificationLevel =
+        "unverified";
+}
+
+
+// ========================================
+// BUANG MARKER INTERNAL
+// ========================================
+
+removeGovernmentStatusMarker(
+    data
 );
 
 
-            return res
-                .status(200)
-                .json(
-                    createVerificationFailureResponse(
-                        checkedAt,
-                        governmentDocumentStatus
-                    )
-                );
+// ========================================
+// JIKA TAK VERIFIED,
+// JANGAN BLOCK JAWAPAN.
+//
+// Tambah peringatan ringkas supaya pegawai
+// tahu tahap keyakinan maklumat.
+// ========================================
+
+if (!governmentVerified) {
+
+    const parts =
+        data?.candidates?.[0]
+            ?.content
+            ?.parts;
+
+
+    if (Array.isArray(parts)) {
+
+        const firstTextPart =
+            parts.find(
+                part =>
+                    typeof part?.text ===
+                    "string"
+            );
+
+
+        if (firstTextPart) {
+
+            let notice =
+                "⚠️ Semakan sumber rasmi terkini tidak dapat disahkan sepenuhnya. Maklumat berikut boleh digunakan sebagai panduan, tetapi sila semak rujukan rasmi sebelum membuat tindakan atau keputusan rasmi.";
+
+
+            if (
+                verification.searched &&
+                displayOfficialSources.length > 0
+            ) {
+
+                notice =
+                    "⚠️ Sarah telah membuat carian sumber rasmi, tetapi status semasa maklumat ini tidak dapat disahkan sepenuhnya. Sila semak rujukan rasmi yang dipaparkan sebelum membuat tindakan atau keputusan rasmi.";
+            }
+
+
+            firstTextPart.text =
+                `${notice}\n\n${firstTextPart.text}`;
         }
+    }
+}
 
 
-        // ===============================
-        // VERIFIED RESPONSE
-        // ===============================
+// ========================================
+// VERIFICATION METADATA UNTUK FRONTEND
+// ========================================
 
-// Buang marker dalaman sebelum dihantar ke frontend
-removeGovernmentStatusMarker(data);
-
-// Gunakan hanya sumber yang lulus
-// Current Document Gate.
-verification = {
-
-    ...verification,
-
-    officialSourceCount:
-        currentDocumentGate
-            .officialSourceCount,
-
-    officialSources:
-        currentDocumentGate
-            .officialSources,
-
-    searchQueries: [
-        ...new Set([
-            ...(
-                verification
-                    .searchQueries || []
-            ),
-
-            ...(
-                currentDocumentGate
-                    .searchQueries || []
-            )
-        ])
-    ]
-};
-
-        data.i4uVerification = {
+data.i4uVerification = {
 
     mode:
         "government",
 
     verified:
-        true,
+        governmentVerified,
+
+    verificationLevel:
+        verificationLevel,
 
     documentStatus:
         governmentDocumentStatus,
-
-    claimCoverage:
-        sensitiveClaimCoverage,
 
     searched:
         verification.searched,
@@ -4383,13 +4174,38 @@ verification = {
         checkedAt,
 
     officialSourceCount:
-        verification.officialSourceCount,
+        displayOfficialSources.length,
 
     officialSources:
-        verification.officialSources,
+        displayOfficialSources,
 
     searchQueries:
-        verification.searchQueries
+        verification.searchQueries || [],
+
+
+    // Claim Coverage lama tidak lagi menjadi
+    // hard gate. Kekalkan struktur supaya
+    // frontend lama tidak rosak.
+    claimCoverage: {
+
+        required:
+            false,
+
+        passed:
+            true,
+
+        totalClaims:
+            0,
+
+        supportedClaims:
+            0,
+
+        unsupportedClaims:
+            [],
+
+        simplifiedMode:
+            true
+    }
 };
 
 
