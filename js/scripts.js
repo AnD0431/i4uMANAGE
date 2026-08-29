@@ -1809,29 +1809,54 @@ if (
     // FALLBACK
     // =====================================
 
-    else {
+    else if (
+    verification.verificationLevel === "limited"
+) {
 
-        verificationDiv.classList.add(
-            "unverified"
-        );
+    verificationDiv.classList.add(
+        "unverified"
+    );
+
+    verificationDiv.innerHTML = `
+        <i class="fa-solid fa-triangle-exclamation"></i>
+
+        <div class="verification-text">
+
+            <strong>
+                Semakan Terhad
+            </strong>
+
+            <span>
+                Maklumat tersedia tetapi pengesahan sumber rasmi semasa belum lengkap
+            </span>
+
+        </div>
+    `;
+}
 
 
-        verificationDiv.innerHTML = `
-            <i class="fa-solid fa-triangle-exclamation"></i>
+else {
 
-            <div class="verification-text">
+    verificationDiv.classList.add(
+        "unverified"
+    );
 
-                <strong>
-                    Tidak Dapat Disahkan
-                </strong>
+    verificationDiv.innerHTML = `
+        <i class="fa-solid fa-triangle-exclamation"></i>
 
-                <span>
-                    Sumber rasmi yang mencukupi tidak ditemui
-                </span>
+        <div class="verification-text">
 
-            </div>
-        `;
-    }
+            <strong>
+                Belum Disahkan
+            </strong>
+
+            <span>
+                Sumber rasmi semasa tidak dapat dikenal pasti dengan mencukupi
+            </span>
+
+        </div>
+    `;
+}
 
 
     messageElement.prepend(
