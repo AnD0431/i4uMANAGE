@@ -3996,6 +3996,129 @@ if (
 }
 
 // =========================================================
+// CURRENT-SOURCE REGENERATION
+// Untuk elak model campur memori lama dengan sumber semasa.
+// =========================================================
+
+if (
+    verification.searched &&
+    verification.officialSourceCount > 0
+) {
+
+    const currentSourcePayload = {
+
+        contents: [
+            {
+                role: "user",
+
+                parts: [
+                    {
+                        text: `
+SOALAN ASAL:
+
+"${latestUserMessage}"
+
+Ini ialah SECOND PASS untuk jawapan kerajaan Malaysia.
+
+Google Search sebelumnya telah menemukan sumber rasmi.
+
+Tulis semula jawapan kepada soalan asal berdasarkan
+maklumat SEMASA daripada sumber rasmi kerajaan sahaja.
+
+PERATURAN WAJIB:
+
+1. Jalankan Google Search semula.
+
+2. Gunakan hanya fakta yang disokong oleh sumber rasmi
+   semasa yang ditemui dalam carian ini.
+
+3. Jangan gunakan memori dalaman model untuk:
+   - kadar;
+   - gred;
+   - amaun;
+   - kelayakan;
+   - syarat;
+   - tarikh;
+   - nombor pekeliling.
+
+4. Jika dokumen semasa menggunakan struktur gred,
+   kategori atau sistem saraan baharu, gunakan struktur
+   tersebut sebagai jawapan utama.
+
+5. Jangan bina semula jadual menggunakan struktur lama.
+
+6. Jika dokumen menyediakan jadual kesetaraan sistem lama,
+   jangan jadikan jadual kesetaraan itu sebagai jadual utama
+   kecuali pengguna meminta sistem lama.
+
+7. Jika terdapat versi lama dan versi semasa,
+   gunakan versi semasa sahaja.
+
+8. Untuk soalan "terkini", "semasa" atau
+   "berkuat kuasa", utamakan dokumen dengan tarikh
+   kuat kuasa paling baharu.
+
+9. Jangan masukkan fakta yang hanya diketahui daripada
+   pengetahuan latihan model tetapi tidak muncul dalam
+   sumber rasmi semasa.
+
+10. Jawab terus perkara yang pengguna tanya.
+
+Letakkan marker status pada baris terakhir:
+
+[[I4U_STATUS:ACTIVE]]
+[[I4U_STATUS:AMENDED]]
+[[I4U_STATUS:REPLACED]]
+atau
+[[I4U_STATUS:UNKNOWN]]
+`
+                    }
+                ]
+            }
+        ],
+
+        tools: [
+            {
+                google_search: {}
+            }
+        ]
+    };
+
+
+    const currentSourceResult =
+        await callGemini(
+            GOOGLE_URL,
+            currentSourcePayload
+        );
+
+
+    if (currentSourceResult.response.ok) {
+
+        const currentSourceVerification =
+            await analyseGrounding(
+                currentSourceResult.data,
+                governmentTopic
+            );
+
+
+        // Guna second-pass answer kalau ia benar-benar
+        // mempunyai Search + sumber rasmi.
+        if (
+            currentSourceVerification.searched &&
+            currentSourceVerification
+                .officialSourceCount > 0
+        ) {
+
+            data =
+                currentSourceResult.data;
+
+            verification =
+                currentSourceVerification;
+        }
+    }
+}
+
+// =========================================================
 // GOVERNMENT MODE SIMPLE V2
 //
 // Sarah tetap menjawab.
