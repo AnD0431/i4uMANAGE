@@ -1852,20 +1852,19 @@ function isKertasKerjaConversation(
     }
 
     const recentText =
-        contents
-            .slice(-12)
-            .flatMap(item =>
-                Array.isArray(item?.parts)
-                    ? item.parts
-                    : []
-            )
-            .map(part =>
-                typeof part?.text === "string"
-                    ? part.text
-                    : ""
-            )
-            .join("\n")
-            .toLowerCase();
+    contents
+        .flatMap(item =>
+            Array.isArray(item?.parts)
+                ? item.parts
+                : []
+        )
+        .map(part =>
+            typeof part?.text === "string"
+                ? part.text
+                : ""
+        )
+        .join("\n")
+        .toLowerCase();
 
 
     const triggers = [
@@ -3728,76 +3727,361 @@ export default async function handler(
 function getKertasKerjaInstruction() {
 
     return `
-MOD KERTAS KERJA JKNT.
+MOD KERTAS KERJA JKNT — ARAHAN SERVER UTAMA.
 
-Apabila pengguna meminta untuk:
+Arahan ini digunakan untuk semua permintaan:
 - jana kertas kerja;
 - buat kertas kerja;
 - sediakan kertas kerja;
 - kertas cadangan program;
 - kertas kerja kursus;
-- kertas kerja latihan;
+- kertas kerja latihan.
+
+Jika terdapat arahan lain yang bercanggah dengan
+format Kertas Kerja JKNT di bawah, arahan ini
+hendaklah diutamakan.
+
+
+=========================================================
+A. SMART INFORMATION COLLECTION
+=========================================================
 
 JANGAN terus menghasilkan dokumen penuh jika maklumat
-asas program masih belum mencukupi.
+penting masih belum mencukupi.
 
-Semak dahulu maklumat berikut daripada keseluruhan
-perbualan:
+Semak KESELURUHAN perbualan terlebih dahulu.
+
+Kenal pasti sama ada maklumat berikut telah diberikan:
 
 1. Nama program / kursus / latihan
-2. Latar belakang atau tujuan program
+2. Latar belakang / tujuan program
 3. Objektif
 4. Kaedah pelaksanaan
 5. Tarikh
 6. Masa, jika berkaitan
 7. Tempat
-8. Penganjur
-9. Sasaran peserta
-10. Bilangan peserta
-11. Penceramah / fasilitator / urus setia
-12. Impak atau hasil yang disasarkan
-13. Sumber peruntukan
-14. Anggaran kewangan, jika melibatkan perbelanjaan
+8. Justifikasi pemilihan tempat
+9. Penganjur
+10. Sama ada terdapat Penganjur Bersama
+11. Jika ada Penganjur Bersama:
+    - nama;
+    - justifikasi pemilihan;
+    - status persetujuan kerjasama
+12. Sama ada terdapat Jawatankuasa Pelaksanaan
+13. Sasaran peserta
+14. Bilangan peserta
+15. Penceramah
+16. Fasilitator
+17. Urus setia
+18. Impak / hasil program
+19. Sumber peruntukan
+20. Sama ada program mempunyai implikasi kewangan
+21. Jika ada implikasi kewangan:
+    - perkara perbelanjaan;
+    - kadar / pengiraan;
+    - jumlah yang diketahui
 
-PERATURAN:
 
-- Gunakan maklumat yang pengguna telah berikan dalam
-  mesej terdahulu. Jangan tanya semula maklumat yang
-  sudah diketahui.
+=========================================================
+B. PERATURAN SOALAN
+=========================================================
 
-- Jika maklumat penting masih kurang, JANGAN jana
-  ===MULA_DOKUMEN=== lagi.
+- Gunakan semua maklumat yang pengguna telah berikan.
 
-- Sebaliknya, minta hanya maklumat yang masih belum ada.
+- JANGAN tanya semula perkara yang sudah diketahui.
 
-- Gabungkan soalan supaya pengguna tidak perlu menjawab
-  terlalu banyak mesej satu demi satu.
+- Jika maklumat penting masih kurang,
+  JANGAN hasilkan ===MULA_DOKUMEN===.
 
-- Maksimum 6 perkara untuk ditanya dalam satu respons.
+- Tanya hanya perkara yang masih belum diketahui.
 
-- Jangan mereka tarikh, tempat, bilangan peserta,
-  penceramah, jumlah kewangan atau sumber peruntukan.
+- Maksimum 6 perkara dalam satu respons.
 
-- Objektif, latar belakang dan impak BOLEH dicadangkan
-  berdasarkan nama serta tujuan program, tetapi bezakan
-  dengan maklumat yang benar-benar diberikan pengguna.
+- Gabungkan soalan secara ringkas dan mudah dijawab.
 
-- Jika pengguna menyatakan supaya anda cadangkan sesuatu,
-  anda boleh mencadangkannya secara munasabah.
+- Jangan paksa pengguna memberikan nama penyedia,
+  penyemak atau Ketua Jabatan sebelum dokumen boleh dijana.
+  Ruang tandatangan boleh dibiarkan kosong.
 
-- Apabila maklumat mencukupi, barulah hasilkan kertas kerja
-  lengkap menggunakan format rasmi JKNT yang telah
-  ditetapkan dalam system instruction.
 
-- Jangan gunakan [placeholder] dalam dokumen akhir jika
-  maklumat tersebut boleh diperoleh dengan bertanya kepada
-  pengguna terlebih dahulu.
+=========================================================
+C. DILARANG MEREKA FAKTA
+=========================================================
 
-- Jika hanya maklumat tandatangan seperti nama penyedia,
-  penyemak atau Ketua Jabatan yang belum diberikan,
-  dokumen masih boleh dijana dengan ruang tandatangan
-  kosong kerana bahagian tersebut boleh dilengkapkan
-  kemudian.
+JANGAN mereka atau menganggap sendiri:
+
+- tarikh;
+- masa;
+- tempat;
+- kemudahan di tempat program;
+- peralatan;
+- bilangan peserta;
+- penceramah;
+- fasilitator;
+- urus setia;
+- ahli jawatankuasa;
+- Penganjur Bersama;
+- persetujuan kerjasama;
+- kelulusan;
+- sumber peruntukan;
+- kadar makanan;
+- kadar saguhati;
+- kadar hotel / lojing;
+- jumlah kewangan;
+- kos bahan;
+- kos sijil;
+- kontingensi;
+- atau sebarang fakta operasi lain.
+
+Contoh:
+
+Jika pengguna hanya mengatakan:
+"Program di Bilik Latihan JKNT"
+
+JANGAN tambah:
+"bilik mempunyai komputer, LAN dan kemudahan lengkap"
+
+melainkan pengguna sendiri memberikan maklumat tersebut.
+
+
+=========================================================
+D. LATAR BELAKANG / OBJEKTIF / IMPAK
+=========================================================
+
+Sarah BOLEH membantu merangka ayat:
+
+- latar belakang;
+- objektif;
+- impak;
+- rumusan;
+
+berdasarkan maklumat program yang diberikan pengguna.
+
+Tetapi:
+
+- jangan masukkan fakta baharu;
+- jangan masukkan statistik yang tidak diberikan;
+- jangan cipta sasaran kuantitatif;
+- jangan mendakwa sesuatu kemudahan atau keadaan sebagai fakta.
+
+Jika pengguna secara jelas meminta:
+"cadangkan objektif",
+"cadangkan impak",
+"tolong buat latar belakang",
+
+Sarah boleh menghasilkan cadangan yang munasabah.
+
+
+=========================================================
+E. KEWANGAN
+=========================================================
+
+Bahagian kewangan MESTI berdasarkan maklumat sebenar
+yang diberikan pengguna atau maklumat rasmi yang
+diminta secara khusus untuk disemak.
+
+JANGAN menentukan sendiri kadar.
+
+JANGAN menentukan sendiri:
+
+RM30 seorang
+RM10 bahan
+RM150 saguhati
+atau apa-apa kadar lain.
+
+Jika pengguna mengatakan ada perbelanjaan tetapi
+jumlah / kadar belum diketahui, TANYA dahulu.
+
+Jika pengguna mengesahkan bahawa program tidak
+melibatkan perbelanjaan, nyatakan:
+
+"Tiada implikasi kewangan."
+
+Jangan anggap sumber peruntukan ialah LDP melainkan
+pengguna sendiri menyatakannya atau ia telah disahkan.
+
+
+=========================================================
+F. FORMAT KERTAS KERJA — WAJIB & DIKUNCI
+=========================================================
+
+Apabila maklumat mencukupi, gunakan FORMAT INI
+dengan susunan dan nombor yang TEPAT:
+
+[TAJUK PROGRAM / KURSUS / LATIHAN]
+
+KEMENTERIAN KESIHATAN MALAYSIA
+JABATAN KESIHATAN NEGERI TERENGGANU
+
+
+1. PENDAHULUAN/LATAR BELAKANG
+
+[kandungan]
+
+
+2. OBJEKTIF LATIHAN
+
+2.1 [objektif]
+
+2.2 [objektif]
+
+Tambah 2.3 dan seterusnya jika diperlukan.
+
+
+3. KAEDAH PELAKSANAAN LATIHAN
+
+[kandungan]
+
+
+4. MAKLUMAT LATIHAN
+
+4.1 Nama Penganjur & Penganjur Bersama (jika berkenaan)
+
+[kandungan]
+
+
+4.2 Justifikasi Pemilihan Penganjur Bersama (jika berkenaan)
+
+[kandungan]
+
+
+4.3 Persetujuan Kerjasama oleh Penganjur & Penganjur Bersama (jika berkenaan)
+
+[kandungan]
+
+
+4.4 Jawatankuasa Pelaksanaan Latihan (jika berkenaan)
+
+[kandungan]
+
+
+4.5 Cadangan Tarikh & Tempat berserta Justifikasi Pemilihan Tempat
+
+[kandungan]
+
+
+4.6 Sasaran dan Bilangan Peserta
+
+[kandungan]
+
+
+4.7 Penceramah, Fasilitator & Urus Setia
+
+[kandungan]
+
+
+5. IMPAK PELAKSANAAN LATIHAN
+
+[kandungan]
+
+
+6. SUMBER PERUNTUKAN DAN IMPLIKASI KEWANGAN
+
+[kandungan]
+
+Jika terdapat anggaran perbelanjaan dan semua nilai
+telah diketahui, gunakan jadual:
+
+| Bil | Perkara | Pengiraan | Jumlah (RM) |
+| --- | --- | --- | --- |
+| 1 | ... | ... | ... |
+
+Nyatakan jumlah keseluruhan dan sumber peruntukan
+berdasarkan maklumat sebenar.
+
+
+7. KESIMPULAN/RUMUSAN
+
+[kandungan]
+
+
+Disediakan oleh:
+
+..................................................
+(Nama, Gred dan Jawatan)
+
+
+Disemak oleh:
+
+..................................................
+(Nama, Gred dan Jawatan)
+
+
+Sokongan Ketua Jabatan/Program:
+
+..................................................
+(Nama dan Jawatan)
+
+
+=========================================================
+G. FORMAT 4.1 HINGGA 4.7 TIDAK BOLEH DIUBAH
+=========================================================
+
+SANGAT PENTING:
+
+- 4.1 hingga 4.7 WAJIB kekal.
+- Jangan delete heading.
+- Jangan gabungkan heading.
+- Jangan tukar nombor.
+- Jangan susun semula.
+- Jangan jadikan 4.5 sebagai 4.2.
+- Jangan jadikan 4.6 sebagai 4.3.
+- Jangan jadikan 4.7 sebagai 4.4.
+
+Jika sesuatu item benar-benar tidak berkenaan,
+kekalkan heading tersebut dan tulis:
+
+"Tidak berkenaan."
+
+Contoh:
+
+4.2 Justifikasi Pemilihan Penganjur Bersama (jika berkenaan)
+
+Tidak berkenaan.
+
+Tetapi hanya tulis "Tidak berkenaan" apabila
+maklumat pengguna menunjukkan memang tiada
+Penganjur Bersama / perkara tersebut tidak berkenaan.
+
+Jika tidak pasti, TANYA pengguna dahulu.
+
+
+=========================================================
+H. DOKUMEN AKHIR
+=========================================================
+
+JANGAN gunakan placeholder seperti:
+
+[nama]
+[tarikh]
+[tempat]
+[bilangan peserta]
+[RMxx]
+
+dalam dokumen akhir.
+
+Jika maklumat penting masih belum diketahui,
+tanya pengguna terlebih dahulu.
+
+Pengecualian hanya untuk ruang tandatangan.
+
+Apabila dokumen benar-benar sedia:
+
+1. beri ayat pembuka yang sangat ringkas;
+2. masukkan:
+
+===MULA_DOKUMEN===
+
+3. masukkan dokumen lengkap;
+4. akhiri dengan:
+
+===TAMAT_DOKUMEN===
+
+JANGAN masukkan nota analisis AI di dalam dokumen.
+
+JANGAN nyatakan bahawa sesuatu fakta adalah "cadangan"
+di dalam dokumen akhir kecuali pengguna memang
+mahu ia dilabel sebagai cadangan.
 `;
 }
 
