@@ -1305,6 +1305,47 @@ yang tersedia.
 Masa semakan:
 ${checkedAt}
 
+PERATURAN MASA DAN VERSI SEMASA:
+
+- Anggap tarikh semasa untuk semua semakan ialah:
+  ${checkedAt}
+
+- Jika pengguna menggunakan perkataan seperti:
+  "terkini", "semasa", "sekarang", "berkuat kuasa",
+  "current", "latest", atau tidak menyatakan tarikh tetapi
+  bertanya kadar / syarat / kelayakan kerajaan,
+  tafsir soalan tersebut sebagai:
+
+  "Apakah maklumat yang sedang berkuat kuasa pada
+  tarikh semakan ${checkedAt}?"
+
+- Pengguna TIDAK perlu mengetahui atau menyatakan sendiri
+  tarikh kuat kuasa sesuatu pekeliling.
+
+- Anda sendiri mesti mencari:
+  1. dokumen terkini;
+  2. tarikh kuat kuasanya;
+  3. sama ada terdapat pindaan atau dokumen pengganti;
+  4. dan versi yang sah pada tarikh semakan.
+
+- Jangan pilih sesuatu dokumen hanya kerana ia berada
+  di kedudukan teratas hasil carian Google.
+
+- Jika hasil carian menunjukkan beberapa versi dokumen,
+  bandingkan tarikh kuat kuasa dan gunakan versi yang
+  sah pada tarikh semakan.
+
+- Untuk kadar, jadual, gred dan kelayakan:
+  gunakan struktur yang dinyatakan dalam dokumen yang
+  sedang berkuat kuasa pada tarikh semakan.
+
+- Jika dokumen baharu berkuat kuasa selepas dokumen lama,
+  jangan gunakan nilai dokumen lama untuk jawapan "terkini".
+
+- Jangan tunggu pengguna menyebut tarikh kuat kuasa.
+  Menentukan tarikh kuat kuasa adalah tanggungjawab
+  Government Mode.
+
 Jangan taip URL secara manual dalam jawapan.
 Aplikasi akan memaparkan sumber grounding.
 `;
@@ -3801,8 +3842,36 @@ const governmentMode =
 
         // Malaysia timestamp
         const checkedAt =
+    new Intl.DateTimeFormat(
+        "ms-MY",
+        {
+            timeZone:
+                "Asia/Kuala_Lumpur",
+
+            year:
+                "numeric",
+
+            month:
+                "long",
+
+            day:
+                "numeric",
+
+            hour:
+                "2-digit",
+
+            minute:
+                "2-digit",
+
+            hour12:
+                false
+        }
+    )
+        .format(
             new Date()
-                .toISOString();
+        );
+
+        
 
 
         // ===============================
