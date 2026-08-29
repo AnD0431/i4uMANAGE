@@ -3648,6 +3648,70 @@ return {
 };
 }
 
+function buildCurrentGovernmentQuery(
+    userMessage,
+    checkedAt,
+    topic
+) {
+
+    const currentYear =
+        new Intl.DateTimeFormat(
+            "en",
+            {
+                timeZone:
+                    "Asia/Kuala_Lumpur",
+
+                year:
+                    "numeric"
+            }
+        )
+            .format(
+                new Date()
+            );
+
+
+    const topicHint = {
+
+        "finance":
+            "Portal Pekeliling Perbendaharaan Malaysia MOF Treasury",
+
+        "public-service":
+            "JPA MyPPSM perkhidmatan awam Malaysia",
+
+        "health":
+            "KKM Kementerian Kesihatan Malaysia",
+
+        "general-government":
+            "kerajaan Malaysia gov.my"
+
+    }[topic] ||
+        "kerajaan Malaysia gov.my";
+
+
+    return `
+${userMessage}
+
+PENGESAHAN SEMASA:
+Cari maklumat yang sedang berkuat kuasa pada tahun ${currentYear}.
+
+Tarikh semakan:
+${checkedAt}
+
+Utamakan:
+${topicHint}
+
+Jika terdapat versi sebelum ${currentYear} dan versi yang
+masih berkuat kuasa pada ${currentYear}, gunakan versi semasa.
+
+Untuk kadar, gred, jadual, syarat dan kelayakan,
+gunakan struktur daripada dokumen yang sedang berkuat kuasa
+pada tarikh semakan.
+
+Jangan gunakan jadual atau struktur lama sebagai jawapan utama
+jika terdapat dokumen baharu yang telah menggantikannya.
+`;
+}
+
 // =========================================================
 // MAIN HANDLER
 // =========================================================
@@ -4074,84 +4138,56 @@ if (
     verification.officialSourceCount > 0
 ) {
 
-    const currentSourcePayload = {
+const currentSourcePayload = {
 
-        contents: [
+    contents: [
+        {
+            role:
+                "user",
+
+            parts: [
+                {
+                    text:
+                        buildCurrentGovernmentQuery(
+                            latestUserMessage,
+                            checkedAt,
+                            governmentTopic
+                        )
+                }
+            ]
+        }
+    ],
+
+    system_instruction: {
+
+        parts: [
             {
-                role: "user",
+                text:
+                    getGovernmentInstruction(
+                        checkedAt
+                    )
+            },
 
-                parts: [
-                    {
-                        text: `
-SOALAN ASAL:
-
-"${latestUserMessage}"
-
-Ini ialah SECOND PASS untuk jawapan kerajaan Malaysia.
-
-Google Search sebelumnya telah menemukan sumber rasmi.
-
-Tulis semula jawapan kepada soalan asal berdasarkan
-maklumat SEMASA daripada sumber rasmi kerajaan sahaja.
-
-PERATURAN WAJIB:
-
-1. Jalankan Google Search semula.
-
-2. Gunakan hanya fakta yang disokong oleh sumber rasmi
-   semasa yang ditemui dalam carian ini.
-
-3. Jangan gunakan memori dalaman model untuk:
-   - kadar;
-   - gred;
-   - amaun;
-   - kelayakan;
-   - syarat;
-   - tarikh;
-   - nombor pekeliling.
-
-4. Jika dokumen semasa menggunakan struktur gred,
-   kategori atau sistem saraan baharu, gunakan struktur
-   tersebut sebagai jawapan utama.
-
-5. Jangan bina semula jadual menggunakan struktur lama.
-
-6. Jika dokumen menyediakan jadual kesetaraan sistem lama,
-   jangan jadikan jadual kesetaraan itu sebagai jadual utama
-   kecuali pengguna meminta sistem lama.
-
-7. Jika terdapat versi lama dan versi semasa,
-   gunakan versi semasa sahaja.
-
-8. Untuk soalan "terkini", "semasa" atau
-   "berkuat kuasa", utamakan dokumen dengan tarikh
-   kuat kuasa paling baharu.
-
-9. Jangan masukkan fakta yang hanya diketahui daripada
-   pengetahuan latihan model tetapi tidak muncul dalam
-   sumber rasmi semasa.
-
-10. Jawab terus perkara yang pengguna tanya.
-
-Letakkan marker status pada baris terakhir:
-
-[[I4U_STATUS:ACTIVE]]
-[[I4U_STATUS:AMENDED]]
-[[I4U_STATUS:REPLACED]]
-atau
-[[I4U_STATUS:UNKNOWN]]
-`
-                    }
-                ]
-            }
-        ],
-
-        tools: [
             {
-                google_search: {}
+                text:
+                    getGovernmentTopicInstruction(
+                        governmentTopic
+                    )
+            },
+
+            {
+                text:
+                    getCurrentStatusInstruction()
             }
         ]
-    };
+    },
+
+    tools: [
+        {
+            google_search: {}
+        }
+    ]
+};
 
 
     const currentSourceResult =
