@@ -9,7 +9,7 @@
 // 5. Semak grounding + sumber rasmi.
 // 6. Fail closed jika maklumat tidak dapat disahkan.
 
-const MODEL = "gemini-3.6-flash";
+const MODEL = "gemini-3.7-flash";
 
 
 // =========================================================
