@@ -1621,28 +1621,78 @@ const generateBotResponse = async (incomingMessageDiv) => {
         const data = await response.json();
         if(!response.ok) throw new Error(data.error.message);
 
-        // Extract and display bot's response text
-        const apiResponseText = data.candidates[0].content.parts[0].text
+// ========================================
+// EXTRACT GEMINI RESPONSE TEXT
+// Baca SEMUA text parts, bukan parts[0] sahaja
+// ========================================
 
-    // remove internal government status marker
-    .replace(
-        /\s*\[\[I4U_STATUS:(ACTIVE|AMENDED|REPLACED|CANCELLED|UNKNOWN)\]\]\s*/gi,
-        "\n"
-    )
+const responseParts =
+    data?.candidates?.[0]
+        ?.content
+        ?.parts || [];
 
-    // remove bold markdown
-    .replace(
-        /\*\*(.*?)\*\*/g,
-        "$1"
-    )
 
-    // remove markdown headers
-    .replace(
-        /^#{1,6}\s*/gm,
-        ""
-    )
+const apiResponseText =
+    responseParts
+        .filter(part =>
+            typeof part?.text === "string" &&
+            part.text.trim() !== "" &&
+            part.thought !== true
+        )
+        .map(part =>
+            part.text
+        )
+        .join("\n")
 
-    .trim();
+        // remove internal government status marker
+        .replace(
+            /\s*\[\[I4U_STATUS:(ACTIVE|AMENDED|REPLACED|CANCELLED|UNKNOWN)\]\]\s*/gi,
+            "\n"
+        )
+
+        // remove bold markdown
+        .replace(
+            /\*\*(.*?)\*\*/g,
+            "$1"
+        )
+
+        // remove markdown headers
+        .replace(
+            /^#{1,6}\s*/gm,
+            ""
+        )
+
+        .trim();
+
+
+// ========================================
+// JANGAN BIARKAN BUBBLE KOSONG
+// ========================================
+
+if (!apiResponseText) {
+
+    console.error(
+        "SARAH_EMPTY_RESPONSE",
+        {
+            candidate:
+                data?.candidates?.[0],
+
+            finishReason:
+                data?.candidates?.[0]
+                    ?.finishReason,
+
+            promptFeedback:
+                data?.promptFeedback,
+
+            responseParts:
+                responseParts
+        }
+    );
+
+    throw new Error(
+        "Sarah tidak menerima teks jawapan daripada AI."
+    );
+}
 
         // Asingkan kandungan dokumen (dalam marker) dari penerangan bot.
         // Chat hanya papar ayat bot di LUAR marker — kandungan sebenar disimpan untuk fail download sahaja.
