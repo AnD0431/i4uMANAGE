@@ -1642,36 +1642,65 @@ async function callGemini(
     payload
 ) {
 
-    const response =
-        await fetch(
-            googleUrl,
-            {
-                method:
-                    "POST",
+    const controller =
+        new AbortController();
 
-                headers: {
-                    "Content-Type":
-                        "application/json"
-                },
-
-                body:
-                    JSON.stringify(
-                        payload
-                    )
-            }
+    const timeout =
+        setTimeout(
+            () => controller.abort(),
+            25000
         );
 
+    try {
 
-    const data =
-        await response.json();
+        const response =
+            await fetch(
+                googleUrl,
+                {
+                    method: "POST",
 
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
 
-    return {
+                    body:
+                        JSON.stringify(
+                            payload
+                        ),
 
-        response,
-        data
+                    signal:
+                        controller.signal
+                }
+            );
 
-    };
+        const data =
+            await response.json();
+
+        return {
+            response,
+            data
+        };
+
+    } catch (error) {
+
+        if (
+            error?.name === "AbortError"
+        ) {
+
+            throw new Error(
+                "Gemini request timeout"
+            );
+        }
+
+        throw error;
+
+    } finally {
+
+        clearTimeout(
+            timeout
+        );
+    }
 }
 
 // =========================================================
