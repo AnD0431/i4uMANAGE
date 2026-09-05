@@ -1592,7 +1592,7 @@ const generateBotResponse = async (incomingMessageDiv) => {
 
     // Simpan prompt asal sebelum apa-apa berubah — untuk detect format docx/pdf
     const requestedFormats = detectRequestedFormats(userData.message);
-    const governmentMode = isGovernmentQuery(userData.message);
+    government_mode: false,
 
     // add user message chat history
     chatHistory.push({

@@ -3741,6 +3741,147 @@ jika terdapat dokumen baharu yang telah menggantikannya.
 }
 
 // =========================================================
+// AUTOMATIC GOVERNMENT MODE ROUTER
+// Semua soalan fakta dalam skop Sarah dianggap
+// berkaitan tugas/perkhidmatan awam secara default.
+// =========================================================
+
+function shouldUseGovernmentMode(
+    message = "",
+    kertasKerjaMode = false
+) {
+
+    if (kertasKerjaMode) {
+        return false;
+    }
+
+
+    const text =
+        String(message || "")
+            .toLowerCase()
+            .trim();
+
+
+    if (!text) {
+        return false;
+    }
+
+
+    // ========================================
+    // TUGAS PENULISAN / GENERATION
+    // Tidak perlukan Google Search secara default
+    // ========================================
+
+    const writingTasks = [
+
+        "jana kertas kerja",
+        "buat kertas kerja",
+        "sediakan kertas kerja",
+
+        "tulis surat",
+        "buat surat",
+        "draf surat",
+        "draft surat",
+
+        "buat memo",
+        "draf memo",
+
+        "buat laporan",
+        "draf laporan",
+
+        "semak ayat",
+        "betulkan ayat",
+        "kemaskan ayat",
+        "reword",
+        "rewrite"
+    ];
+
+
+    if (
+        writingTasks.some(
+            phrase =>
+                text.includes(phrase)
+        )
+    ) {
+        return false;
+    }
+
+
+    // ========================================
+    // SOALAN / PERMINTAAN FAKTA
+    //
+    // Disebabkan Sarah khusus untuk JKNT/KKM,
+    // soalan berbentuk knowledge dianggap
+    // Government Mode secara default.
+    // ========================================
+
+    const questionPatterns = [
+
+        /^apa\b/,
+        /^apakah\b/,
+        /^siapa\b/,
+        /^berapa\b/,
+        /^adakah\b/,
+        /^boleh\b/,
+        /^boleh ke\b/,
+        /^macam mana\b/,
+        /^bagaimana\b/,
+        /^kenapa\b/,
+        /^mengapa\b/,
+        /^bila\b/,
+        /^di mana\b/,
+        /^mana\b/,
+
+        /\blayak\b/,
+        /\bkelayakan\b/,
+        /\bsyarat\b/,
+        /\bkadar\b/,
+        /\bgaji\b/,
+        /\belaun\b/,
+        /\btuntutan\b/,
+        /\bcuti\b/,
+        /\bpekeliling\b/,
+        /\bperaturan\b/,
+        /\bdasar\b/,
+        /\bprosedur\b/,
+        /\bberkuat kuasa\b/,
+        /\bterkini\b/,
+        /\bsemasa\b/,
+        /\bskim\b/,
+        /\bgred\b/,
+        /\bjawatan\b/
+    ];
+
+
+    if (
+        questionPatterns.some(
+            pattern =>
+                pattern.test(text)
+        )
+    ) {
+        return true;
+    }
+
+
+    // Tanda soal juga dianggap pertanyaan fakta
+    if (text.includes("?")) {
+        return true;
+    }
+
+
+    // Keyword lama masih boleh digunakan
+    // sebagai lapisan tambahan.
+    if (
+        isGovernmentQuery(text)
+    ) {
+        return true;
+    }
+
+
+    return false;
+}
+
+// =========================================================
 // MAIN HANDLER
 // =========================================================
 
@@ -4226,22 +4367,10 @@ mahu ia dilabel sebagai cadangan.
     );
 
 
-const strictGovernmentFactRequest =
-    requiresStrictGovernmentVerification(
-        latestUserMessage
-    );
-
-
 const governmentMode =
-    strictGovernmentFactRequest ||
-    (
-        !kertasKerjaMode &&
-        (
-            government_mode === true ||
-            isGovernmentQuery(
-                latestUserMessage
-            )
-        )
+    shouldUseGovernmentMode(
+        latestUserMessage,
+        kertasKerjaMode
     );
 
 
