@@ -1615,9 +1615,15 @@ const generateBotResponse = async (incomingMessageDiv) => {
     })
 }
 
+const controller = new AbortController();
+const requestTimeout = setTimeout(
+    () => controller.abort(),
+    35000
+)
+
     try {
         // Fetch bot response from API
-        const response = await fetch(API_URL, requestOptions);
+        const response = await fetch(API_URL, { ...requestOptions, signal: controller.signal });
         const data = await response.json();
         if(!response.ok) throw new Error(data.error.message);
 
@@ -2032,14 +2038,41 @@ else {
 
     addDownloadButtons(incomingMessageDiv, documentBody !== null ? documentBody : apiResponseText, formatsToShow);
     } catch (error) {
-    console.log(error);
-    if (error.message && error.message.toLowerCase().includes("quota")) {
-        messageElement.innerText = "Maaf, terlalu ramai menghantar mesej sekarang. Sila cuba lagi sebentar.";
+
+    console.error(
+        "Sarah request error:",
+        error
+    );
+
+
+    if (
+        error?.name === "AbortError"
+    ) {
+
+        messageElement.innerText =
+            "Maaf, Sarah mengambil masa terlalu lama untuk menjawab. Sila cuba lagi.";
+
+    } else if (
+        error?.message &&
+        error.message
+            .toLowerCase()
+            .includes("quota")
+    ) {
+
+        messageElement.innerText =
+            "Maaf, terlalu ramai menghantar mesej sekarang. Sila cuba lagi sebentar.";
+
     } else {
-        messageElement.innerText = "Maaf, ralat berlaku. Sila cuba lagi.";
+
+        messageElement.innerText =
+            "Maaf, ralat berlaku. Sila cuba lagi.";
     }
-    messageElement.style.color = "#ff0000";
+
+
+    messageElement.style.color =
+        "#ff0000";
     }   finally {
+    clearTimeout(requestTimeout);
     userData.file = { data: null, mime_type: null };
     incomingMessageDiv.classList.remove("thinking");
     chatBody.scrollTo({ top: chatBody.scrollHeight, behavior: "smooth" });
