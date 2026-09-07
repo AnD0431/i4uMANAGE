@@ -486,15 +486,65 @@
     <!-- Chatbot Footer -->
     <div class="chat-footer">
         <form action="#" class="chat-form">
-            <textarea placeholder="Message..." class="message-input" required data-i18n-placeholder="chat_placeholder"></textarea>
+            <textarea placeholder="Message..." class="message-input" data-i18n-placeholder="chat_placeholder"></textarea>
             <div class="chat-controls">
                 <button type="button" id="emoji-picker" class="material-symbols-rounded">sentiment_satisfied</button>
-                <div class="file-upload-wrapper">
-                    <input type="file" accept="images/*" id="file-input" hidden>
-                    <img src="#">
-                    <button type="button" id="file-upload" class="material-symbols-rounded">attach_file</button>
-                    <button type="button" id="file-cancel" class="material-symbols-rounded">close</button>
-                </div>
+               <div class="file-upload-wrapper">
+
+    <!-- Upload PDF / gambar -->
+    <input
+        type="file"
+        accept="image/*,application/pdf"
+        id="file-input"
+        hidden
+    >
+
+    <!-- Kamera telefon -->
+    <input
+        type="file"
+        accept="image/*"
+        capture="environment"
+        id="camera-input"
+        hidden
+    >
+
+    <img
+        src="#"
+        id="file-preview"
+        alt="Lampiran"
+    >
+
+    <!-- Upload -->
+    <button
+        type="button"
+        id="file-upload"
+        class="material-symbols-rounded"
+        title="Upload PDF atau gambar"
+    >
+        attach_file
+    </button>
+
+    <!-- Camera -->
+    <button
+        type="button"
+        id="camera-upload"
+        class="material-symbols-rounded"
+        title="Scan dengan kamera"
+    >
+        photo_camera
+    </button>
+
+    <!-- Cancel -->
+    <button
+        type="button"
+        id="file-cancel"
+        class="material-symbols-rounded"
+        title="Buang lampiran"
+    >
+        close
+    </button>
+
+</div>
                 <button type="submit" id="send-message" class="material-symbols-rounded">keyboard_arrow_up</button>
             </div>
         </form>

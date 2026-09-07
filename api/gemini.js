@@ -1639,7 +1639,8 @@ function addGoogleSearchTool(payload) {
 
 async function callGemini(
     googleUrl,
-    payload
+    payload,
+    timeOutMs = 25000
 ) {
 
     const controller =
@@ -1648,7 +1649,7 @@ async function callGemini(
     const timeout =
         setTimeout(
             () => controller.abort(),
-            25000
+            timeOutMs
         );
 
     try {
@@ -1866,6 +1867,239 @@ function createVerificationFailureResponse(
                 []
         }
     };
+}
+
+// =========================================================
+// DETECT KERTAS KERJA ANALYSIS
+// =========================================================
+
+function isKertasKerjaAnalysisRequest(
+    message = ""
+) {
+
+    const text =
+        String(
+            message || ""
+        )
+            .toLowerCase()
+            .trim();
+
+
+    const triggers = [
+
+        "analisis kertas kerja",
+        "analyze kertas kerja",
+        "analyse kertas kerja",
+
+        "semak kertas kerja",
+        "review kertas kerja",
+
+        "audit kertas kerja",
+
+        "analisis dokumen ini",
+        "semak dokumen ini"
+
+    ];
+
+
+    return triggers.some(
+        trigger =>
+            text.includes(
+                trigger
+            )
+    );
+}
+
+
+// =========================================================
+// KERTAS KERJA ANALYSIS INSTRUCTION
+// =========================================================
+
+function getKertasKerjaAnalysisInstruction() {
+
+    return `
+MOD ANALISIS KERTAS KERJA JKNT.
+
+Pengguna telah memberikan dokumen atau imej
+untuk dianalisis.
+
+TUGAS ANDA:
+
+Baca kandungan lampiran dengan teliti.
+
+Jika lampiran ialah PDF:
+- baca semua halaman yang tersedia.
+
+Jika lampiran ialah imej:
+- baca hanya kandungan yang benar-benar jelas kelihatan.
+
+JANGAN mereka teks yang kabur atau tidak kelihatan.
+
+JANGAN cipta fakta yang tidak terdapat dalam dokumen.
+
+JANGAN terus menulis semula kertas kerja.
+
+JANGAN gunakan:
+===MULA_DOKUMEN===
+atau
+===TAMAT_DOKUMEN===
+
+kerana pengguna hanya meminta ANALISIS.
+
+
+=========================================================
+1. SEMAK STRUKTUR JKNT
+=========================================================
+
+Semak kewujudan dan kelengkapan:
+
+1. PENDAHULUAN/LATAR BELAKANG
+
+2. OBJEKTIF LATIHAN
+
+3. KAEDAH PELAKSANAAN LATIHAN
+
+4. MAKLUMAT LATIHAN
+
+4.1 Nama Penganjur & Penganjur Bersama
+
+4.2 Justifikasi Pemilihan Penganjur Bersama
+
+4.3 Persetujuan Kerjasama
+
+4.4 Jawatankuasa Pelaksanaan Latihan
+
+4.5 Tarikh & Tempat serta Justifikasi Tempat
+
+4.6 Sasaran & Bilangan Peserta
+
+4.7 Penceramah, Fasilitator & Urus Setia
+
+5. IMPAK PELAKSANAAN LATIHAN
+
+6. SUMBER PERUNTUKAN DAN IMPLIKASI KEWANGAN
+
+7. KESIMPULAN/RUMUSAN
+
+
+Gunakan status:
+
+✅ Lengkap
+
+⚠️ Perlu Semakan
+
+❌ Tiada / Tidak Lengkap
+
+➖ Tidak Berkenaan
+
+
+=========================================================
+2. SEMAK KANDUNGAN
+=========================================================
+
+Kenal pasti:
+
+- fakta yang bercanggah;
+- tarikh yang tidak konsisten;
+- lokasi yang tidak konsisten;
+- bilangan peserta yang bercanggah;
+- nama program yang berbeza antara bahagian;
+- maklumat penting yang tidak diberikan;
+- ayat yang terlalu umum atau tidak jelas.
+
+
+=========================================================
+3. SEMAK KEWANGAN
+=========================================================
+
+Jika terdapat jadual kewangan:
+
+- semak pengiraan berdasarkan angka dalam dokumen;
+- semak subtotal;
+- semak jumlah keseluruhan;
+- semak sama ada sumber peruntukan dinyatakan.
+
+JANGAN cipta kadar baharu.
+
+JANGAN menentukan sendiri kadar rasmi kerajaan.
+
+Jika angka tidak dapat dibaca dengan jelas,
+nyatakan bahawa ia tidak dapat disahkan daripada lampiran.
+
+
+=========================================================
+4. SEMAK BAHASA
+=========================================================
+
+Semak:
+
+- ejaan;
+- tatabahasa;
+- laras bahasa rasmi;
+- ayat berulang;
+- istilah yang tidak konsisten.
+
+Jangan mengubah maksud asal.
+
+
+=========================================================
+5. OUTPUT ANALISIS
+=========================================================
+
+Jawapan hendaklah menggunakan struktur:
+
+HASIL ANALISIS KERTAS KERJA
+
+Status Keseluruhan:
+[Baik / Perlu Penambahbaikan / Tidak Lengkap]
+
+
+A. Semakan Struktur
+
+| Bahagian | Status | Catatan |
+| --- | --- | --- |
+
+
+B. Maklumat Yang Tidak Lengkap
+
+[senaraikan hanya perkara yang benar-benar hilang]
+
+
+C. Isu / Ketidakselarasan
+
+[senaraikan isu yang ditemui]
+
+
+D. Semakan Kewangan
+
+[hasil semakan]
+
+
+E. Semakan Bahasa
+
+[hasil semakan]
+
+
+F. Cadangan Penambahbaikan
+
+[senaraikan cadangan]
+
+
+Akhiri dengan:
+
+"Dokumen belum diubah. Saya boleh membantu membaiki
+kertas kerja selepas anda mengesahkan cadangan di atas."
+
+
+PENTING:
+
+Jika sebahagian halaman atau imej tidak jelas,
+nyatakan dengan tepat halaman / bahagian yang tidak
+dapat dibaca.
+
+Jangan membuat andaian untuk mengisi ruang tersebut.
+`;
+
 }
 
 // =========================================================
@@ -4361,16 +4595,35 @@ mahu ia dilabel sebagai cadangan.
         // GOVERNMENT MODE
         // ===============================
 
-    const kertasKerjaMode =
-    isKertasKerjaConversation(
-        clientPayload.contents
-    );
+    const kertasKerjaAnalysisMode =
+      isKertasKerjaAnalysisRequest(
+        latestUserMessage
+      );
 
+    const kertasKerjaMode =
+      !kertasKerjaAnalysisMode &&
+      isKertasKerjaConversation(
+        clientPayload.contents
+      );
 
 const governmentMode =
-    shouldUseGovernmentMode(
-        latestUserMessage,
-        kertasKerjaMode
+
+    !kertasKerjaAnalysisMode &&
+
+    (
+        strictGovernmentFactRequest ||
+
+        (
+            !kertasKerjaMode &&
+
+            (
+                government_mode === true ||
+
+                isGovernmentQuery(
+                    latestUserMessage
+                )
+            )
+        )
     );
 
 
@@ -4422,7 +4675,19 @@ let payload = {
 // HANYA APABILA WORKFLOW KERTAS KERJA AKTIF
 // ========================================
 
-if (kertasKerjaMode) {
+if (
+    kertasKerjaAnalysisMode
+) {
+
+    payload =
+        appendSystemInstruction(
+            payload,
+            getKertasKerjaAnalysisInstruction()
+        );
+
+} else if (
+    kertasKerjaMode
+) {
 
     payload =
         appendSystemInstruction(
@@ -4487,7 +4752,10 @@ if (governmentMode) {
         } =
             await callGemini(
                 GOOGLE_URL,
-                payload
+                payload,
+                kertasKerjaAnalysisMode
+                    ? 50000
+                    : 25000
             );
 
 

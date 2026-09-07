@@ -2,6 +2,9 @@ const chatBody = document.querySelector(".chat-body");
 const messageInput = document.querySelector(".message-input");
 const sendMessageButton = document.querySelector("#send-message");
 const fileInput = document.querySelector("#file-input");
+const cameraInput = document.querySelector("#camera-input");
+const cameraUploadButton = document.querySelector("#camera-upload");
+const fileReview = document.querySelector(".file-review");
 const fileUploadWrapper = document.querySelector(".file-upload-wrapper");
 const fileCancelButton = document.querySelector("#file-cancel");
 const chatBotToggle = document.querySelector("#chatbot-toggle");
@@ -22,7 +25,8 @@ const userData = {
     message: null,
     file: {
         data: null,
-        mime_type: null
+        mime_type: null,
+        name: null
     }
 }
 
@@ -1595,10 +1599,40 @@ const generateBotResponse = async (incomingMessageDiv) => {
     government_mode: false,
 
     // add user message chat history
-    chatHistory.push({
-    role: "user",
-    parts:[{ text: userData.message}, ...(userData.file.data ? [{ inline_data: userData.file }] : [])]
-  });
+   chatHistory.push({
+
+    role:
+        "user",
+
+    parts: [
+
+        {
+            text:
+                userData.message
+        },
+
+        ...(
+            userData.file?.data
+
+                ? [
+                    {
+                        inline_data: {
+
+                            data:
+                                userData.file.data,
+
+                            mime_type:
+                                userData.file.mime_type
+                        }
+                    }
+                ]
+
+                : []
+        )
+
+    ]
+
+});
 
     //API request options
     const requestOptions = {
@@ -2084,9 +2118,50 @@ else {
 
 // Logik teras hantar mesej — boleh dipanggil dari form submit ATAU dari quick reply button
 const sendUserMessage = (rawText) => {
-    if (messageInput.disabled) return;   // block double-submit
-    userData.message = (rawText || "").trim();
-    if (!userData.message) return;
+   if (
+    messageInput.disabled
+) {
+    return;
+}
+
+
+const hasAttachment =
+    Boolean(
+        userData.file?.data
+    );
+
+
+userData.message =
+    (rawText || "")
+        .trim();
+
+
+// ========================================
+// ATTACHMENT TANPA TEKS
+// Auto gunakan prompt analisis
+// ========================================
+
+if (
+    !userData.message &&
+    hasAttachment
+) {
+
+    userData.message =
+        `Analisis kertas kerja ini mengikut format JKNT.
+
+Semak struktur, kandungan, maklumat yang hilang,
+konsistensi kewangan, bahasa dan cadangkan
+penambahbaikan.
+
+Jangan ubah atau jana semula dokumen dahulu.`;
+}
+
+
+if (
+    !userData.message
+) {
+    return;
+}
     messageInput.value = "";
 
 // Reset textarea selepas mesej dihantar
@@ -2104,8 +2179,54 @@ fileUploadWrapper.classList.remove("file-uploaded");
     sendMessageButton.disabled = true;
 
     // Create and display user message
-    const messageContent = `<div class="message-text"></div>
-                        ${userData.file.data ? `<img src="data:${userData.file.mime_type};base64,${userData.file.data}" />` : ""}`;
+    let attachmentPreview =
+    "";
+
+
+if (
+    userData.file?.data
+) {
+
+    if (
+        userData.file
+            .mime_type
+            ?.startsWith(
+                "image/"
+            )
+    ) {
+
+        attachmentPreview =
+            `
+            <img
+                src="data:${userData.file.mime_type};base64,${userData.file.data}"
+                alt="Scan kertas kerja"
+            >
+            `;
+
+    } else {
+
+        attachmentPreview =
+            `
+            <div class="user-file-chip">
+
+                <i class="fa-solid fa-file-pdf"></i>
+
+                <span>
+                    PDF dilampirkan
+                </span>
+
+            </div>
+            `;
+    }
+}
+
+
+const messageContent =
+    `
+    <div class="message-text"></div>
+
+    ${attachmentPreview}
+    `;
 
     const outgoingMessageDiv =createMessageElement(messageContent, "user-message");
     outgoingMessageDiv.querySelector(".message-text").textContent = userData.message
@@ -2230,34 +2351,457 @@ messageInput.addEventListener("input", () => {
     }
 });
 
-// Handle file input change and preview the selected file
-fileInput.addEventListener("change", () => {
-    const file = fileInput.files[0];
-    if(!file) return;
+// =========================================================
+// SARAH ATTACHMENT
+// PDF / IMAGE / MOBILE CAMERA
+// =========================================================
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        fileUploadWrapper.querySelector("img").src = e.target.result;
-        fileUploadWrapper.classList.add("file-uploaded");
-        const base64String = e.target.result.split(",")[1];
+const MAX_PDF_SIZE =
+    3 * 1024 * 1024; // 3 MB
 
-        // Store file data in userData
+const MAX_IMAGE_SIZE =
+    15 * 1024 * 1024; // original image
+
+const MAX_IMAGE_SIDE =
+    1800;
+
+
+// ========================================
+// READ FILE AS DATA URL
+// ========================================
+
+function readFileAsDataUrl(file) {
+
+    return new Promise(
+        (resolve, reject) => {
+
+            const reader =
+                new FileReader();
+
+            reader.onload =
+                event =>
+                    resolve(
+                        event.target.result
+                    );
+
+            reader.onerror =
+                () =>
+                    reject(
+                        new Error(
+                            "File tidak dapat dibaca."
+                        )
+                    );
+
+            reader.readAsDataURL(
+                file
+            );
+        }
+    );
+}
+
+
+// ========================================
+// LOAD IMAGE
+// ========================================
+
+function loadImageElement(src) {
+
+    return new Promise(
+        (resolve, reject) => {
+
+            const image =
+                new Image();
+
+            image.onload =
+                () => resolve(image);
+
+            image.onerror =
+                () =>
+                    reject(
+                        new Error(
+                            "Imej tidak dapat dibaca."
+                        )
+                    );
+
+            image.src =
+                src;
+        }
+    );
+}
+
+
+// ========================================
+// COMPRESS MOBILE CAMERA IMAGE
+// ========================================
+
+async function prepareImageAttachment(
+    file
+) {
+
+    if (
+        file.size >
+        MAX_IMAGE_SIZE
+    ) {
+        throw new Error(
+            "Saiz gambar terlalu besar."
+        );
+    }
+
+
+    const originalDataUrl =
+        await readFileAsDataUrl(
+            file
+        );
+
+
+    const image =
+        await loadImageElement(
+            originalDataUrl
+        );
+
+
+    const largestSide =
+        Math.max(
+            image.width,
+            image.height
+        );
+
+
+    const scale =
+        Math.min(
+            1,
+            MAX_IMAGE_SIDE /
+                largestSide
+        );
+
+
+    const width =
+        Math.round(
+            image.width *
+            scale
+        );
+
+
+    const height =
+        Math.round(
+            image.height *
+            scale
+        );
+
+
+    const canvas =
+        document.createElement(
+            "canvas"
+        );
+
+
+    canvas.width =
+        width;
+
+    canvas.height =
+        height;
+
+
+    const ctx =
+        canvas.getContext(
+            "2d"
+        );
+
+
+    // Background putih untuk dokumen
+    ctx.fillStyle =
+        "#ffffff";
+
+    ctx.fillRect(
+        0,
+        0,
+        width,
+        height
+    );
+
+
+    ctx.drawImage(
+        image,
+        0,
+        0,
+        width,
+        height
+    );
+
+
+    const compressedDataUrl =
+        canvas.toDataURL(
+            "image/jpeg",
+            0.82
+        );
+
+
+    return {
+
+        data:
+            compressedDataUrl
+                .split(",")[1],
+
+        mime_type:
+            "image/jpeg",
+
+        name:
+            file.name ||
+            "scan-kertas-kerja.jpg",
+
+        preview:
+            compressedDataUrl
+
+    };
+}
+
+
+// ========================================
+// PREPARE PDF
+// ========================================
+
+async function preparePdfAttachment(
+    file
+) {
+
+    if (
+        file.size >
+        MAX_PDF_SIZE
+    ) {
+
+        throw new Error(
+            "PDF terlalu besar. Gunakan PDF di bawah 3 MB buat masa ini."
+        );
+    }
+
+
+    const dataUrl =
+        await readFileAsDataUrl(
+            file
+        );
+
+
+    const pdfIcon =
+        `
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="120"
+            height="120"
+            viewBox="0 0 120 120"
+        >
+            <rect
+                width="120"
+                height="120"
+                rx="16"
+                fill="#f1f1f1"
+            />
+
+            <text
+                x="60"
+                y="68"
+                font-size="28"
+                font-family="Arial"
+                text-anchor="middle"
+                fill="#333333"
+            >
+                PDF
+            </text>
+        </svg>
+        `;
+
+
+    return {
+
+        data:
+            dataUrl
+                .split(",")[1],
+
+        mime_type:
+            "application/pdf",
+
+        name:
+            file.name ||
+            "kertas-kerja.pdf",
+
+        preview:
+            "data:image/svg+xml;charset=UTF-8," +
+            encodeURIComponent(
+                pdfIcon
+            )
+
+    };
+}
+
+
+// ========================================
+// HANDLE ATTACHMENT
+// ========================================
+
+async function handleSarahAttachment(
+    file
+) {
+
+    if (!file) {
+        return;
+    }
+
+
+    try {
+
+        let attachment;
+
+
+        if (
+            file.type ===
+            "application/pdf"
+        ) {
+
+            attachment =
+                await preparePdfAttachment(
+                    file
+                );
+
+        } else if (
+            file.type.startsWith(
+                "image/"
+            )
+        ) {
+
+            attachment =
+                await prepareImageAttachment(
+                    file
+                );
+
+        } else {
+
+            throw new Error(
+                "Sarah hanya menerima PDF atau gambar untuk fungsi ini."
+            );
+        }
+
+
         userData.file = {
-        data: base64String,
-        mime_type: file.type
+
+            data:
+                attachment.data,
+
+            mime_type:
+                attachment.mime_type,
+
+            name:
+                attachment.name
+
+        };
+
+
+        filePreview.src =
+            attachment.preview;
+
+
+        filePreview.title =
+            attachment.name;
+
+
+        fileUploadWrapper
+            .classList
+            .add(
+                "file-uploaded"
+            );
+
+
+    } catch (error) {
+
+        console.error(
+            "Sarah attachment error:",
+            error
+        );
+
+
+        alert(
+            error.message ||
+            "Fail tidak dapat diproses."
+        );
     }
+}
 
-       fileInput.value = "";
+
+// ========================================
+// NORMAL FILE UPLOAD
+// ========================================
+
+fileInput.addEventListener(
+    "change",
+    async () => {
+
+        const file =
+            fileInput.files?.[0];
+
+        await handleSarahAttachment(
+            file
+        );
+
+
+        fileInput.value =
+            "";
     }
+);
 
-    reader.readAsDataURL(file);
-});
 
-// Cancel file upload
-fileCancelButton.addEventListener("click", () => {
-    userData.file = {};
-    fileUploadWrapper.classList.remove("file-uploaded");
-});
+// ========================================
+// MOBILE CAMERA
+// ========================================
+
+cameraInput.addEventListener(
+    "change",
+    async () => {
+
+        const file =
+            cameraInput.files?.[0];
+
+        await handleSarahAttachment(
+            file
+        );
+
+
+        cameraInput.value =
+            "";
+    }
+);
+
+
+// ========================================
+// CANCEL ATTACHMENT
+// ========================================
+
+fileCancelButton.addEventListener(
+    "click",
+    () => {
+
+        userData.file = {
+
+            data:
+                null,
+
+            mime_type:
+                null,
+
+            name:
+                null
+
+        };
+
+
+        filePreview.src =
+            "#";
+
+
+        fileUploadWrapper
+            .classList
+            .remove(
+                "file-uploaded"
+            );
+    }
+);
 
 // initialize emoji picker
 const picker = new EmojiMart.Picker({
@@ -2284,6 +2828,7 @@ document.querySelector("#emoji-picker").addEventListener("click", (e) => {
 
 sendMessageButton.addEventListener("click", (e) => handleOutgoingMessage(e));
 document.querySelector("#file-upload").addEventListener("click", () => fileInput.click());
+cameraUploadButton.addEventListener("click", () => { cameraInput.click(); });
 chatBotToggle.addEventListener("click", () => document.body.classList.toggle("show-chatbot"));
 closeChatbot.addEventListener("click", () => document.body.classList.remove("show-chatbot"));
 
