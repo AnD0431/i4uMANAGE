@@ -5,6 +5,7 @@ const fileInput = document.querySelector("#file-input");
 const cameraInput = document.querySelector("#camera-input");
 const cameraUploadButton = document.querySelector("#camera-upload");
 const fileReview = document.querySelector(".file-review");
+const filePreview = document.querySelector(".file-preview");
 const fileUploadWrapper = document.querySelector(".file-upload-wrapper");
 const fileCancelButton = document.querySelector("#file-cancel");
 const chatBotToggle = document.querySelector("#chatbot-toggle");
