@@ -2694,12 +2694,15 @@ async function handleSarahAttachment(
         };
 
 
-        filePreview.src =
-            attachment.preview;
+        if (filePreview) {
 
+    filePreview.src =
+        attachment.preview;
 
-        filePreview.title =
-            attachment.name;
+    filePreview.title =
+        attachment.name;
+
+}
 
 
         fileUploadWrapper
@@ -2751,22 +2754,24 @@ fileInput.addEventListener(
 // MOBILE CAMERA
 // ========================================
 
-cameraInput.addEventListener(
-    "change",
-    async () => {
+if (cameraInput) {
 
-        const file =
-            cameraInput.files?.[0];
+    cameraInput.addEventListener(
+        "change",
+        async () => {
 
-        await handleSarahAttachment(
-            file
-        );
+            const file =
+                cameraInput.files?.[0];
 
+            await handleSarahAttachment(
+                file
+            );
 
-        cameraInput.value =
-            "";
-    }
-);
+            cameraInput.value = "";
+        }
+    );
+
+}
 
 
 // ========================================
@@ -2791,8 +2796,11 @@ fileCancelButton.addEventListener(
         };
 
 
-        filePreview.src =
-            "#";
+        if (filePreview) {
+
+    filePreview.src = "#";
+
+}
 
 
         fileUploadWrapper
@@ -2826,11 +2834,75 @@ document.querySelector("#emoji-picker").addEventListener("click", (e) => {
     document.body.classList.toggle("show-emoji-picker");
 });
 
-sendMessageButton.addEventListener("click", (e) => handleOutgoingMessage(e));
-document.querySelector("#file-upload").addEventListener("click", () => fileInput.click());
-cameraUploadButton.addEventListener("click", () => { cameraInput.click(); });
-chatBotToggle.addEventListener("click", () => document.body.classList.toggle("show-chatbot"));
-closeChatbot.addEventListener("click", () => document.body.classList.remove("show-chatbot"));
+if (sendMessageButton) {
+
+    sendMessageButton.addEventListener(
+        "click",
+        (e) =>
+            handleOutgoingMessage(e)
+    );
+
+}
+
+
+const fileUploadButton =
+    document.querySelector(
+        "#file-upload"
+    );
+
+
+if (
+    fileUploadButton &&
+    fileInput
+) {
+
+    fileUploadButton.addEventListener(
+        "click",
+        () =>
+            fileInput.click()
+    );
+
+}
+
+
+if (
+    cameraUploadButton &&
+    cameraInput
+) {
+
+    cameraUploadButton.addEventListener(
+        "click",
+        () =>
+            cameraInput.click()
+    );
+
+}
+
+
+if (chatBotToggle) {
+
+    chatBotToggle.addEventListener(
+        "click",
+        () =>
+            document.body.classList.toggle(
+                "show-chatbot"
+            )
+    );
+
+}
+
+
+if (closeChatbot) {
+
+    closeChatbot.addEventListener(
+        "click",
+        () =>
+            document.body.classList.remove(
+                "show-chatbot"
+            )
+    );
+
+}
 
 // Bar quick reply kekal wujud sepanjang masa, bukan hanya masa chatbot dibuka kali pertama
 showQuickReplies();
