@@ -4607,7 +4607,7 @@ mahu ia dilabel sebagai cadangan.
       );
 
 const strictGovernmentFactRequest =
-    requiresStrictGovermentVerification(
+    requiresStrictGovernmentVerification(
         latestUserMessage
     )
 
