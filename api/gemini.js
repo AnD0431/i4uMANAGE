@@ -4606,6 +4606,11 @@ mahu ia dilabel sebagai cadangan.
         clientPayload.contents
       );
 
+const strictGovernmentFactRequest =
+    requiresStrictGovermentVerification(
+        latestUserMessage
+    )
+
 const governmentMode =
 
     !kertasKerjaAnalysisMode &&
