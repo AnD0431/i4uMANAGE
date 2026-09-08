@@ -2,9 +2,6 @@ const chatBody = document.querySelector(".chat-body");
 const messageInput = document.querySelector(".message-input");
 const sendMessageButton = document.querySelector("#send-message");
 const fileInput = document.querySelector("#file-input");
-const cameraInput = document.querySelector("#camera-input");
-const cameraUploadButton = document.querySelector("#camera-upload");
-const isTouchDevice = window.matchMedia( "(hover: none) and (pointer: coarse)" ).matches;
 const filePreview = document.querySelector("#file-preview");
 const fileUploadWrapper = document.querySelector(".file-upload-wrapper");
 const fileCancelButton = document.querySelector("#file-cancel");
@@ -2836,48 +2833,6 @@ if (
         "click",
         () =>
             fileInput.click()
-    );
-
-}
-
-if (
-    isTouchDevice &&
-    cameraUploadButton &&
-    cameraInput
-) {
-
-    cameraUploadButton.addEventListener(
-        "click",
-        () => {
-
-            cameraInput.click();
-
-        }
-    );
-
-}
-
-if (
-    isTouchDevice &&
-    cameraInput
-) {
-
-    cameraInput.addEventListener(
-        "change",
-        async () => {
-
-            const file =
-                cameraInput.files?.[0];
-
-            if (!file) return;
-
-            await handleSarahAttachment(
-                file
-            );
-
-            cameraInput.value = "";
-
-        }
     );
 
 }
