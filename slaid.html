@@ -504,7 +504,7 @@
     <!-- Chatbot Footer -->
     <div class="chat-footer">
         <form action="#" class="chat-form">
-            <textarea placeholder="Message..." class="message-input" required data-i18n-placeholder="chat_placeholder"></textarea>
+            <textarea placeholder="Message..." class="message-input" data-i18n-placeholder="chat_placeholder"></textarea>
             <div class="chat-controls">
                 <button type="button" id="emoji-picker" class="material-symbols-rounded">sentiment_satisfied</button>
                 <div class="file-upload-wrapper">
@@ -541,15 +541,7 @@
         attach_file
     </button>
 
-    <button
-        type="button"
-        id="camera-upload"
-        class="material-symbols-rounded"
-        title="Ambil gambar"
-    >
-        photo_camera
-    </button>
-
+    
     <button
         type="button"
         id="file-cancel"
@@ -560,11 +552,15 @@
     </button>
 
 </div>
-                    <input type="file" accept="images/*" id="file-input" hidden>
-                    <img src="#">
-                    <button type="button" id="file-upload" class="material-symbols-rounded">attach_file</button>
-                    <button type="button" id="file-cancel" class="material-symbols-rounded">close</button>
-                </div>
+                   
+<button
+        type="button"
+        id="camera-upload"
+        class="material-symbols-rounded"
+        title="Ambil gambar"
+    >
+        photo_camera
+    </button>
                 <button type="submit" id="send-message" class="material-symbols-rounded">keyboard_arrow_up</button>
             </div>
         </form>

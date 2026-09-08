@@ -642,14 +642,16 @@ body.show-chatbot .chatbot-popup {
 }
 
 .chat-form .chat-controls #send-message {
-    background: #1A56DB; /* Biru Korporat Utama */
-    display: none;
+    background: #1A56DB;
     color: #fff;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
 }
 
-.chat-form .message-input:valid~.chat-controls #send-message {
-    display: block;
-}
 
 .chat-form .chat-controls #send-message:hover {
     background: #1E40AF; /* Biru Gelap (Hover) */
@@ -1118,7 +1120,7 @@ body.show-emoji-picker em-emoji-picker {
 }
 
 
-/* Touch device seperti phone & tablet */
+/* Phone / tablet touch device */
 @media (hover: none) and (pointer: coarse) {
 
     #camera-upload {
