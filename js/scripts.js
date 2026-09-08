@@ -4,6 +4,7 @@ const sendMessageButton = document.querySelector("#send-message");
 const fileInput = document.querySelector("#file-input");
 const cameraInput = document.querySelector("#camera-input");
 const cameraUploadButton = document.querySelector("#camera-upload");
+const isTouchDevice = window.matchMedia( "(hover: none) and (pointer: coarse)" ).matches;
 const fileReview = document.querySelector(".file-review");
 const filePreview = document.querySelector(".file-preview");
 const fileUploadWrapper = document.querySelector(".file-upload-wrapper");
@@ -2867,14 +2868,29 @@ if (
 
 
 if (
-    cameraUploadButton &&
+    isTouchDevice &&
     cameraInput
 ) {
 
-    cameraUploadButton.addEventListener(
-        "click",
-        () =>
-            cameraInput.click()
+    cameraInput.addEventListener(
+        "change",
+        async () => {
+
+            const file =
+                cameraInput.files?.[0];
+
+            if (!file) return;
+
+
+            await handleSarahAttachment(
+                file
+            );
+
+
+            cameraInput.value =
+                "";
+
+        }
     );
 
 }

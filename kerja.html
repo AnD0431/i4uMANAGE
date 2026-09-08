@@ -489,9 +489,11 @@
             <textarea placeholder="Message..." class="message-input" data-i18n-placeholder="chat_placeholder"></textarea>
             <div class="chat-controls">
                 <button type="button" id="emoji-picker" class="material-symbols-rounded">sentiment_satisfied</button>
-               <div class="file-upload-wrapper">
+               
 
-    <!-- Upload PDF / gambar -->
+   <div class="file-upload-wrapper">
+
+    <!-- Attachment biasa -->
     <input
         type="file"
         accept="image/*,application/pdf"
@@ -499,7 +501,7 @@
         hidden
     >
 
-    <!-- Kamera telefon -->
+    <!-- Camera mobile/tablet -->
     <input
         type="file"
         accept="image/*"
@@ -514,27 +516,24 @@
         alt="Lampiran"
     >
 
-    <!-- Upload -->
     <button
         type="button"
         id="file-upload"
         class="material-symbols-rounded"
-        title="Upload PDF atau gambar"
+        title="Lampirkan fail"
     >
         attach_file
     </button>
 
-    <!-- Camera -->
     <button
         type="button"
         id="camera-upload"
         class="material-symbols-rounded"
-        title="Scan dengan kamera"
+        title="Ambil gambar"
     >
         photo_camera
     </button>
 
-    <!-- Cancel -->
     <button
         type="button"
         id="file-cancel"

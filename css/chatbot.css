@@ -688,7 +688,8 @@ body.show-chatbot .chatbot-popup {
     display: none;
 }
 
-.chat-form .file-upload-wrapper.file-uploaded #file-upload {
+.chat-form .file-upload-wrapper.file-uploaded #file-upload,
+.chat-form .file-upload-wrapper.file-uploaded #camera-upload {
     display: none;
 }
 
@@ -1106,6 +1107,26 @@ body.show-emoji-picker em-emoji-picker {
         max-width: 72vw;
         max-height: 240px;
     }
+}
+
+/* =========================================
+   CAMERA - MOBILE / TABLET ONLY
+   ========================================= */
+
+#camera-upload {
+    display: none;
+}
+
+
+/* Touch device seperti phone & tablet */
+@media (hover: none) and (pointer: coarse) {
+
+    #camera-upload {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
 }
 
 /* Link (tel:/mailto:) dalam bubble mesej bot — cth. maklumat hubungi JKNT */
