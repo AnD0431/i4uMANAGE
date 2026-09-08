@@ -5,8 +5,7 @@ const fileInput = document.querySelector("#file-input");
 const cameraInput = document.querySelector("#camera-input");
 const cameraUploadButton = document.querySelector("#camera-upload");
 const isTouchDevice = window.matchMedia( "(hover: none) and (pointer: coarse)" ).matches;
-const fileReview = document.querySelector(".file-review");
-const filePreview = document.querySelector(".file-preview");
+const filePreview = document.querySelector("#file-preview");
 const fileUploadWrapper = document.querySelector(".file-upload-wrapper");
 const fileCancelButton = document.querySelector("#file-cancel");
 const chatBotToggle = document.querySelector("#chatbot-toggle");
@@ -2751,31 +2750,6 @@ fileInput.addEventListener(
     }
 );
 
-
-// ========================================
-// MOBILE CAMERA
-// ========================================
-
-if (cameraInput) {
-
-    cameraInput.addEventListener(
-        "change",
-        async () => {
-
-            const file =
-                cameraInput.files?.[0];
-
-            await handleSarahAttachment(
-                file
-            );
-
-            cameraInput.value = "";
-        }
-    );
-
-}
-
-
 // ========================================
 // CANCEL ATTACHMENT
 // ========================================
@@ -2866,6 +2840,22 @@ if (
 
 }
 
+if (
+    isTouchDevice &&
+    cameraUploadButton &&
+    cameraInput
+) {
+
+    cameraUploadButton.addEventListener(
+        "click",
+        () => {
+
+            cameraInput.click();
+
+        }
+    );
+
+}
 
 if (
     isTouchDevice &&
@@ -2881,14 +2871,11 @@ if (
 
             if (!file) return;
 
-
             await handleSarahAttachment(
                 file
             );
 
-
-            cameraInput.value =
-                "";
+            cameraInput.value = "";
 
         }
     );
