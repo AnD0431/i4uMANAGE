@@ -672,6 +672,57 @@ function normalizeGovernmentFactText(text = "") {
 
 function getGovernmentResponseText(data) {
 
+// =========================================================
+// CHECK VISIBLE FINAL MODEL ANSWER
+// Jangan anggap thought / marker internal sebagai jawapan.
+// =========================================================
+
+function getVisibleFinalResponseText(data) {
+
+    const parts =
+        data?.candidates?.[0]
+            ?.content
+            ?.parts;
+
+
+    if (!Array.isArray(parts)) {
+        return "";
+    }
+
+
+    return parts
+
+        .filter(part =>
+            typeof part?.text === "string" &&
+            part.text.trim() !== "" &&
+            part.thought !== true
+        )
+
+        .map(part =>
+            part.text
+        )
+
+        .join("\n")
+
+        .replace(
+            /\s*\[\[I4U_STATUS:(ACTIVE|AMENDED|REPLACED|CANCELLED|UNKNOWN)\]\]\s*/gi,
+            "\n"
+        )
+
+        .trim();
+}
+
+
+function hasUsableFinalResponse(data) {
+
+    return Boolean(
+        getVisibleFinalResponseText(
+            data
+        )
+    );
+
+}
+
     const parts =
         data?.candidates?.[0]
             ?.content
@@ -4866,17 +4917,38 @@ if (
 
         // Hanya ganti result pertama
         // jika retry benar-benar menjalankan Search
-        if (
-            retryVerification.searched &&
-            retryVerification.totalSources > 0
-        ) {
+       if (
+    retryVerification.searched &&
+    retryVerification.totalSources > 0 &&
+    hasUsableFinalResponse(
+        retryResult.data
+    )
+) {
 
-            data =
-                retryResult.data;
+    data =
+        retryResult.data;
 
-            verification =
-                retryVerification;
+    verification =
+        retryVerification;
+
+} else if (
+    retryResult.response.ok &&
+    !hasUsableFinalResponse(
+        retryResult.data
+    )
+) {
+
+    console.warn(
+        "I4U_GOV_RETRY_EMPTY_FINAL_RESPONSE",
+        {
+            finishReason:
+                retryResult.data
+                    ?.candidates?.[0]
+                    ?.finishReason
         }
+    );
+
+}
     }
 }
 
@@ -4960,18 +5032,40 @@ const currentSourcePayload = {
 
         // Guna second-pass answer kalau ia benar-benar
         // mempunyai Search + sumber rasmi.
-        if (
-            currentSourceVerification.searched &&
-            currentSourceVerification
-                .officialSourceCount > 0
-        ) {
+       if (
+    currentSourceVerification.searched &&
+    currentSourceVerification
+        .officialSourceCount > 0 &&
+    hasUsableFinalResponse(
+        currentSourceResult.data
+    )
+) {
 
-            data =
-                currentSourceResult.data;
+    // Ganti jawapan lama HANYA jika
+    // second-pass benar-benar ada final answer.
+    data =
+        currentSourceResult.data;
 
-            verification =
-                currentSourceVerification;
+    verification =
+        currentSourceVerification;
+
+} else if (
+    !hasUsableFinalResponse(
+        currentSourceResult.data
+    )
+) {
+
+    console.warn(
+        "I4U_CURRENT_SOURCE_EMPTY_FINAL_RESPONSE",
+        {
+            finishReason:
+                currentSourceResult.data
+                    ?.candidates?.[0]
+                    ?.finishReason
         }
+    );
+
+}
     }
 }
 
