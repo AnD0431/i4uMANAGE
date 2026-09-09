@@ -5039,20 +5039,38 @@ const currentSourcePayload = {
             );
 
 
-        // Guna second-pass answer kalau ia benar-benar
-        // mempunyai Search + sumber rasmi.
         if (
-            currentSourceVerification.searched &&
-            currentSourceVerification
-                .officialSourceCount > 0
-        ) {
+    currentSourceVerification.searched &&
+    currentSourceVerification
+        .officialSourceCount > 0 &&
+    hasUsableFinalResponse(
+        currentSourceResult.data
+    )
+) {
 
-            data =
-                currentSourceResult.data;
+    data =
+        currentSourceResult.data;
 
-            verification =
-                currentSourceVerification;
+    verification =
+        currentSourceVerification;
+
+} else if (
+    !hasUsableFinalResponse(
+        currentSourceResult.data
+    )
+) {
+
+    console.warn(
+        "I4U_CURRENT_SOURCE_EMPTY_FINAL_RESPONSE",
+        {
+            finishReason:
+                currentSourceResult.data
+                    ?.candidates?.[0]
+                    ?.finishReason
         }
+    );
+
+}
     }
 }
 
