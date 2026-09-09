@@ -672,9 +672,31 @@ function normalizeGovernmentFactText(text = "") {
 
 function getGovernmentResponseText(data) {
 
+    const parts =
+        data?.candidates?.[0]
+            ?.content
+            ?.parts;
+
+
+    if (!Array.isArray(parts)) {
+        return "";
+    }
+
+
+    return parts
+        .map(
+            part =>
+                typeof part?.text === "string"
+                    ? part.text
+                    : ""
+        )
+        .join("\n");
+}
+
+
 // =========================================================
-// CHECK VISIBLE FINAL MODEL ANSWER
-// Jangan anggap thought / marker internal sebagai jawapan.
+// GET VISIBLE FINAL RESPONSE
+// Jangan guna thought sebagai jawapan pengguna
 // =========================================================
 
 function getVisibleFinalResponseText(data) {
@@ -692,14 +714,16 @@ function getVisibleFinalResponseText(data) {
 
     return parts
 
-        .filter(part =>
-            typeof part?.text === "string" &&
-            part.text.trim() !== "" &&
-            part.thought !== true
+        .filter(
+            part =>
+                typeof part?.text === "string" &&
+                part.text.trim() !== "" &&
+                part.thought !== true
         )
 
-        .map(part =>
-            part.text
+        .map(
+            part =>
+                part.text
         )
 
         .join("\n")
@@ -713,6 +737,10 @@ function getVisibleFinalResponseText(data) {
 }
 
 
+// =========================================================
+// CHECK ADA FINAL ANSWER
+// =========================================================
+
 function hasUsableFinalResponse(data) {
 
     return Boolean(
@@ -721,25 +749,6 @@ function hasUsableFinalResponse(data) {
         )
     );
 
-}
-
-    const parts =
-        data?.candidates?.[0]
-            ?.content
-            ?.parts;
-
-    if (!Array.isArray(parts)) {
-        return "";
-    }
-
-    return parts
-        .map(
-            part =>
-                typeof part?.text === "string"
-                    ? part.text
-                    : ""
-        )
-        .join("\n");
 }
 
 
@@ -5032,40 +5041,18 @@ const currentSourcePayload = {
 
         // Guna second-pass answer kalau ia benar-benar
         // mempunyai Search + sumber rasmi.
-       if (
-    currentSourceVerification.searched &&
-    currentSourceVerification
-        .officialSourceCount > 0 &&
-    hasUsableFinalResponse(
-        currentSourceResult.data
-    )
-) {
+        if (
+            currentSourceVerification.searched &&
+            currentSourceVerification
+                .officialSourceCount > 0
+        ) {
 
-    // Ganti jawapan lama HANYA jika
-    // second-pass benar-benar ada final answer.
-    data =
-        currentSourceResult.data;
+            data =
+                currentSourceResult.data;
 
-    verification =
-        currentSourceVerification;
-
-} else if (
-    !hasUsableFinalResponse(
-        currentSourceResult.data
-    )
-) {
-
-    console.warn(
-        "I4U_CURRENT_SOURCE_EMPTY_FINAL_RESPONSE",
-        {
-            finishReason:
-                currentSourceResult.data
-                    ?.candidates?.[0]
-                    ?.finishReason
+            verification =
+                currentSourceVerification;
         }
-    );
-
-}
     }
 }
 
@@ -5241,6 +5228,48 @@ if (!governmentVerified) {
                 `${notice}\n\n${firstTextPart.text}`;
         }
     }
+}
+
+// ========================================
+// FINAL RESPONSE SAFETY NET
+// Jangan hantar candidate kosong ke frontend
+// ========================================
+
+if (
+    !hasUsableFinalResponse(
+        data
+    )
+) {
+
+    console.warn(
+        "I4U_FINAL_EMPTY_RESPONSE",
+        {
+            finishReason:
+                data?.candidates?.[0]
+                    ?.finishReason,
+
+            searched:
+                verification?.searched,
+
+            officialSources:
+                displayOfficialSources
+                    ?.length || 0
+        }
+    );
+
+
+    const fallbackResponse =
+        createVerificationFailureResponse(
+            checkedAt,
+            governmentDocumentStatus
+        );
+
+
+    // Kekalkan candidate fallback,
+    // metadata sebenar akan ditambah selepas ini.
+    data.candidates =
+        fallbackResponse.candidates;
+
 }
 
 
