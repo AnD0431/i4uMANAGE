@@ -1420,6 +1420,25 @@ PERATURAN MASA DAN VERSI SEMASA:
   Menentukan tarikh kuat kuasa adalah tanggungjawab
   Government Mode.
 
+FORMAT JAWAPAN:
+
+- JANGAN gunakan LaTeX, TeX atau mathematical markup.
+- JANGAN gunakan simbol markup seperti $$, $, \frac, \text,
+  \mathbf, \times atau \approx.
+- Tulis pengiraan dalam teks biasa yang mudah dibaca.
+
+Contoh yang BETUL:
+
+(4 bulan / 12 bulan) × 40 jam = 13.33 jam ≈ 13–14 jam
+
+Contoh yang SALAH:
+
+$$\frac{4\text{ bulan}}{12\text{ bulan}}\times40$$
+
+- Jika menggunakan seksyen bernombor, gunakan nombor
+  secara berurutan: 1, 2, 3, 4 dan seterusnya.
+- Jangan ulang nombor 1 untuk seksyen baharu.
+
 Jangan taip URL secara manual dalam jawapan.
 Aplikasi akan memaparkan sumber grounding.
 `;

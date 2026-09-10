@@ -1093,10 +1093,123 @@ function markdownToChatHtml(text) {
         return result;
     };
 
+    // ========================================
+// NORMALIZE AI MATH / LATEX
+// Tukar formula AI kepada teks biasa
+// ========================================
+
+const normalizeSarahText = (value) => {
+
+    let result =
+        String(value || "");
+
+
+    // Block math: $$ ... $$
+    result = result.replace(
+        /\$\$([\s\S]*?)\$\$/g,
+        "$1"
+    );
+
+
+    // Inline math: $ ... $
+    result = result.replace(
+        /\$([^$\n]+)\$/g,
+        "$1"
+    );
+
+
+    // \text{}, \mathbf{}, \mathrm{}
+    for (
+        let i = 0;
+        i < 3;
+        i++
+    ) {
+
+        result = result.replace(
+            /\\(?:text|mathbf|mathrm)\{([^{}]*)\}/g,
+            "$1"
+        );
+
+    }
+
+
+    // \frac{a}{b}
+    for (
+        let i = 0;
+        i < 3;
+        i++
+    ) {
+
+        result = result.replace(
+            /\\frac\{([^{}]*)\}\{([^{}]*)\}/g,
+            "($1 / $2)"
+        );
+
+    }
+
+
+    result = result
+
+        .replace(
+            /\\times/g,
+            "×"
+        )
+
+        .replace(
+            /\\cdot/g,
+            "×"
+        )
+
+        .replace(
+            /\\div/g,
+            "÷"
+        )
+
+        .replace(
+            /\\approx/g,
+            "≈"
+        )
+
+        .replace(
+            /\\left/g,
+            ""
+        )
+
+        .replace(
+            /\\right/g,
+            ""
+        )
+
+        .replace(
+            /\\\[/g,
+            ""
+        )
+
+        .replace(
+            /\\\]/g,
+            ""
+        )
+
+        .replace(
+            /\\\(/g,
+            ""
+        )
+
+        .replace(
+            /\\\)/g,
+            ""
+        );
+
+
+    return result;
+};
+
 
     const lines =
-        escapeHtml(text)
-            .split("\n");
+    escapeHtml(
+        normalizeSarahText(text)
+    )
+        .split("\n");
 
 
     let html = "";
@@ -1439,25 +1552,33 @@ function markdownToChatHtml(text) {
         // 2. item
         // ====================================
 
-        if (
-            /^\d+\.\s+/.test(line)
-        ) {
-
-            openList("ol");
-
-
-            const content =
-                line.replace(
-                    /^\d+\.\s+/,
-                    ""
-                );
+        const numberedMatch =
+    line.match(
+        /^(\d+)\.\s+(.*)$/
+    );
 
 
-            html +=
-                `<li>${formatInline(content)}</li>`;
+if (numberedMatch) {
 
-            return;
-        }
+    openList("ol");
+
+
+    const itemNumber =
+        Number(
+            numberedMatch[1]
+        );
+
+
+    const content =
+        numberedMatch[2];
+
+
+    html +=
+        `<li value="${itemNumber}">${formatInline(content)}</li>`;
+
+
+    return;
+}
 
 
         // ====================================
