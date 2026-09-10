@@ -1,4 +1,5 @@
 const chatBody = document.querySelector(".chat-body");
+const scrollToBottomButton = document.querySelector("#chat-scroll-bottom");
 const messageInput = document.querySelector(".message-input");
 const sendMessageButton = document.querySelector("#send-message");
 const fileInput = document.querySelector("#file-input");
@@ -10,6 +11,94 @@ const closeChatbot = document.querySelector("#close-chatbot");
 const quickRepliesBar = document.querySelector("#quick-replies-bar");
 
 
+// =========================================================
+// SARAH SCROLL TO LATEST
+// =========================================================
+
+function updateScrollToBottomButton() {
+
+    if (
+        !chatBody ||
+        !scrollToBottomButton
+    ) {
+        return;
+    }
+
+
+    const distanceFromBottom =
+        chatBody.scrollHeight -
+        chatBody.scrollTop -
+        chatBody.clientHeight;
+
+
+    const shouldShow =
+        distanceFromBottom > 140;
+
+
+    scrollToBottomButton
+        .classList
+        .toggle(
+            "show",
+            shouldShow
+        );
+
+}
+
+if (
+    chatBody &&
+    scrollToBottomButton
+) {
+
+    // User scroll sendiri
+    chatBody.addEventListener(
+        "scroll",
+        updateScrollToBottomButton,
+        {
+            passive: true
+        }
+    );
+
+
+    // Tekan button
+    scrollToBottomButton
+        .addEventListener(
+            "click",
+            () => {
+
+                chatBody.scrollTo({
+                    top:
+                        chatBody.scrollHeight,
+
+                    behavior:
+                        "smooth"
+                });
+
+            }
+        );
+
+
+    // Detect mesej baru / jawapan berubah
+    const chatScrollObserver =
+        new MutationObserver(
+            () => {
+
+                requestAnimationFrame(
+                    updateScrollToBottomButton
+                );
+
+            }
+        );
+
+
+    chatScrollObserver.observe(
+        chatBody,
+        {
+            childList: true,
+            subtree: true
+        }
+    );
+
+}
 
 // API setup
 // FIXED: API_KEY dan panggilan terus ke Google DIBUANG dari sini — key tak
