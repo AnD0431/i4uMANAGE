@@ -855,9 +855,14 @@ const createMessageElement = (content, ...classes) => {
    Tambah/ubah entri di sini untuk tambah quick reply baru.
    ========================================================= */
 const QUICK_REPLIES = [
-    { label: "Apa awak boleh bantu?", message: "Apa awak boleh bantu saya buat di sini?",
 
-        staticReply:`Saya sedia membantu anda memudahkan pelbagai urusan pentadbiran, pengurusan dokumen, dan tugasan harian anda di sini.<br><br>
+    {
+        icon: "auto_awesome",
+        label: "Apa awak boleh bantu?",
+        message:
+            "Apa awak boleh bantu saya buat di sini?",
+
+        staticReply: `Saya sedia membantu anda memudahkan pelbagai urusan pentadbiran, pengurusan dokumen, dan tugasan harian anda di sini.<br><br>
         Antara perkara yang boleh saya bantu termasuklah:<br><br>
 
 1. Penyediaan Kertas Kerja & Kertas Cadangan: Saya boleh merangka kertas kerja rasmi yang lengkap untuk program, kursus, atau latihan (termasuk mengikut format rasmi JKNT) yang sedia untuk anda muat turun.<br><br>
@@ -868,18 +873,34 @@ const QUICK_REPLIES = [
 Format dokumen yang dihasilkan juga boleh disediakan untuk dimuat turun secara terus sebagai fail dokumen (.docx atau .pdf) bagi memudahkan kerja anda.<br><br>
 
 Ada sebarang dokumen atau tugasan yang ingin saya bantu sediakan sekarang? Sila beritahu saya!`
-     },
-    { label: "Jana Kertas Kerja", message: "Saya nak jana kertas kerja untuk satu program/latihan." },
-    { label: "Cari Dokumen", message: "Cari dokumen Design Thinking" },
+    },
+
     {
+        icon: "description",
+        label: "Jana Kertas Kerja",
+        message:
+            "Saya nak jana kertas kerja untuk satu program/latihan."
+    },
+
+    {
+        icon: "search",
+        label: "Cari Dokumen",
+        message:
+            "Cari dokumen Design Thinking"
+    },
+
+    {
+        icon: "support_agent",
         label: "Hubungi JKNT",
-        message: "Siapa saya patut berhubung?",
-        // staticReply = jawapan tetap, terus dipaparkan TANPA panggil API Gemini.
-        // Guna innerHTML (bukan textContent) sebab ada link tel:/mailto: di dalamnya.
+        message:
+            "Siapa saya patut berhubung?",
+
+        // staticReply sedia ada
         staticReply: `Berikut maklumat perhubungan JKNT:<br><br>
             📞 <a href="tel:+6096222866">+609 622 2866</a><br>
             ✉️ <a href="mailto:jknt@moh.gov.my">jknt@moh.gov.my</a>`
     }
+
 ];
 
 // Papar mesej user + jawapan TETAP terus dalam chat, tanpa panggil API Gemini.
@@ -919,7 +940,15 @@ const showQuickReplies = () => {
         const btn = document.createElement("button");
         btn.type = "button";
         btn.classList.add("quick-reply-btn");
-        btn.innerText = item.label;
+        btn.innerHTML = `
+    <span class="material-symbols-rounded quick-reply-icon">
+        ${item.icon || "chat"}
+    </span>
+
+    <span>
+        ${item.label}
+    </span>
+`;
         btn.addEventListener("click", () => {
             // Kalau ada staticReply, jawab terus tanpa API. Kalau tak, hantar ke Sarah macam biasa.
             if (item.staticReply) {

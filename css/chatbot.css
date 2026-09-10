@@ -1785,3 +1785,726 @@ body.show-emoji-picker em-emoji-picker {
 
     border-radius: 0;
 }
+
+/* =========================================================
+   SARAH PREMIUM UI V1
+   Modern Government Digital Service
+   ========================================================= */
+
+
+/* =========================================================
+   PREMIUM HEADER
+   ========================================================= */
+
+.chat-header {
+    position: relative;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(37, 99, 235, 0.96),
+            rgba(29, 78, 216, 0.94)
+        );
+
+    border-bottom:
+        1px solid
+        rgba(255, 255, 255, 0.18);
+
+    box-shadow:
+        0 8px 26px
+        rgba(30, 64, 175, 0.15);
+
+    overflow: hidden;
+}
+
+
+/* subtle light reflection */
+
+.chat-header::before {
+    content: "";
+
+    position: absolute;
+
+    top: -60px;
+    left: 10%;
+
+    width: 260px;
+    height: 100px;
+
+    background:
+        rgba(255, 255, 255, 0.12);
+
+    filter:
+        blur(40px);
+
+    pointer-events: none;
+}
+
+
+.sarah-header-text {
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+
+    gap: 2px;
+}
+
+
+.sarah-name-row {
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+}
+
+
+.sarah-name-row .logo-text {
+    margin: 0;
+
+    line-height: 1.1;
+}
+
+
+.sarah-subtitle {
+    color:
+        rgba(255, 255, 255, 0.76);
+
+    font-size: 0.67rem;
+
+    font-weight: 400;
+
+    letter-spacing: 0.15px;
+}
+
+
+.sarah-status-dot {
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: #86efac;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(134, 239, 172, 0.15),
+        0 0 8px
+        rgba(134, 239, 172, 0.5);
+}
+
+
+/* =========================================================
+   PREMIUM CHAT CANVAS
+   ========================================================= */
+
+.chat-body {
+    position: relative;
+
+    background:
+        radial-gradient(
+            circle at 10% 10%,
+            rgba(59, 130, 246, 0.13),
+            transparent 30%
+        ),
+
+        radial-gradient(
+            circle at 90% 86%,
+            rgba(37, 99, 235, 0.09),
+            transparent 34%
+        ),
+
+        linear-gradient(
+            145deg,
+            rgba(239, 246, 255, 0.82),
+            rgba(248, 250, 252, 0.90)
+        );
+
+    -webkit-backdrop-filter:
+        blur(18px)
+        saturate(135%);
+
+    backdrop-filter:
+        blur(18px)
+        saturate(135%);
+}
+
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.sarah-empty-state {
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+
+    transform:
+        translate(-50%, -50%);
+
+    width:
+        min(440px, 75%);
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+
+    text-align: center;
+
+    pointer-events: none;
+
+    opacity: 0.72;
+
+    transition:
+        opacity 0.25s ease,
+        transform 0.25s ease;
+}
+
+
+.sarah-empty-icon {
+    width: 52px;
+    height: 52px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 13px;
+
+    border-radius: 16px;
+
+    color: #2563eb;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.78),
+            rgba(219, 234, 254, 0.68)
+        );
+
+    border:
+        1px solid
+        rgba(59, 130, 246, 0.14);
+
+    box-shadow:
+        0 10px 30px
+        rgba(37, 99, 235, 0.10);
+
+    -webkit-backdrop-filter:
+        blur(12px);
+
+    backdrop-filter:
+        blur(12px);
+}
+
+
+.sarah-empty-icon
+.material-symbols-rounded {
+    font-size: 26px;
+}
+
+
+.sarah-empty-state h3 {
+    margin: 0 0 7px;
+
+    color: #172554;
+
+    font-size: 1rem;
+
+    font-weight: 650;
+}
+
+
+.sarah-empty-state p {
+    margin: 0;
+
+    max-width: 360px;
+
+    color: #64748b;
+
+    font-size: 0.76rem;
+
+    line-height: 1.55;
+}
+
+
+.sarah-capabilities {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    margin-top: 15px;
+}
+
+
+.sarah-capabilities span {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    padding:
+        5px 9px;
+
+    border-radius:
+        999px;
+
+    background:
+        rgba(255, 255, 255, 0.52);
+
+    border:
+        1px solid
+        rgba(37, 99, 235, 0.10);
+
+    color: #64748b;
+
+    font-size:
+        0.64rem;
+}
+
+
+.sarah-capabilities i {
+    color: #2563eb;
+
+    font-size:
+        0.85rem;
+}
+
+
+/* Ada user message = hide empty state */
+
+.chat-body:has(.user-message)
+.sarah-empty-state {
+    opacity: 0;
+
+    transform:
+        translate(-50%, -46%);
+
+    visibility: hidden;
+}
+
+
+/* =========================================================
+   BOT BUBBLE
+   ========================================================= */
+
+.chat-body
+.bot-message
+.message-text {
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.94),
+            rgba(248, 250, 252, 0.86)
+        );
+
+    border:
+        1px solid
+        rgba(59, 130, 246, 0.10);
+
+    box-shadow:
+        0 8px 24px
+        rgba(30, 64, 175, 0.07);
+
+    border-radius:
+        6px 18px 18px 18px;
+}
+
+
+/* Keep Sarah avatar transparent */
+
+.chat-body
+.bot-message
+.chatbot-avatar {
+
+    background:
+        transparent !important;
+
+    border:
+        none !important;
+
+    box-shadow:
+        none !important;
+
+    padding: 0 !important;
+
+    -webkit-backdrop-filter:
+        none !important;
+
+    backdrop-filter:
+        none !important;
+}
+
+
+/* =========================================================
+   QUICK REPLY FLOATING DOCK
+   ========================================================= */
+
+.quick-replies-bar {
+    position: relative;
+
+    gap: 7px;
+
+    padding:
+        11px 20px 7px;
+
+    background:
+        rgba(248, 250, 252, 0.72);
+
+    border-top:
+        1px solid
+        rgba(37, 99, 235, 0.08);
+
+    -webkit-backdrop-filter:
+        blur(18px)
+        saturate(135%);
+
+    backdrop-filter:
+        blur(18px)
+        saturate(135%);
+}
+
+
+.quick-reply-btn {
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    gap: 6px;
+
+    padding:
+        7px 12px;
+
+    background:
+        rgba(255, 255, 255, 0.70);
+
+    border:
+        1px solid
+        rgba(37, 99, 235, 0.20);
+
+    border-radius:
+        999px;
+
+    color:
+        #1d4ed8;
+
+    font-weight:
+        500;
+
+    box-shadow:
+        0 4px 12px
+        rgba(30, 64, 175, 0.04);
+
+    transition:
+        transform 0.18s ease,
+        background 0.18s ease,
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+
+.quick-reply-icon {
+    font-size:
+        0.95rem;
+}
+
+
+@media (hover: hover) {
+
+    .quick-reply-btn:hover {
+
+        transform:
+            translateY(-1px);
+
+        background:
+            rgba(239, 246, 255, 0.95);
+
+        border-color:
+            rgba(37, 99, 235, 0.42);
+
+        box-shadow:
+            0 7px 18px
+            rgba(30, 64, 175, 0.09);
+    }
+
+}
+
+
+/* =========================================================
+   PREMIUM FOOTER
+   ========================================================= */
+
+.chat-footer {
+    background:
+        rgba(248, 250, 252, 0.80);
+
+    border-top:
+        1px solid
+        rgba(255, 255, 255, 0.8);
+
+    box-shadow:
+        0 -10px 30px
+        rgba(30, 64, 175, 0.04);
+
+    -webkit-backdrop-filter:
+        blur(22px)
+        saturate(140%);
+
+    backdrop-filter:
+        blur(22px)
+        saturate(140%);
+}
+
+
+/* INPUT GLASS */
+
+.chat-footer
+.chat-form {
+
+    background:
+        rgba(255, 255, 255, 0.76);
+
+    outline:
+        none;
+
+    border:
+        1px solid
+        rgba(37, 99, 235, 0.16);
+
+    box-shadow:
+        0 5px 20px
+        rgba(30, 64, 175, 0.06),
+        inset 0 1px 0
+        rgba(255, 255, 255, 0.85);
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+
+/* FOCUS */
+
+.chat-footer
+.chat-form:focus-within {
+
+    outline:
+        none;
+
+    border-color:
+        rgba(37, 99, 235, 0.60);
+
+    background:
+        rgba(255, 255, 255, 0.94);
+
+    box-shadow:
+        0 0 0 3px
+        rgba(37, 99, 235, 0.08),
+        0 8px 24px
+        rgba(30, 64, 175, 0.09);
+}
+
+
+/* INPUT TEXT */
+
+.chat-form
+.message-input {
+
+    color:
+        #0f172a;
+
+    font-weight:
+        400;
+}
+
+
+.chat-form
+.message-input::placeholder {
+
+    color:
+        #94a3b8;
+}
+
+
+/* CONTROL BUTTON */
+
+.chat-form
+.chat-controls
+button {
+
+    transition:
+        background 0.18s ease,
+        transform 0.18s ease;
+}
+
+
+@media (hover: hover) {
+
+    .chat-form
+    .chat-controls
+    button:not(#send-message):hover {
+
+        background:
+            rgba(37, 99, 235, 0.08);
+
+        transform:
+            scale(1.04);
+    }
+
+}
+
+
+/* SEND BUTTON */
+
+.chat-form
+.chat-controls
+#send-message {
+
+    color: #ffffff;
+
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #1d4ed8
+        );
+
+    box-shadow:
+        0 5px 14px
+        rgba(37, 99, 235, 0.28);
+}
+
+
+@media (hover: hover) {
+
+    .chat-form
+    .chat-controls
+    #send-message:hover {
+
+        transform:
+            translateY(-1px)
+            scale(1.03);
+
+        box-shadow:
+            0 7px 18px
+            rgba(37, 99, 235, 0.34);
+    }
+
+}
+
+
+/* =========================================================
+   DESKTOP
+   ========================================================= */
+
+@media (min-width: 901px) {
+
+    .chat-header {
+        padding:
+            14px 22px;
+    }
+
+
+    .sarah-subtitle {
+        font-size:
+            0.68rem;
+    }
+
+
+    .chat-body
+    .message-text {
+
+        line-height:
+            1.65;
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .sarah-subtitle {
+        font-size:
+            0.61rem;
+    }
+
+
+    .sarah-status-dot {
+        width:
+            6px;
+
+        height:
+            6px;
+    }
+
+
+    .sarah-empty-state {
+        width:
+            82%;
+    }
+
+
+    .sarah-empty-icon {
+        width:
+            46px;
+
+        height:
+            46px;
+    }
+
+
+    .sarah-empty-state h3 {
+        font-size:
+            0.9rem;
+    }
+
+
+    .sarah-empty-state p {
+        font-size:
+            0.7rem;
+    }
+
+
+    .sarah-capabilities {
+        gap:
+            5px;
+    }
+
+
+    .sarah-capabilities span {
+        font-size:
+            0.59rem;
+    }
+
+
+    .quick-replies-bar {
+        padding:
+            9px 14px 6px;
+    }
+
+
+    .quick-reply-btn {
+        gap:
+            5px;
+
+        padding:
+            7px 10px;
+    }
+
+}
