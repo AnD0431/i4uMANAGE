@@ -1573,8 +1573,32 @@ if (numberedMatch) {
         numberedMatch[2];
 
 
-    html +=
-        `<li value="${itemNumber}">${formatInline(content)}</li>`;
+    // ========================================
+    // DETECT NUMBERED SECTION TITLE
+    // ========================================
+
+    const isSectionTitle =
+        content.length <= 100 &&
+        !/[.!?;:]$/.test(
+            content
+        );
+
+
+    if (isSectionTitle) {
+
+        html +=
+            `<li value="${itemNumber}" class="md-numbered-heading">
+                <strong>${formatInline(content)}</strong>
+            </li>`;
+
+    } else {
+
+        html +=
+            `<li value="${itemNumber}">
+                ${formatInline(content)}
+            </li>`;
+
+    }
 
 
     return;

@@ -308,6 +308,12 @@ body.show-chatbot .chatbot-popup {
     font-weight: 700;
 }
 
+.md-numbered-heading {
+    font-weight: 700;
+    margin-top: 12px;
+    margin-bottom: 8px;
+}
+
 
 /* =========================================
    BOLD / ITALIC
