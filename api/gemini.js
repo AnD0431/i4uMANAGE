@@ -70,9 +70,16 @@ const GOVERNMENT_KEYWORDS = [
     "prosedur kerajaan",
     "arahan perbendaharaan",
 
-    // Latihan
-    "ldp",
-    "latihan dalam perkhidmatan"
+   // Latihan / pembangunan kompetensi
+"ldp",
+"latihan dalam perkhidmatan",
+"kursus",
+"jam kursus",
+"jam latihan",
+"jam berkursus",
+"lapor diri",
+"tarikh lapor diri",
+"keperluan latihan"
 ];
 
 
@@ -388,17 +395,24 @@ function detectGovernmentTopic(message = "") {
     }
 
 
-    // PERKHIDMATAN AWAM / HR
-    if (
-        text.includes("cuti") ||
-        text.includes("tatatertib") ||
-        text.includes("kenaikan pangkat") ||
-        text.includes("pemangkuan") ||
-        text.includes("skim perkhidmatan") ||
-        text.includes("gred")
-    ) {
-        return "public-service";
-    }
+    // PERKHIDMATAN AWAM / HR / LATIHAN
+if (
+    text.includes("cuti") ||
+    text.includes("tatatertib") ||
+    text.includes("kenaikan pangkat") ||
+    text.includes("pemangkuan") ||
+    text.includes("skim perkhidmatan") ||
+    text.includes("gred") ||
+
+    text.includes("kursus") ||
+    text.includes("latihan") ||
+    text.includes("jam kursus") ||
+    text.includes("jam latihan") ||
+    text.includes("lapor diri") ||
+    text.includes("ldp")
+) {
+    return "public-service";
+}
 
 
     // KESIHATAN
@@ -2270,7 +2284,14 @@ function requiresStrictGovernmentVerification(
         "myppsm",
         "jpa",
         "mof",
-        "perbendaharaan"
+        "perbendaharaan",
+
+        "jam kursus",
+        "jam latihan",
+        "jam berkursus",
+        "keperluan latihan",
+        "lapor diri"
+
     ];
 
 
@@ -4675,19 +4696,15 @@ const governmentMode =
 
     !kertasKerjaAnalysisMode &&
 
+    !kertasKerjaMode &&
+
     (
         strictGovernmentFactRequest ||
 
-        (
-            !kertasKerjaMode &&
+        government_mode === true ||
 
-            (
-                government_mode === true ||
-
-                isGovernmentQuery(
-                    latestUserMessage
-                )
-            )
+        isGovernmentQuery(
+            latestUserMessage
         )
     );
 
