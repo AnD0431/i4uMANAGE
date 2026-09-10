@@ -4885,11 +4885,21 @@ if (governmentMode) {
                 governmentTopic
             );
 
+        const firstFinishReason =
+            data?.candidates?.[0]
+                ?.finishReason || "";
+
+
+        const malformedFunctionCall =
+            firstFinishReason ===
+            "MALFORMED_FUNCTION_CALL";
+
 // =========================================================
 // ONE RETRY ONLY IF GOOGLE SEARCH WAS NOT EXECUTED
 // =========================================================
 
 if (
+    malformedFunctionCall ||
     !verification.searched ||
     verification.totalSources === 0
 ) {
