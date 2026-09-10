@@ -758,6 +758,10 @@ const response =
             data
         );
 
+        addSarahCopyButton(
+            incomingMessageDiv
+        );
+
 
         // =====================================
         // CHAT HISTORY
@@ -849,6 +853,287 @@ const createMessageElement = (content, ...classes) => {
     return div;
 }
 
+// =========================================================
+// SARAH COPY RESPONSE
+// =========================================================
+
+async function copySarahText(
+    text
+) {
+
+    if (!text) {
+        return false;
+    }
+
+
+    try {
+
+        // Browser moden / HTTPS
+        if (
+            navigator.clipboard &&
+            window.isSecureContext
+        ) {
+
+            await navigator.clipboard.writeText(
+                text
+            );
+
+            return true;
+        }
+
+
+        // ========================================
+        // FALLBACK
+        // ========================================
+
+        const textarea =
+            document.createElement(
+                "textarea"
+            );
+
+
+        textarea.value =
+            text;
+
+
+        textarea.style.position =
+            "fixed";
+
+        textarea.style.opacity =
+            "0";
+
+        textarea.style.pointerEvents =
+            "none";
+
+
+        document.body.appendChild(
+            textarea
+        );
+
+
+        textarea.focus();
+        textarea.select();
+
+
+        const success =
+            document.execCommand(
+                "copy"
+            );
+
+
+        textarea.remove();
+
+
+        return success;
+
+
+    } catch (error) {
+
+        console.error(
+            "Sarah copy error:",
+            error
+        );
+
+        return false;
+    }
+
+}
+
+
+// =========================================================
+// ADD COPY BUTTON TO SARAH MESSAGE
+// =========================================================
+
+function addSarahCopyButton(
+    messageDiv
+) {
+
+    if (!messageDiv) {
+        return;
+    }
+
+
+    // Hanya bot message
+    if (
+        !messageDiv.classList.contains(
+            "bot-message"
+        )
+    ) {
+        return;
+    }
+
+
+    // Jangan letak pada thinking bubble
+    if (
+        messageDiv.classList.contains(
+            "thinking"
+        )
+    ) {
+        return;
+    }
+
+
+    const messageElement =
+        messageDiv.querySelector(
+            ".message-text"
+        );
+
+
+    if (!messageElement) {
+        return;
+    }
+
+
+    // Elak duplicate
+    if (
+        messageElement.querySelector(
+            ".message-copy-bar"
+        )
+    ) {
+        return;
+    }
+
+
+    const copyBar =
+        document.createElement(
+            "div"
+        );
+
+
+    copyBar.className =
+        "message-copy-bar";
+
+
+    const copyButton =
+        document.createElement(
+            "button"
+        );
+
+
+    copyButton.type =
+        "button";
+
+
+    copyButton.className =
+        "sarah-copy-btn";
+
+
+    copyButton.title =
+        "Salin jawapan";
+
+
+    copyButton.innerHTML = `
+        <span class="material-symbols-rounded">
+            content_copy
+        </span>
+
+        <span class="copy-label">
+            Salin
+        </span>
+    `;
+
+
+    copyButton.addEventListener(
+        "click",
+        async event => {
+
+            event.stopPropagation();
+
+
+            // Clone supaya tulisan "Salin"
+            // sendiri tidak termasuk
+            const clone =
+                messageElement.cloneNode(
+                    true
+                );
+
+
+            clone
+                .querySelectorAll(
+                    ".message-copy-bar"
+                )
+                .forEach(
+                    element =>
+                        element.remove()
+                );
+
+
+            const textToCopy =
+                clone.innerText
+                    .trim();
+
+
+            if (!textToCopy) {
+                return;
+            }
+
+
+            const success =
+                await copySarahText(
+                    textToCopy
+                );
+
+
+            if (!success) {
+                return;
+            }
+
+
+            copyButton.classList.add(
+                "copied"
+            );
+
+
+            copyButton.innerHTML = `
+                <span class="material-symbols-rounded">
+                    check
+                </span>
+
+                <span class="copy-label">
+                    Disalin
+                </span>
+            `;
+
+
+            setTimeout(
+                () => {
+
+                    copyButton
+                        .classList
+                        .remove(
+                            "copied"
+                        );
+
+
+                    copyButton.innerHTML = `
+                        <span class="material-symbols-rounded">
+                            content_copy
+                        </span>
+
+                        <span class="copy-label">
+                            Salin
+                        </span>
+                    `;
+
+                },
+                1800
+            );
+
+        }
+    );
+
+
+    copyBar.appendChild(
+        copyButton
+    );
+
+
+    messageElement.appendChild(
+        copyBar
+    );
+
+}
+
 /* =========================================================
    QUICK REPLIES
    Senarai butang jawapan pantas yang dipaparkan dalam chat.
@@ -922,6 +1207,7 @@ const sendStaticReply = (userText, replyHtml) => {
             <div class="message-text">${replyHtml}</div>`;
         const incomingMessageDiv = createMessageElement(botMessageContent, "bot-message");
         chatBody.appendChild(incomingMessageDiv);
+        addSarahCopyButton(incomingMessageDiv);
         chatBody.scrollTo({ top: chatBody.scrollHeight, behavior: "smooth" });
 
         // Simpan dalam chatHistory (versi teks tanpa tag HTML) supaya Sarah "ingat"
@@ -2241,6 +2527,12 @@ else {
     const formatsToShow = documentBody !== null
         ? { docx: true, pdf: true }
         : requestedFormats;
+
+// Tambah copy button selepas
+// semua kandungan Sarah selesai render
+addSarahCopyButton(
+    incomingMessageDiv
+);
 
     addDownloadButtons(incomingMessageDiv, documentBody !== null ? documentBody : apiResponseText, formatsToShow);
     } catch (error) {
