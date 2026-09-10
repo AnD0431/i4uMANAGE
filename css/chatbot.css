@@ -1428,3 +1428,53 @@ body.show-emoji-picker em-emoji-picker {
 .message-sources a:hover {
     text-decoration: underline;
 }
+
+/* ==================================================
+   SARAH - LARGER DESKTOP VIEW
+   ================================================== */
+
+@media (min-width: 901px) {
+
+    /* Besarkan keseluruhan window Sarah */
+    .chatbot-popup {
+        width: 60vw;
+        max-width: 900px;
+
+        height: 84vh;
+        max-height: 850px;
+
+        /* Icon Sarah:
+           bottom 30px + height 60px = 90px
+           Kita beri extra gap 15px */
+        bottom: 105px;
+
+        right: 35px;
+    }
+
+
+    /* Besarkan ruang bacaan */
+    .chat-body {
+        padding: 28px 26px;
+        gap: 16px;
+    }
+
+
+    /* Jawapan Sarah lebih mudah dibaca */
+    .chat-body .message-text {
+        font-size: 1rem;
+        line-height: 1.65;
+    }
+
+
+    /* Bubble Sarah boleh guna ruang lebih luas */
+    .chat-body .bot-message .message-text {
+        max-width: 84%;
+    }
+
+
+    /* Bubble user pun jangan terlalu sempit */
+    .chat-body .user-message .message-text {
+        max-width: 82%;
+    }
+
+}
