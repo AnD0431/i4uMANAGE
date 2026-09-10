@@ -2289,6 +2289,105 @@ else {
 }
 
 // Logik teras hantar mesej — boleh dipanggil dari form submit ATAU dari quick reply button
+
+// =========================================================
+// SARAH CONTEXTUAL LOADING STATE
+// =========================================================
+
+function getSarahThinkingState(message = "") {
+
+    const text =
+        String(message || "")
+            .toLowerCase()
+            .trim();
+
+
+    // ========================================
+    // ATTACHMENT / DOCUMENT ANALYSIS
+    // ========================================
+
+    if (userData.file?.data) {
+
+        return {
+            icon: "document_scanner",
+            text: "Sarah sedang membaca dokumen..."
+        };
+
+    }
+
+
+    // ========================================
+    // DOCUMENT SEARCH
+    // ========================================
+
+    if (
+        isDocumentSearchIntent(
+            message
+        )
+    ) {
+
+        return {
+            icon: "search",
+            text: "Sarah sedang mencari dokumen..."
+        };
+
+    }
+
+
+    // ========================================
+    // KERTAS KERJA
+    // ========================================
+
+    const kertasKerjaRequest =
+        text.includes("kertas kerja") &&
+        (
+            text.includes("jana") ||
+            text.includes("buat") ||
+            text.includes("sediakan") ||
+            text.includes("hasilkan") ||
+            text.includes("create")
+        );
+
+
+    if (kertasKerjaRequest) {
+
+        return {
+            icon: "description",
+            text: "Sarah sedang menyediakan kertas kerja..."
+        };
+
+    }
+
+
+    // ========================================
+    // GOVERNMENT / PUBLIC SERVICE
+    // ========================================
+
+    if (
+        isGovernmentQuery(
+            message
+        )
+    ) {
+
+        return {
+            icon: "verified",
+            text: "Sarah sedang menyemak sumber rasmi..."
+        };
+
+    }
+
+
+    // ========================================
+    // NORMAL AI RESPONSE
+    // ========================================
+
+    return {
+        icon: "auto_awesome",
+        text: "Sarah sedang berfikir..."
+    };
+
+}
+
 const sendUserMessage = (rawText) => {
    if (
     messageInput.disabled
@@ -2408,25 +2507,54 @@ const messageContent =
     // Simulate bot response after a delay
     setTimeout(() => {
 
+        const thinkingState =
+    getSarahThinkingState(
+        userData.message
+    );
+
     const messageContent = `
-        <div class="chatbot-avatar">
-            <img
-                src="image/sarah.png"
-                alt="Chatbot-logo"
-                class="Chatbot-logo"
-            >
-        </div>
+    <div class="chatbot-avatar">
 
-        <div class="message-text">
+        <img
+            src="image/sarah.png"
+            alt="Sarah"
+            class="Chatbot-logo"
+        >
 
-            <div class="thinking-indicator">
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
+    </div>
+
+
+    <div class="message-text">
+
+        <div class="thinking-indicator">
+
+            <div class="thinking-main">
+
+                <span
+                    class="material-symbols-rounded thinking-icon"
+                >
+                    ${thinkingState.icon}
+                </span>
+
+                <span class="thinking-text">
+                    ${thinkingState.text}
+                </span>
+
+            </div>
+
+
+            <div class="thinking-dots">
+
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+
             </div>
 
         </div>
-    `;
+
+    </div>
+`;
 
 
     const incomingMessageDiv =
