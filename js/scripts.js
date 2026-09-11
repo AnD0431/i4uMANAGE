@@ -935,12 +935,45 @@ const response =
 }
 
 // Create message element with dynamic classes and return it
-const createMessageElement = (content, ...classes) => {
-    const div = document.createElement("div");
-    div.classList.add("message", ...classes);
-    div.innerHTML = content;
+const createMessageElement = (
+    content,
+    ...classes
+) => {
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+    div.classList.add(
+        "message",
+        "message-enter",
+        ...classes
+    );
+
+    div.innerHTML =
+        content;
+
+
+    // Buang class selepas animation siap
+    // supaya transform lain tak terganggu
+    div.addEventListener(
+        "animationend",
+        () => {
+
+            div.classList.remove(
+                "message-enter"
+            );
+
+        },
+        {
+            once: true
+        }
+    );
+
+
     return div;
-}
+};
 
 // =========================================================
 // SARAH COPY RESPONSE

@@ -3002,3 +3002,130 @@ button {
     }
 
 }
+
+/* ==================================================
+   SARAH MESSAGE ENTRANCE ANIMATION
+   ================================================== */
+
+.chat-body
+.message.message-enter {
+
+    animation:
+        sarahMessageEnter
+        220ms
+        cubic-bezier(
+            0.22,
+            1,
+            0.36,
+            1
+        )
+        both;
+}
+
+
+/* User datang sedikit dari kanan */
+
+.chat-body
+.user-message.message-enter {
+
+    animation-name:
+        sarahUserMessageEnter;
+}
+
+
+/* Sarah datang sedikit dari kiri */
+
+.chat-body
+.bot-message.message-enter {
+
+    animation-name:
+        sarahBotMessageEnter;
+}
+
+
+/* Sarah */
+
+@keyframes sarahBotMessageEnter {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            translate3d(
+                -7px,
+                6px,
+                0
+            )
+            scale(0.985);
+
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform:
+            translate3d(
+                0,
+                0,
+                0
+            )
+            scale(1);
+
+    }
+
+}
+
+
+/* User */
+
+@keyframes sarahUserMessageEnter {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            translate3d(
+                7px,
+                6px,
+                0
+            )
+            scale(0.985);
+
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform:
+            translate3d(
+                0,
+                0,
+                0
+            )
+            scale(1);
+
+    }
+
+}
+
+
+/* Accessibility */
+
+@media (
+    prefers-reduced-motion:
+    reduce
+) {
+
+    .chat-body
+    .message.message-enter {
+
+        animation:
+            none;
+
+    }
+
+}
