@@ -1806,3 +1806,207 @@ html {
     }
 
 }
+
+/* ==================================================
+   HOME SERVICES INTRO
+   ================================================== */
+
+.services-intro {
+
+    max-width:
+        1180px;
+
+    margin:
+        0 auto;
+
+    padding:
+        38px 32px 0;
+
+    box-sizing:
+        border-box;
+}
+
+
+.services-intro-label {
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    gap:
+        6px;
+
+    margin-bottom:
+        9px;
+
+    color:
+        #1d4ed8;
+
+    font-size:
+        0.65rem;
+
+    font-weight:
+        750;
+
+    letter-spacing:
+        0.8px;
+}
+
+
+.services-intro-label
+.material-symbols-rounded {
+
+    font-size:
+        16px;
+}
+
+
+/* Heading row */
+
+.services-intro-content {
+
+    display:
+        flex;
+
+    align-items:
+        flex-end;
+
+    justify-content:
+        space-between;
+
+    gap:
+        20px;
+
+    padding-bottom:
+        17px;
+
+    border-bottom:
+        1px solid
+        rgba(15, 49, 87, 0.10);
+}
+
+
+.services-intro-content h2 {
+
+    margin:
+        0;
+
+    color:
+        #0f3157;
+
+    font-size:
+        clamp(
+            1.35rem,
+            2vw,
+            1.7rem
+        );
+
+    font-weight:
+        750;
+
+    letter-spacing:
+        -0.4px;
+}
+
+
+.services-intro-content p {
+
+    max-width:
+        600px;
+
+    margin:
+        7px 0 0;
+
+    color:
+        #64748b;
+
+    font-size:
+        0.78rem;
+
+    line-height:
+        1.55;
+}
+
+
+/* Category counter */
+
+.services-count {
+
+    flex-shrink:
+        0;
+
+    padding:
+        6px 10px;
+
+    border:
+        1px solid
+        rgba(15, 49, 87, 0.10);
+
+    border-radius:
+        999px;
+
+    background:
+        #ffffff;
+
+    color:
+        #64748b;
+
+    font-size:
+        0.65rem;
+
+    font-weight:
+        650;
+}
+
+
+/* Kurangkan top padding cards sebab heading dah ada */
+
+.cards-container {
+
+    padding-top:
+        22px !important;
+}
+
+
+/* ==================================================
+   MOBILE
+   ================================================== */
+
+@media (max-width: 600px) {
+
+    .services-intro {
+
+        padding:
+            28px 18px 0;
+    }
+
+
+    .services-intro-content {
+
+        align-items:
+            flex-start;
+
+        flex-direction:
+            column;
+
+        gap:
+            12px;
+    }
+
+
+    .services-intro-content h2 {
+
+        font-size:
+            1.3rem;
+    }
+
+
+    .services-count {
+
+        align-self:
+            flex-start;
+    }
+
+}
