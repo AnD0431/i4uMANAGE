@@ -2084,7 +2084,15 @@ function addDownloadButtons(messageDiv, text, formats) {
         const btnDocx = document.createElement("button");
         btnDocx.type = "button";
         btnDocx.classList.add("download-btn", "download-docx");
-        btnDocx.innerText = "⬇ DOCX";
+        btnDocx.innerHTML = `
+    <span class="material-symbols-rounded">
+        description
+    </span>
+
+    <span>
+        Muat turun DOCX
+    </span>
+`;
         btnDocx.addEventListener("click", () => downloadAsDocx(text));
         actions.appendChild(btnDocx);
     }
@@ -2093,7 +2101,15 @@ function addDownloadButtons(messageDiv, text, formats) {
         const btnPdf = document.createElement("button");
         btnPdf.type = "button";
         btnPdf.classList.add("download-btn", "download-pdf");
-        btnPdf.innerText = "⬇ PDF";
+        btnPdf.innerHTML = `
+    <span class="material-symbols-rounded">
+        picture_as_pdf
+    </span>
+
+    <span>
+        Muat turun PDF
+    </span>
+`;
         btnPdf.addEventListener("click", () => downloadAsPdf(text));
         actions.appendChild(btnPdf);
     }

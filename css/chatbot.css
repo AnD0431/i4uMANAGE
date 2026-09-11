@@ -4446,3 +4446,227 @@ button:not(#send-message) {
     }
 
 }
+
+/* ==================================================
+   SARAH DOWNLOAD ACTIONS - PREMIUM V2
+   ================================================== */
+
+.message-actions {
+
+    display: flex;
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+    margin-top: 10px;
+}
+
+
+/* Base */
+
+.download-btn {
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 6px;
+
+    min-height: 34px;
+
+    padding:
+        7px 11px;
+
+    border-radius:
+        9px;
+
+    font-family:
+        inherit;
+
+    font-size:
+        0.69rem;
+
+    font-weight:
+        650;
+
+    cursor:
+        pointer;
+
+    -webkit-backdrop-filter:
+        blur(10px);
+
+    backdrop-filter:
+        blur(10px);
+
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease,
+        transform 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+
+/* Icon */
+
+.download-btn
+.material-symbols-rounded {
+
+    font-size:
+        16px;
+}
+
+
+/* ==================================================
+   DOCX
+   ================================================== */
+
+.download-docx {
+
+    color:
+        #1d4ed8;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(239, 246, 255, 0.95),
+            rgba(219, 234, 254, 0.76)
+        );
+
+    border:
+        1px solid
+        rgba(37, 99, 235, 0.20);
+
+    box-shadow:
+        0 4px 12px
+        rgba(37, 99, 235, 0.06);
+}
+
+
+/* ==================================================
+   PDF
+   ================================================== */
+
+.download-pdf {
+
+    color:
+        #b91c1c;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(254, 242, 242, 0.95),
+            rgba(254, 226, 226, 0.72)
+        );
+
+    border:
+        1px solid
+        rgba(239, 68, 68, 0.18);
+
+    box-shadow:
+        0 4px 12px
+        rgba(239, 68, 68, 0.05);
+}
+
+
+/* ==================================================
+   HOVER
+   ================================================== */
+
+@media (hover: hover) {
+
+    .download-docx:hover {
+
+        color:
+            #ffffff;
+
+        background:
+            linear-gradient(
+                135deg,
+                #2563eb,
+                #1d4ed8
+            );
+
+        border-color:
+            #2563eb;
+
+        transform:
+            translateY(-1px);
+
+        box-shadow:
+            0 7px 16px
+            rgba(37, 99, 235, 0.20);
+    }
+
+
+    .download-pdf:hover {
+
+        color:
+            #ffffff;
+
+        background:
+            linear-gradient(
+                135deg,
+                #ef4444,
+                #dc2626
+            );
+
+        border-color:
+            #ef4444;
+
+        transform:
+            translateY(-1px);
+
+        box-shadow:
+            0 7px 16px
+            rgba(239, 68, 68, 0.18);
+    }
+
+}
+
+
+/* Click */
+
+.download-btn:active {
+
+    transform:
+        scale(0.97);
+}
+
+
+/* ==================================================
+   MOBILE
+   ================================================== */
+
+@media (max-width: 600px) {
+
+    .message-actions {
+
+        gap:
+            6px;
+    }
+
+
+    .download-btn {
+
+        min-height:
+            32px;
+
+        padding:
+            7px 9px;
+
+        font-size:
+            0.65rem;
+    }
+
+
+    .download-btn
+    .material-symbols-rounded {
+
+        font-size:
+            15px;
+    }
+
+}
