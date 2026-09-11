@@ -464,3 +464,777 @@ body {
         flex-direction: column;
     }
 }
+
+/* ==================================================
+   SLAID KURSUS - HEADER + HERO V2
+   ================================================== */
+
+
+/* ==================================================
+   HEADER
+   ================================================== */
+
+.slaid-header {
+    width: 100%;
+    padding: 0;
+
+    background:
+        linear-gradient(
+            135deg,
+            #061a31 0%,
+            #08294d 100%
+        );
+
+    color: #ffffff;
+    border-bottom: none;
+}
+
+
+.slaid-header .header-inner {
+    width: calc(100% - 48px);
+    max-width: 1180px;
+    min-height: 74px;
+
+    margin: 0 auto;
+    padding: 13px 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 24px;
+
+    border-bottom:
+        1px solid rgba(255, 255, 255, 0.10);
+}
+
+
+/* ==================================================
+   BRAND LEFT
+   ================================================== */
+
+.slaid-header .header-brand-group {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+    min-width: 0;
+}
+
+
+.slaid-header .national-crest {
+    width: 58px;
+    height: 58px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+}
+
+
+.slaid-header .national-crest img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+}
+
+
+/* Government text */
+
+.slaid-header .logo-labels {
+    display: flex;
+    flex-direction: column;
+
+    gap: 1px;
+    min-width: 0;
+}
+
+
+.slaid-header .dept-title,
+.slaid-header .dept-sub,
+.slaid-header .dept-unit {
+    white-space: nowrap;
+}
+
+
+.slaid-header .dept-title {
+    color: #ffffff;
+
+    font-size: 0.60rem;
+    font-weight: 650;
+
+    line-height: 1.3;
+    letter-spacing: 0.1px;
+}
+
+
+.slaid-header .dept-sub {
+    color: rgba(255, 255, 255, 0.72);
+
+    font-size: 0.58rem;
+    line-height: 1.3;
+}
+
+
+.slaid-header .dept-unit {
+    margin-top: 2px;
+
+    color: #f59e0b;
+
+    font-size: 0.62rem;
+    font-weight: 750;
+}
+
+
+/* Divider */
+
+.slaid-header .header-divider {
+    width: 1px;
+    height: 40px;
+
+    flex-shrink: 0;
+
+    background:
+        rgba(255, 255, 255, 0.18);
+}
+
+
+/* ==================================================
+   I4UMANAGE
+   ================================================== */
+
+.slaid-header .brand-title {
+    min-width: 0;
+
+    text-align: left;
+}
+
+
+.slaid-header .brand-title h1 {
+    margin: 0;
+    padding-bottom: 2px;
+
+    overflow: visible;
+
+    color: #ffffff;
+
+    font-size:
+        clamp(1.65rem, 2.3vw, 2rem);
+
+    font-weight: 750;
+    line-height: 1.12;
+
+    letter-spacing: -0.8px;
+}
+
+
+.slaid-header .brand-title p {
+    margin: 3px 0 0;
+
+    color:
+        rgba(255, 255, 255, 0.62);
+
+    font-size: 0.55rem;
+    font-weight: 550;
+
+    line-height: 1.3;
+    letter-spacing: 1.3px;
+
+    white-space: nowrap;
+}
+
+
+/* ==================================================
+   RIGHT ACTIONS
+   ================================================== */
+
+.slaid-header .header-actions {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+
+/* Back */
+
+.slaid-header .home-back-btn {
+    min-height: 34px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 6px;
+
+    padding: 6px 11px;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.16);
+
+    border-radius: 999px;
+
+    background:
+        rgba(255, 255, 255, 0.07);
+
+    color:
+        rgba(255, 255, 255, 0.88);
+
+    font-size: 0.66rem;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    transition:
+        transform 0.18s ease,
+        background 0.18s ease,
+        border-color 0.18s ease;
+}
+
+
+.slaid-header
+.home-back-btn
+.material-symbols-rounded {
+    font-size: 16px;
+}
+
+
+@media (hover: hover) {
+
+    .slaid-header
+    .home-back-btn:hover {
+        transform: translateX(-2px);
+
+        background:
+            rgba(255, 255, 255, 0.12);
+
+        border-color:
+            rgba(255, 255, 255, 0.25);
+    }
+
+}
+
+
+/* ==================================================
+   LANGUAGE
+   ================================================== */
+
+.slaid-header .lang-switcher {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 3px;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.18);
+
+    border-radius: 999px;
+
+    background:
+        rgba(255, 255, 255, 0.06);
+}
+
+
+.slaid-header .lang-sep {
+    display: none;
+}
+
+
+.slaid-header .lang-btn {
+    min-width: 35px;
+    height: 27px;
+
+    padding: 0 8px;
+
+    border: none;
+    border-radius: 999px;
+
+    background: transparent;
+
+    color:
+        rgba(255, 255, 255, 0.60);
+
+    font-family: inherit;
+
+    font-size: 0.65rem;
+    font-weight: 650;
+
+    cursor: pointer;
+}
+
+
+.slaid-header .lang-btn.active {
+    color: #f59e0b;
+
+    background:
+        rgba(255, 255, 255, 0.10);
+}
+
+
+/* ==================================================
+   HERO
+   ================================================== */
+
+.slaid-hero {
+    padding: 0;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f8fafc 0%,
+            #edf3f8 100%
+        );
+}
+
+
+.slaid-hero .hero-grid {
+    width: calc(100% - 48px);
+    max-width: 1180px;
+
+    margin: 0 auto;
+    padding: 44px 0 50px;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(300px, 0.68fr);
+
+    align-items: center;
+
+    gap: 58px;
+}
+
+
+/* ==================================================
+   HERO LEFT
+   ================================================== */
+
+.slaid-hero .hero-copy {
+    min-width: 0;
+    max-width: 620px;
+}
+
+
+/* Breadcrumb */
+
+.slaid-hero .breadcrumb {
+    display: flex;
+    align-items: center;
+
+    gap: 4px;
+
+    margin-bottom: 14px;
+
+    color: #64748b;
+
+    font-size: 0.70rem;
+}
+
+
+.slaid-hero .breadcrumb a {
+    color: #64748b;
+
+    text-decoration: none;
+    font-weight: 550;
+}
+
+
+.slaid-hero
+.breadcrumb
+.material-symbols-rounded {
+    color: #94a3b8;
+    font-size: 15px;
+}
+
+
+.slaid-hero
+.breadcrumb
+.current {
+    color: #0f3157;
+    font-weight: 650;
+}
+
+
+/* Kicker */
+
+.slaid-hero .hero-kicker {
+    width: fit-content;
+
+    display: inline-flex;
+    align-items: center;
+
+    gap: 6px;
+
+    margin-bottom: 10px;
+    padding: 6px 9px;
+
+    border:
+        1px solid rgba(29, 78, 216, 0.10);
+
+    border-radius: 999px;
+
+    background: #eaf2ff;
+    color: #1d4ed8;
+
+    font-size: 0.62rem;
+    font-weight: 750;
+
+    letter-spacing: 0.6px;
+}
+
+
+.slaid-hero
+.hero-kicker
+.material-symbols-rounded {
+    font-size: 15px;
+}
+
+
+/* Title */
+
+.slaid-hero .hero-title {
+    margin: 0;
+
+    color: #0b2d51;
+
+    font-size:
+        clamp(2.4rem, 4vw, 3.6rem);
+
+    font-weight: 780;
+
+    line-height: 1;
+
+    letter-spacing: -1.5px;
+}
+
+
+.slaid-hero .hero-subtitle {
+    margin: 8px 0 0;
+
+    color: #315879;
+
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+
+.slaid-hero .hero-description {
+    max-width: 570px;
+
+    margin: 15px 0 0;
+
+    color: #64748b;
+
+    font-size: 0.86rem;
+    line-height: 1.65;
+}
+
+
+/* ==================================================
+   SUMMARY CARD
+   ================================================== */
+
+.slaid-hero .hero-summary {
+    position: relative;
+
+    min-height: 220px;
+
+    overflow: hidden;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    padding: 24px;
+
+    border:
+        1px solid rgba(15, 49, 87, 0.08);
+
+    border-radius: 18px;
+
+    background:
+        rgba(255, 255, 255, 0.78);
+
+    box-shadow:
+        0 16px 35px
+        rgba(15, 23, 42, 0.07);
+
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+}
+
+
+.slaid-hero .hero-summary::after {
+    content: "";
+
+    position: absolute;
+
+    width: 150px;
+    height: 150px;
+
+    top: -55px;
+    right: -45px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(37, 99, 235, 0.06);
+
+    pointer-events: none;
+}
+
+
+.slaid-hero .hero-summary-icon {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 14px;
+
+    border-radius: 11px;
+
+    background: #eaf2ff;
+    color: #1d4ed8;
+}
+
+
+.slaid-hero
+.hero-summary-icon
+.material-symbols-rounded {
+    font-size: 22px;
+}
+
+
+.slaid-hero .hero-summary-content {
+    position: relative;
+    z-index: 1;
+}
+
+
+.slaid-hero .hero-summary-label {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: #64748b;
+
+    font-size: 0.60rem;
+    font-weight: 750;
+
+    letter-spacing: 0.7px;
+}
+
+
+.slaid-hero
+.hero-summary-content strong {
+    display: block;
+
+    color: #0b3158;
+
+    font-size: 1.35rem;
+    font-weight: 760;
+}
+
+
+.slaid-hero
+.hero-summary-content p {
+    max-width: 280px;
+
+    margin: 7px 0 0;
+
+    color: #64748b;
+
+    font-size: 0.72rem;
+    line-height: 1.55;
+}
+
+
+.slaid-hero .hero-summary-badges {
+    position: relative;
+    z-index: 1;
+
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 7px;
+
+    margin-top: 16px;
+}
+
+
+.slaid-hero
+.hero-summary-badges > span {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 4px;
+
+    padding: 5px 7px;
+
+    border-radius: 999px;
+
+    background: #f1f5f9;
+    color: #475569;
+
+    font-size: 0.59rem;
+    font-weight: 600;
+}
+
+
+.slaid-hero
+.hero-summary-badges
+.material-symbols-rounded {
+    color: #1d4ed8;
+    font-size: 14px;
+}
+
+
+/* ==================================================
+   TABLET
+   ================================================== */
+
+@media (max-width: 900px) {
+
+    .slaid-header .header-inner {
+        width: calc(100% - 40px);
+
+        flex-direction: row;
+        text-align: left;
+    }
+
+
+    .slaid-hero .hero-grid {
+        width: calc(100% - 40px);
+
+        grid-template-columns: 1fr;
+
+        gap: 26px;
+
+        padding: 36px 0 42px;
+    }
+
+
+    .slaid-hero .hero-summary {
+        min-height: 190px;
+    }
+
+}
+
+
+/* ==================================================
+   MOBILE
+   ================================================== */
+
+@media (max-width: 600px) {
+
+    .slaid-header .header-inner {
+        width: calc(100% - 30px);
+        min-height: 66px;
+
+        gap: 8px;
+    }
+
+
+    .slaid-header .header-brand-group {
+        flex: 1;
+        min-width: 0;
+
+        gap: 7px;
+    }
+
+
+    .slaid-header .national-crest {
+        width: 43px;
+        height: 43px;
+    }
+
+
+    .slaid-header .logo-labels {
+        display: none;
+    }
+
+
+    .slaid-header .header-divider {
+        height: 30px;
+    }
+
+
+    .slaid-header .brand-title h1 {
+        font-size: 1.35rem;
+    }
+
+
+    .slaid-header .brand-title p {
+        display: none;
+    }
+
+
+    .slaid-header .header-actions {
+        gap: 5px;
+    }
+
+
+    .slaid-header .home-back-btn {
+        width: 31px;
+        height: 31px;
+
+        min-height: 31px;
+
+        padding: 0;
+    }
+
+
+    .slaid-header
+    .home-back-btn
+    span:last-child {
+        display: none;
+    }
+
+
+    .slaid-header .lang-btn {
+        min-width: 29px;
+        height: 25px;
+
+        padding: 0 5px;
+
+        font-size: 0.58rem;
+    }
+
+
+    .slaid-hero .hero-grid {
+        width: calc(100% - 36px);
+
+        padding: 28px 0 34px;
+
+        gap: 22px;
+    }
+
+
+    .slaid-hero .hero-title {
+        font-size:
+            clamp(2.15rem, 11vw, 2.8rem);
+    }
+
+
+    .slaid-hero .hero-description {
+        font-size: 0.80rem;
+    }
+
+
+    .slaid-hero .hero-summary {
+        min-height: auto;
+
+        padding: 20px;
+
+        border-radius: 15px;
+    }
+
+}

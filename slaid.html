@@ -21,56 +21,219 @@
 <body>
 
     <!-- TOP NAVIGATION BAR -->
-    <header class="main-header">
-        <div class="logo-area">
-            <div class="malaysia-logo">
-                <img src="image/jata.png" alt="Malaysia Logo" class="malaysia-logo">
-            </div>
-            <div class="logo-text">
-                <span class="dept-title">KEMENTERIAN KESIHATAN MALAYSIA</span>
-                <span class="dept-sub">JABATAN KESIHATAN NEGERI TERENGGANU</span>
-                <span class="dept-unit">UNIT LATIHAN</span>
-            </div>
-        </div>
-        <div class="brand-title">
-            <h1><span>i4U</span>Manage</h1>
-            <p data-i18n="main_title_sub">SISTEM PENGURUSAN DOKUMEN & LATIHAN</p>
-        </div>
-        <div class="user-profile">
-            <!-- LANGUAGE SWITCHER -->
-            <div class="lang-switcher" id="lang-switcher">
-                <button type="button" class="lang-btn active" data-lang="ms">BM</button>
-                <span class="lang-sep">|</span>
-                <button type="button" class="lang-btn" data-lang="en">EN</button>
-            </div>
-            <!-- LANGUAGE SWITCHER -->
-            <!--<i class="fa-solid fa-circle-user profile-icon"></i>
-            <div class="user-info">
-                <span class="welcome-text">Selamat Datang,</span>
-                <span class="user-name">Pengguna <i class="fa-solid fa-chevron-down"></i></span>
-            </div>-->
-        </div>
-      <a href="index.html" class="home-back-btn">
-    <i class="fa-solid fa-arrow-left"></i>
-    <span>Kembali ke Halaman Utama</span>
-</a>
-    </header>
+    <header class="main-header slaid-header">
 
-    <!-- HERO BANNER SECTION -->
-    <section class="hero-banner">
-        <div class="hero-content">
-            <h2 class="hero-title" data-i18n="slaid_page_title">Slaid Kursus</h2>
-            <h3 class="hero-subtitle" data-i18n="bahagian_pengurusan">Bahagian Pengurusan</h3>
-            <p class="hero-description" data-i18n="slaid_page_desc">
-                Platform sehenti untuk mengakses slaid kursus mengikut bahagian. 
-                Semua bahan kursus dikemaskini, tersusun dan mudah dicapai.
-            </p>
-            <!--<div class="search-container">
-                <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input type="text" placeholder="Cari Slaid Kursus...">
-            </div>-->
+    <div class="header-inner">
+
+        <div class="header-brand-group">
+
+            <div class="national-crest">
+                <img
+                    src="image/jata.png"
+                    alt="Malaysia Logo"
+                >
+            </div>
+
+            <div class="logo-labels">
+
+                <span class="dept-title">
+                    KEMENTERIAN KESIHATAN MALAYSIA
+                </span>
+
+                <span class="dept-sub">
+                    JABATAN KESIHATAN NEGERI TERENGGANU
+                </span>
+
+                <span class="dept-unit">
+                    UNIT LATIHAN
+                </span>
+
+            </div>
+
+            <div class="header-divider"></div>
+
+            <div class="brand-title">
+
+                <h1>
+                    i4uManage
+                </h1>
+
+                <p data-i18n="main_title_sub">
+                    SISTEM PENGURUSAN DOKUMEN & LATIHAN
+                </p>
+
+            </div>
+
         </div>
-    </section>
+
+
+        <div class="header-actions">
+
+            <a
+                href="index.html"
+                class="home-back-btn"
+                aria-label="Kembali ke halaman utama"
+            >
+                <span class="material-symbols-rounded">
+                    arrow_back
+                </span>
+
+                <span>
+                    Halaman Utama
+                </span>
+            </a>
+
+
+            <div
+                class="lang-switcher"
+                id="lang-switcher"
+            >
+
+                <button
+                    type="button"
+                    class="lang-btn active"
+                    data-lang="ms"
+                >
+                    BM
+                </button>
+
+                <span class="lang-sep">|</span>
+
+                <button
+                    type="button"
+                    class="lang-btn"
+                    data-lang="en"
+                >
+                    EN
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<section class="hero-banner slaid-hero">
+
+    <div class="hero-grid">
+
+        <div class="hero-copy">
+
+            <div class="breadcrumb">
+
+                <a href="index.html">
+                    Utama
+                </a>
+
+                <span class="material-symbols-rounded">
+                    chevron_right
+                </span>
+
+                <span class="current">
+                    Slaid Kursus
+                </span>
+
+            </div>
+
+
+            <div class="hero-kicker">
+
+                <span class="material-symbols-rounded">
+                    co_present
+                </span>
+
+                <span>
+                    BAHAN PEMBELAJARAN
+                </span>
+
+            </div>
+
+
+            <h2
+                class="hero-title"
+                data-i18n="slaid_page_title"
+            >
+                SLAID KURSUS
+            </h2>
+
+
+            <h3
+                class="hero-subtitle"
+                data-i18n="bahagian_pengurusan"
+            >
+                Bahagian Pengurusan
+            </h3>
+
+
+            <p
+                class="hero-description"
+                data-i18n="slaid_page_desc"
+            >
+                Platform sehenti untuk mengakses slaid
+                kursus mengikut bahagian. Semua bahan
+                kursus dikemaskini, tersusun dan mudah
+                dicapai.
+            </p>
+
+        </div>
+
+
+        <div class="hero-summary">
+
+            <div class="hero-summary-icon">
+
+                <span class="material-symbols-rounded">
+                    slideshow
+                </span>
+
+            </div>
+
+
+            <div class="hero-summary-content">
+
+                <span class="hero-summary-label">
+                    KATEGORI TERSEDIA
+                </span>
+
+                <strong>
+                    8 Bahagian
+                </strong>
+
+                <p>
+                    Bahan kursus disusun mengikut
+                    kategori untuk akses yang lebih
+                    mudah dan teratur.
+                </p>
+
+            </div>
+
+
+            <div class="hero-summary-badges">
+
+                <span>
+                    <span class="material-symbols-rounded">
+                        folder_open
+                    </span>
+                    Tersusun
+                </span>
+
+                <span>
+                    <span class="material-symbols-rounded">
+                        bolt
+                    </span>
+                    Akses Pantas
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
 
 <!-- MAIN GRID CARDS -->
 <main class="grid-container">
