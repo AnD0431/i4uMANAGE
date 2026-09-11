@@ -1662,3 +1662,246 @@ body {
     }
 
 }
+
+/* ==================================================
+   SLAID KURSUS - STATS PANEL V2
+   ================================================== */
+
+.stats-bar {
+    width: calc(100% - 64px);
+    max-width: 1116px;
+
+    margin: 0 auto 42px;
+    padding: 0;
+
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    gap: 12px;
+
+    background: transparent;
+    color: #0f3157;
+
+    border-radius: 0;
+}
+
+
+/* ==================================================
+   STAT CARD
+   ================================================== */
+
+.stat-item {
+    position: relative;
+
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 16px;
+
+    overflow: hidden;
+
+    border:
+        1px solid rgba(15, 49, 87, 0.08);
+
+    border-radius: 13px;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 6px 18px rgba(15, 23, 42, 0.045);
+
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        border-color 0.18s ease;
+}
+
+
+.stat-item::after {
+    content: "";
+
+    position: absolute;
+
+    width: 65px;
+    height: 65px;
+
+    top: -25px;
+    right: -22px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(37, 99, 235, 0.045);
+
+    pointer-events: none;
+}
+
+
+@media (hover: hover) {
+
+    .stat-item:hover {
+        transform: translateY(-2px);
+
+        border-color:
+            rgba(37, 99, 235, 0.14);
+
+        box-shadow:
+            0 10px 24px rgba(15, 23, 42, 0.07);
+    }
+
+}
+
+
+/* ==================================================
+   ICON
+   ================================================== */
+
+.stat-icon {
+    position: relative;
+    z-index: 1;
+
+    width: 38px;
+    height: 38px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: #eaf2ff;
+    color: #1d4ed8;
+
+    font-size: 16px;
+}
+
+
+/* ==================================================
+   TEXT
+   ================================================== */
+
+.stat-item > div {
+    position: relative;
+    z-index: 1;
+
+    min-width: 0;
+}
+
+
+.stat-label {
+    display: block;
+
+    margin-bottom: 3px;
+
+    color: #64748b;
+
+    font-size: 0.56rem;
+    font-weight: 700;
+
+    line-height: 1.3;
+    letter-spacing: 0.55px;
+}
+
+
+.stat-value {
+    display: block;
+
+    color: #0b3158;
+
+    font-size: 1.35rem;
+    font-weight: 760;
+
+    line-height: 1.1;
+}
+
+
+/* Divider lama tak diperlukan */
+
+.stats-bar .stat-divider {
+    display: none;
+}
+
+
+/* ==================================================
+   TABLET
+   ================================================== */
+
+@media (max-width: 900px) {
+
+    .stats-bar {
+        width: calc(100% - 56px);
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        margin-bottom: 36px;
+    }
+
+}
+
+
+/* ==================================================
+   MOBILE
+   ================================================== */
+
+@media (max-width: 600px) {
+
+    .stats-bar {
+        width: calc(100% - 36px);
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 9px;
+
+        margin-bottom: 30px;
+    }
+
+
+    .stat-item {
+        align-items: flex-start;
+        flex-direction: column;
+
+        gap: 9px;
+
+        padding: 13px;
+    }
+
+
+    .stat-icon {
+        width: 33px;
+        height: 33px;
+
+        font-size: 14px;
+    }
+
+
+    .stat-label {
+        font-size: 0.51rem;
+    }
+
+
+    .stat-value {
+        font-size: 1.2rem;
+    }
+
+}
+
+
+/* ==================================================
+   REDUCED MOTION
+   ================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .stat-item {
+        transition: none !important;
+    }
+
+}
