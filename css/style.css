@@ -2903,3 +2903,345 @@ img.malaysia-logo {
     }
 
 }
+
+/* ==================================================
+   I4UMANAGE HOME - FINAL POLISH
+   ================================================== */
+
+/* ==================================================
+   GLOBAL
+   ================================================== */
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+
+    margin: 0;
+
+    overflow-x: hidden;
+
+    background:
+        #f6f8fb;
+
+    color:
+        #1e293b;
+
+    -webkit-font-smoothing:
+        antialiased;
+
+    text-rendering:
+        optimizeLegibility;
+}
+
+
+/* Elak gambar keluar container */
+
+img {
+
+    max-width: 100%;
+}
+
+
+/* ==================================================
+   HERO → CONTENT TRANSITION
+   ================================================== */
+
+.hero-section {
+
+    position: relative;
+
+    overflow: hidden;
+}
+
+
+/* Pastikan content selepas hero terang & clean */
+
+.services-intro,
+.cards-container {
+
+    position: relative;
+
+    z-index: 1;
+}
+
+
+/* ==================================================
+   SERVICES AREA
+   ================================================== */
+
+.services-intro {
+
+    background:
+        transparent;
+}
+
+
+/* Cards dan heading guna alignment yang sama */
+
+.services-intro,
+.cards-container {
+
+    width:
+        100%;
+
+    max-width:
+        1180px;
+
+    box-sizing:
+        border-box;
+}
+
+
+/* ==================================================
+   SERVICE CARDS FINAL CONSISTENCY
+   ================================================== */
+
+.cards-container
+.card {
+
+    min-width:
+        0;
+
+    isolation:
+        isolate;
+}
+
+
+.cards-container
+.card-body {
+
+    min-width:
+        0;
+}
+
+
+/* Elak tajuk panjang pecahkan card */
+
+.cards-container
+.card-body h3 {
+
+    overflow-wrap:
+        anywhere;
+}
+
+
+/* Description semua card lebih sekata */
+
+.cards-container
+.card-body p {
+
+    min-height:
+        3.8em;
+}
+
+
+/* Button text tak wrap pelik */
+
+.cards-container
+.btn {
+
+    white-space:
+        nowrap;
+}
+
+
+/* ==================================================
+   ACCESSIBILITY / KEYBOARD
+   ================================================== */
+
+a:focus-visible,
+button:focus-visible {
+
+    outline:
+        3px solid
+        rgba(59, 130, 246, 0.38);
+
+    outline-offset:
+        3px;
+}
+
+
+/* ==================================================
+   SECTION SPACING
+   ================================================== */
+
+/* Elak gap terlalu besar antara intro dan cards */
+
+.services-intro +
+.cards-container {
+
+    margin-top:
+        0;
+}
+
+
+/* Footer tak terlalu rapat dengan cards */
+
+.footer-values {
+
+    margin-top:
+        18px;
+}
+
+
+/* ==================================================
+   SUBTLE CARD ACTIVE STATE
+   ================================================== */
+
+.cards-container
+.card:active {
+
+    transform:
+        translateY(-1px);
+}
+
+
+/* ==================================================
+   DESKTOP LARGE SCREEN
+   ================================================== */
+
+@media (min-width: 1400px) {
+
+    .navbar,
+    .hero-content,
+    .services-intro,
+    .cards-container {
+
+        max-width:
+            1200px !important;
+    }
+
+}
+
+
+/* ==================================================
+   TABLET
+   ================================================== */
+
+@media (max-width: 900px) {
+
+    .services-intro,
+    .cards-container {
+
+        width:
+            100%;
+    }
+
+
+    .cards-container
+    .card-body p {
+
+        min-height:
+            0;
+    }
+
+}
+
+
+/* ==================================================
+   MOBILE
+   ================================================== */
+
+@media (max-width: 600px) {
+
+    body {
+
+        min-width:
+            0;
+    }
+
+
+    .hero-section,
+    .navbar,
+    .hero-content,
+    .services-intro,
+    .cards-container,
+    .footer-values {
+
+        max-width:
+            100%;
+
+        box-sizing:
+            border-box;
+    }
+
+
+    /* Elak horizontal overflow */
+
+    .hero-text,
+    .building-preview,
+    .services-intro-content,
+    .card,
+    .card-body {
+
+        min-width:
+            0;
+    }
+
+
+    /* Feature hero boleh turun line secara natural */
+
+    .hero-features {
+
+        row-gap:
+            9px !important;
+    }
+
+
+    /* Cards jangan terlalu besar atas phone */
+
+    .cards-container
+    .card {
+
+        border-radius:
+            14px;
+    }
+
+
+    .cards-container
+    .card-body p {
+
+        min-height:
+            0;
+    }
+
+
+    /* Footer ada jarak selepas cards */
+
+    .footer-values {
+
+        margin-top:
+            10px;
+    }
+
+}
+
+
+/* ==================================================
+   REDUCED MOTION
+   ================================================== */
+
+@media (
+    prefers-reduced-motion:
+    reduce
+) {
+
+    html {
+
+        scroll-behavior:
+            auto;
+    }
+
+
+    .card,
+    .card-image,
+    .btn,
+    .lang-btn {
+
+        transition:
+            none !important;
+    }
+
+}
