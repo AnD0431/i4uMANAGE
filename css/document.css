@@ -2167,3 +2167,283 @@
     }
 
 }
+
+/* ==================================================
+   DOCUMENT BROWSER - FOOTER V2
+   ================================================== */
+
+.app-footer {
+    width: 100%;
+
+    margin-top: auto;
+
+    padding:
+        22px
+        max(
+            24px,
+            calc((100% - 1180px) / 2)
+        )
+        0;
+
+    background:
+        linear-gradient(
+            180deg,
+            #061a31 0%,
+            #041426 100%
+        );
+
+    color: #ffffff;
+
+    border-top:
+        1px solid rgba(255, 255, 255, 0.08);
+
+    box-sizing: border-box;
+}
+
+
+/* ==================================================
+   VALUES GRID
+   ================================================== */
+
+.app-footer .values-flex {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 0;
+
+    margin: 0;
+
+    text-align: left;
+    align-items: stretch;
+}
+
+
+/* ==================================================
+   VALUE CARD
+   ================================================== */
+
+.app-footer .value-card {
+    position: relative;
+
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+
+    gap: 11px;
+
+    padding: 14px 20px;
+}
+
+
+/* Icon */
+
+.app-footer .value-card > i {
+    width: 34px;
+    height: 34px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background:
+        rgba(245, 158, 11, 0.10);
+
+    color: #f59e0b;
+
+    font-size: 15px;
+}
+
+
+/* Text */
+
+.app-footer .value-card strong {
+    display: block;
+
+    color: #ffffff;
+
+    font-size: 0.69rem;
+    font-weight: 750;
+
+    line-height: 1.2;
+
+    letter-spacing: 0.3px;
+}
+
+
+.app-footer .value-card p {
+    margin: 3px 0 0;
+
+    color:
+        rgba(255, 255, 255, 0.55);
+
+    font-size: 0.58rem;
+
+    line-height: 1.35;
+}
+
+
+/* ==================================================
+   REMOVE OLD PIPE
+   ================================================== */
+
+.app-footer .footer-pipe {
+    display: none;
+}
+
+
+/* ==================================================
+   NEW DIVIDER
+   ================================================== */
+
+.app-footer
+.value-card:not(:last-child)::after {
+    content: "";
+
+    position: absolute;
+
+    top: 20%;
+    right: 0;
+
+    width: 1px;
+    height: 60%;
+
+    background:
+        rgba(255, 255, 255, 0.08);
+}
+
+
+/* ==================================================
+   MOTTO
+   ================================================== */
+
+.app-footer .motto-row {
+    width: 100%;
+
+    margin-top: 10px;
+
+    padding: 15px 0 17px;
+
+    border-top:
+        1px solid rgba(255, 255, 255, 0.08);
+
+    color: #f59e0b;
+
+    font-size: 0.60rem;
+    font-weight: 600;
+
+    letter-spacing: 0.15px;
+
+    text-align: center;
+}
+
+
+/* ==================================================
+   FULL VIEWPORT FIX
+   Prevent empty space below footer when zoomed out
+   ================================================== */
+
+html {
+    min-height: 100%;
+}
+
+
+body {
+    min-height: 100vh;
+    min-height: 100dvh;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow-x: hidden;
+}
+
+
+.document-header,
+.document-hero,
+.document-browser {
+    flex-shrink: 0;
+}
+
+
+.app-footer {
+    flex-shrink: 0;
+    margin-top: auto;
+}
+
+
+/* ==================================================
+   TABLET
+   ================================================== */
+
+@media (max-width: 900px) {
+
+    .app-footer .values-flex {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+
+    /* visual card ke-2 tak perlukan divider kanan */
+    .app-footer
+    .value-card:nth-child(3)::after {
+        display: none;
+    }
+
+}
+
+
+/* ==================================================
+   MOBILE
+   ================================================== */
+
+@media (max-width: 600px) {
+
+    .app-footer {
+        padding:
+            14px 18px 0;
+    }
+
+
+    .app-footer .values-flex {
+        grid-template-columns: 1fr;
+    }
+
+
+    .app-footer .value-card {
+        padding: 12px 5px;
+
+        border-bottom:
+            1px solid rgba(255, 255, 255, 0.06);
+    }
+
+
+    .app-footer
+    .value-card::after {
+        display: none;
+    }
+
+
+    .app-footer .value-card > i {
+        width: 32px;
+        height: 32px;
+
+        font-size: 14px;
+    }
+
+
+    .app-footer .motto-row {
+        margin-top: 0;
+
+        padding: 16px 0 18px;
+
+        border-top: none;
+    }
+
+}
