@@ -5,7 +5,7 @@ const TYPES = [
     },
     {
         slug: "slide-kursus",
-        name: "SLIDE KURSUS"
+        name: "SLAID KURSUS"
     }
 ];
 
@@ -48,13 +48,17 @@ const CATEGORIES = [
 
 const ALLOWED_TYPES =
     new Set(
-        TYPES.map(item => item.slug)
+        TYPES.map(
+            item => item.slug
+        )
     );
 
 
 const ALLOWED_CATEGORIES =
     new Set(
-        CATEGORIES.map(item => item.slug)
+        CATEGORIES.map(
+            item => item.slug
+        )
     );
 
 
@@ -62,15 +66,27 @@ const ALLOWED_CATEGORIES =
 // NORMALIZE
 // ======================================
 
-function normalizeText(text = "") {
+function normalizeText(
+    text = ""
+) {
 
     return String(text)
         .toLowerCase()
         .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^\w\s&-]/g, " ")
-        .replace(/\s+/g, " ")
+        .replace(
+            /[\u0300-\u036f]/g,
+            ""
+        )
+        .replace(
+            /[^\w\s&-]/g,
+            " "
+        )
+        .replace(
+            /\s+/g,
+            " "
+        )
         .trim();
+
 }
 
 
@@ -78,16 +94,23 @@ function normalizeText(text = "") {
 // SEARCH SCORE
 // ======================================
 
-function calculateScore(item, query) {
+function calculateScore(
+    item,
+    query
+) {
 
     const normalizedQuery =
-        normalizeText(query);
+        normalizeText(
+            query
+        );
 
 
     // Kalau user hanya guna filter,
-    // semua dokumen yang lepas filter dianggap match.
+    // semua dokumen dianggap match.
     if (!normalizedQuery) {
+
         return 1;
+
     }
 
 
@@ -98,88 +121,146 @@ function calculateScore(item, query) {
 
 
     const documentName =
-        normalizeText(item.name);
-
-
-    const programName =
-        normalizeText(item.programName);
+        normalizeText(
+            item.name
+        );
 
 
     const categoryName =
-        normalizeText(item.categoryName);
+        normalizeText(
+            item.categoryName
+        );
 
 
     const typeName =
-        normalizeText(item.typeName);
+        normalizeText(
+            item.typeName
+        );
 
 
-    const haystack = [
-        documentName,
-        programName,
-        categoryName,
-        typeName
-    ].join(" ");
+    const yearText =
+        normalizeText(
+            item.year
+        );
+
+
+    const haystack =
+        [
+            documentName,
+            categoryName,
+            typeName,
+            yearText
+        ]
+        .join(" ");
 
 
     const allTermsMatch =
-        terms.every(term =>
-            haystack.includes(term)
+        terms.every(
+            term =>
+                haystack.includes(
+                    term
+                )
         );
 
 
     if (!allTermsMatch) {
+
         return 0;
+
     }
 
 
     let score = 1;
 
 
-    // Nama fail exact phrase
+    // Nama dokumen exact phrase
     if (
         documentName.includes(
             normalizedQuery
         )
     ) {
+
         score += 100;
+
     }
 
 
-    // Nama program exact phrase
+    // Kategori exact phrase
     if (
-        programName.includes(
+        categoryName.includes(
             normalizedQuery
         )
     ) {
-        score += 70;
+
+        score += 30;
+
     }
 
 
-    terms.forEach(term => {
+    // Jenis dokumen exact phrase
+    if (
+        typeName.includes(
+            normalizedQuery
+        )
+    ) {
 
-        if (documentName.includes(term)) {
-            score += 20;
+        score += 20;
+
+    }
+
+
+    terms.forEach(
+        term => {
+
+            if (
+                documentName.includes(
+                    term
+                )
+            ) {
+
+                score += 20;
+
+            }
+
+
+            if (
+                categoryName.includes(
+                    term
+                )
+            ) {
+
+                score += 5;
+
+            }
+
+
+            if (
+                typeName.includes(
+                    term
+                )
+            ) {
+
+                score += 5;
+
+            }
+
+
+            if (
+                yearText.includes(
+                    term
+                )
+            ) {
+
+                score += 3;
+
+            }
+
         }
-
-
-        if (programName.includes(term)) {
-            score += 15;
-        }
-
-
-        if (categoryName.includes(term)) {
-            score += 5;
-        }
-
-
-        if (typeName.includes(term)) {
-            score += 5;
-        }
-
-    });
+    );
 
 
     return score;
+
 }
 
 
@@ -200,23 +281,28 @@ async function fetchDocumentSource(
             await fetch(
                 gasUrl,
                 {
-                    method: "POST",
+                    method:
+                        "POST",
 
                     headers: {
                         "Content-Type":
                             "application/json"
                     },
 
-                    body: JSON.stringify({
-                        token:
-                            apiSecret,
+                    body:
+                        JSON.stringify({
+                            token:
+                                apiSecret,
 
-                        type:
-                            type,
+                            type:
+                                type,
 
-                        category:
-                            category
-                    })
+                            category:
+                                category
+                        }),
+
+                    redirect:
+                        "follow"
                 }
             );
 
@@ -242,18 +328,25 @@ async function fetchDocumentSource(
                 responseText
             );
 
+
             return null;
+
         }
 
 
-        if (!data.success) {
+        if (
+            !response.ok ||
+            !data.success
+        ) {
 
             console.error(
                 "Apps Script source error:",
                 data
             );
 
+
             return null;
+
         }
 
 
@@ -267,8 +360,11 @@ async function fetchDocumentSource(
             error
         );
 
+
         return null;
+
     }
+
 }
 
 
@@ -281,7 +377,9 @@ export default async function handler(
     res
 ) {
 
-    if (req.method !== "GET") {
+    if (
+        req.method !== "GET"
+    ) {
 
         return res
             .status(405)
@@ -290,6 +388,7 @@ export default async function handler(
                 error:
                     "Method not allowed."
             });
+
     }
 
 
@@ -329,7 +428,9 @@ export default async function handler(
 
         const year =
             yearRaw
-                ? Number(yearRaw)
+                ? Number(
+                    yearRaw
+                )
                 : null;
 
 
@@ -339,7 +440,9 @@ export default async function handler(
 
         if (
             type &&
-            !ALLOWED_TYPES.has(type)
+            !ALLOWED_TYPES.has(
+                type
+            )
         ) {
 
             return res
@@ -349,6 +452,7 @@ export default async function handler(
                     error:
                         "Invalid document type."
                 });
+
         }
 
 
@@ -366,13 +470,16 @@ export default async function handler(
                     error:
                         "Invalid category."
                 });
+
         }
 
 
         if (
             yearRaw &&
             (
-                !Number.isInteger(year) ||
+                !Number.isInteger(
+                    year
+                ) ||
                 year < 2000 ||
                 year > 2100
             )
@@ -385,11 +492,12 @@ export default async function handler(
                     error:
                         "Invalid year."
                 });
+
         }
 
 
-        // User mesti bagi sekurang-kurangnya
-        // keyword ATAU satu filter.
+        // User mesti beri sekurang-kurangnya
+        // keyword atau satu filter.
         if (
             query.length < 2 &&
             !type &&
@@ -404,6 +512,7 @@ export default async function handler(
                     error:
                         "Please provide a search keyword or filter."
                 });
+
         }
 
 
@@ -412,11 +521,13 @@ export default async function handler(
         // ==================================
 
         const GAS_URL =
-            process.env.I4UMANAGE_GAS_URL;
+            process.env
+                .I4UMANAGE_GAS_URL;
 
 
         const API_SECRET =
-            process.env.I4UMANAGE_DOC_SECRET;
+            process.env
+                .I4UMANAGE_DOC_SECRET;
 
 
         if (
@@ -436,18 +547,20 @@ export default async function handler(
                     error:
                         "Server configuration incomplete."
                 });
+
         }
 
 
         // ==================================
-        // FILTER SOURCE
+        // SELECT SOURCES
         // ==================================
 
         const selectedTypes =
             type
                 ? TYPES.filter(
                     item =>
-                        item.slug === type
+                        item.slug ===
+                        type
                 )
                 : TYPES;
 
@@ -456,7 +569,8 @@ export default async function handler(
             category
                 ? CATEGORIES.filter(
                     item =>
-                        item.slug === category
+                        item.slug ===
+                        category
                 )
                 : CATEGORIES;
 
@@ -494,14 +608,15 @@ export default async function handler(
         const responses =
             await Promise.all(
 
-                sources.map(source =>
+                sources.map(
+                    source =>
 
-                    fetchDocumentSource(
-                        GAS_URL,
-                        API_SECRET,
-                        source.type,
-                        source.category
-                    )
+                        fetchDocumentSource(
+                            GAS_URL,
+                            API_SECRET,
+                            source.type,
+                            source.category
+                        )
 
                 )
 
@@ -509,101 +624,102 @@ export default async function handler(
 
 
         // ==================================
-        // FLATTEN
+        // FLAT DOCUMENTS
         // ==================================
 
         const documents = [];
 
 
-        responses.forEach(data => {
+        responses.forEach(
+            data => {
 
-            if (
-                !data ||
-                !Array.isArray(
-                    data.programs
-                )
-            ) {
-                return;
-            }
+                if (
+                    !data ||
+                    !Array.isArray(
+                        data.documents
+                    )
+                ) {
 
-
-            data.programs.forEach(
-                program => {
-
-                    if (
-                        !Array.isArray(
-                            program.documents
-                        )
-                    ) {
-                        return;
-                    }
-
-
-                    // YEAR FILTER
-                    if (
-                        year &&
-                        Number(program.year) !== year
-                    ) {
-                        return;
-                    }
-
-
-                    program.documents.forEach(
-                        document => {
-
-                            documents.push({
-
-                                id:
-                                    document.id,
-
-                                name:
-                                    document.name,
-
-                                mimeType:
-                                    document.mimeType,
-
-                                size:
-                                    document.size,
-
-                                url:
-                                    document.url,
-
-                                updatedAt:
-                                    document.updatedAt,
-
-
-                                programId:
-                                    program.id,
-
-                                programName:
-                                    program.name,
-
-                                year:
-                                    program.year,
-
-
-                                category:
-                                    data.category,
-
-                                categoryName:
-                                    data.categoryName,
-
-
-                                type:
-                                    data.type,
-
-                                typeName:
-                                    data.typeName
-
-                            });
-
-                        }
-                    );
+                    return;
 
                 }
-            );
 
-        });
+
+                data.documents.forEach(
+                    document => {
+
+                        // ==========================
+                        // YEAR FILTER
+                        // ==========================
+
+                        if (
+                            year &&
+                            Number(
+                                document.year
+                            ) !== year
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        documents.push({
+
+                            id:
+                                document.id,
+
+                            name:
+                                document.name,
+
+                            mimeType:
+                                document.mimeType,
+
+                            size:
+                                document.size,
+
+                            url:
+                                document.url,
+
+                            createdAt:
+                                document.createdAt ||
+                                null,
+
+                            updatedAt:
+                                document.updatedAt ||
+                                null,
+
+                            year:
+                                document.year ||
+                                null,
+
+
+                            category:
+                                data.category,
+
+                            categoryName:
+                                data.categoryName,
+
+
+                            type:
+                                data.type,
+
+                            typeName:
+                                data.type ===
+                                    "slide-kursus"
+                                    ? "SLAID KURSUS"
+                                    : (
+                                        data.typeName ||
+                                        "KERTAS KERJA"
+                                    )
+
+                        });
+
+                    }
+                );
+
+            }
+        );
 
 
         // ==================================
@@ -632,17 +748,19 @@ export default async function handler(
         const results =
             uniqueDocuments
 
-                .map(item => ({
+                .map(
+                    item => ({
 
-                    ...item,
+                        ...item,
 
-                    score:
-                        calculateScore(
-                            item,
-                            query
-                        )
+                        score:
+                            calculateScore(
+                                item,
+                                query
+                            )
 
-                }))
+                    })
+                )
 
                 .filter(
                     item =>
@@ -650,11 +768,49 @@ export default async function handler(
                 )
 
                 .sort(
-                    (a, b) =>
-                        b.score - a.score
+                    (a, b) => {
+
+                        if (
+                            b.score !==
+                            a.score
+                        ) {
+
+                            return (
+                                b.score -
+                                a.score
+                            );
+
+                        }
+
+
+                        const dateA =
+                            a.updatedAt
+                                ? new Date(
+                                    a.updatedAt
+                                ).getTime()
+                                : 0;
+
+
+                        const dateB =
+                            b.updatedAt
+                                ? new Date(
+                                    b.updatedAt
+                                ).getTime()
+                                : 0;
+
+
+                        return (
+                            dateB -
+                            dateA
+                        );
+
+                    }
                 )
 
-                .slice(0, 20);
+                .slice(
+                    0,
+                    20
+                );
 
 
         // ==================================
@@ -680,13 +836,16 @@ export default async function handler(
                 filters: {
 
                     type:
-                        type || null,
+                        type ||
+                        null,
 
                     category:
-                        category || null,
+                        category ||
+                        null,
 
                     year:
-                        year || null
+                        year ||
+                        null
 
                 },
 
@@ -722,5 +881,7 @@ export default async function handler(
                 error:
                     "Unable to search documents."
             });
+
     }
+
 }

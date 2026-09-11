@@ -1,865 +1,354 @@
-(() => {
+// =========================================================
+// i4uManage - DOCUMENT API
+// Vercel Serverless Function
+// =========================================================
 
-    // ========================================
-    // CATEGORY CONFIG
-    // ========================================
-
-    const CATEGORY_NAMES = {
-
-        "pembangunan":
-            "PEMBANGUNAN",
-
-        "teknologi-maklumat":
-            "TEKNOLOGI MAKLUMAT",
-
-        "latihan":
-            "LATIHAN",
-
-        "psikologi-kaunseling":
-            "PSIKOLOGI & KAUNSELING",
-
-        "sumber-manusia":
-            "SUMBER MANUSIA",
-
-        "pentadbiran":
-            "PENTADBIRAN",
-
-        "perolehan-aset":
-            "PEROLEHAN & ASET",
-
-        "kewangan":
-            "KEWANGAN"
-
-    };
+const ALLOWED_TYPES = new Set([
+    "kertas-kerja",
+    "slide-kursus"
+]);
 
 
-    const TYPE_NAMES = {
-
-        "kertas-kerja":
-            "KERTAS KERJA",
-
-        "slide-kursus":
-            "SLAID KURSUS"
-
-    };
-
-
-    // ========================================
-    // URL PARAMETERS
-    // ========================================
-
-    const params =
-        new URLSearchParams(
-            window.location.search
-        );
+const ALLOWED_CATEGORIES = new Set([
+    "pembangunan",
+    "teknologi-maklumat",
+    "latihan",
+    "psikologi-kaunseling",
+    "sumber-manusia",
+    "pentadbiran",
+    "perolehan-aset",
+    "kewangan"
+]);
 
 
-    const type =
-        params.get("type") ||
-        "kertas-kerja";
+// =========================================================
+// MAIN HANDLER
+// =========================================================
 
+export default async function handler(
+    req,
+    res
+) {
 
-    const category =
-        params.get("category") ||
-        "latihan";
+    // =====================================================
+    // METHOD
+    // =====================================================
 
+    if (req.method !== "GET") {
 
-    // ========================================
-    // ELEMENTS
-    // ========================================
-
-    const documentList =
-        document.querySelector(
-            "#program-list"
-        );
-
-
-    if (!documentList) {
-        return;
-    }
-
-
-    const pageTitle =
-        document.querySelector(
-            "#document-page-title"
-        );
-
-
-    const categoryTitle =
-        document.querySelector(
-            "#document-category-title"
-        );
-
-
-    const statusElement =
-        document.querySelector(
-            "#document-status"
-        );
-
-
-    const searchInput =
-        document.querySelector(
-            "#document-search-input"
-        );
-
-
-    const yearFilter =
-        document.querySelector(
-            "#year-filter"
-        );
-
-
-    const backLink =
-        document.querySelector(
-            "#document-back-link"
-        );
-
-
-    const backText =
-        document.querySelector(
-            "#document-back-text"
-        );
-
-
-    // ========================================
-    // BACK BUTTON
-    // ========================================
-
-    if (type === "slide-kursus") {
-
-        backLink.href =
-            "slaid.html";
-
-        backText.textContent =
-            "Kembali ke Slaid Kursus";
-
-    } else {
-
-        backLink.href =
-            "kerja.html";
-
-        backText.textContent =
-            "Kembali ke Kertas Kerja";
+        return res
+            .status(405)
+            .json({
+                success: false,
+                error:
+                    "Method not allowed."
+            });
 
     }
 
 
-    // ========================================
-    // VALIDATE URL
-    // ========================================
+    try {
 
-    if (
-        !TYPE_NAMES[type] ||
-        !CATEGORY_NAMES[category]
-    ) {
+        // =================================================
+        // PARAMETERS
+        // =================================================
 
-        statusElement.innerHTML = `
-            <i class="fa-solid fa-triangle-exclamation"></i>
-            Bahagian tidak sah.
-        `;
-
-        return;
-
-    }
+        const type =
+            String(
+                req.query.type || ""
+            )
+            .toLowerCase()
+            .trim();
 
 
-    pageTitle.textContent =
-        TYPE_NAMES[type];
+        const category =
+            String(
+                req.query.category || ""
+            )
+            .toLowerCase()
+            .trim();
 
 
-    categoryTitle.textContent =
-        CATEGORY_NAMES[category];
+        // =================================================
+        // VALIDATION
+        // =================================================
 
+        if (
+            !type ||
+            !ALLOWED_TYPES.has(type)
+        ) {
 
-    // ========================================
-    // STATE
-    // ========================================
-
-    let documents = [];
-
-
-    // ========================================
-    // LOAD DOCUMENTS
-    // ========================================
-
-    async function loadDocuments() {
-
-        try {
-
-            showLoading();
-
-
-            const url =
-                `/api/document?type=${encodeURIComponent(type)}&category=${encodeURIComponent(category)}`;
-
-
-            const response =
-                await fetch(
-                    url,
-                    {
-                        method: "GET",
-                        cache: "no-store"
-                    }
-                );
-
-
-            const data =
-                await response.json();
-
-
-            if (
-                !response.ok ||
-                !data.success
-            ) {
-
-                throw new Error(
-                    data.error ||
-                    "Tidak dapat mendapatkan dokumen."
-                );
-
-            }
-
-
-            const programs =
-                Array.isArray(data.programs)
-                    ? data.programs
-                    : [];
-
-
-            // ========================================
-            // FLATTEN PROGRAM → DOCUMENT
-            // ========================================
-
-            documents =
-                programs.flatMap(program => {
-
-                    const programDocuments =
-                        Array.isArray(program.documents)
-                            ? program.documents
-                            : [];
-
-
-                    return programDocuments.map(file => ({
-
-                        ...file,
-
-                        programName:
-                            program.name ||
-                            "Program tidak dinyatakan",
-
-                        year:
-                            program.year || null,
-
-                        programUpdated:
-                            program.latestUpdated || null
-
-                    }));
-
+            return res
+                .status(400)
+                .json({
+                    success: false,
+                    error:
+                        "Invalid document type."
                 });
-
-
-            buildYearFilter();
-
-            renderDocuments(documents);
-
-
-        } catch (error) {
-
-            console.error(error);
-
-            showError(
-                "Dokumen tidak dapat dimuatkan. Sila cuba lagi."
-            );
 
         }
 
-    }
+
+        if (
+            !category ||
+            !ALLOWED_CATEGORIES.has(
+                category
+            )
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    success: false,
+                    error:
+                        "Invalid category."
+                });
+
+        }
 
 
-    // ========================================
-    // YEAR FILTER
-    // ========================================
+        // =================================================
+        // ENVIRONMENT VARIABLES
+        // =================================================
 
-    function buildYearFilter() {
+        const GAS_URL =
+            process.env
+                .I4UMANAGE_GAS_URL;
 
-        const years =
-            [
-                ...new Set(
 
-                    documents
-                        .map(file => file.year)
-                        .filter(Boolean)
+        const API_SECRET =
+            process.env
+                .I4UMANAGE_DOC_SECRET;
 
+
+        if (
+            !GAS_URL ||
+            !API_SECRET
+        ) {
+
+            console.error(
+                "Document API environment variables missing."
+            );
+
+
+            return res
+                .status(500)
+                .json({
+                    success: false,
+                    error:
+                        "Server configuration incomplete."
+                });
+
+        }
+
+
+        // =================================================
+        // CALL GOOGLE APPS SCRIPT
+        // =================================================
+
+        const gasResponse =
+            await fetch(
+                GAS_URL,
+                {
+                    method:
+                        "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+                            token:
+                                API_SECRET,
+
+                            type:
+                                type,
+
+                            category:
+                                category
+                        }),
+
+                    redirect:
+                        "follow"
+                }
+            );
+
+
+        const responseText =
+            await gasResponse.text();
+
+
+        // =================================================
+        // PARSE RESPONSE
+        // =================================================
+
+        let data;
+
+
+        try {
+
+            data =
+                JSON.parse(
+                    responseText
+                );
+
+        } catch (error) {
+
+            console.error(
+                "Invalid Apps Script response:",
+                responseText
+            );
+
+
+            return res
+                .status(502)
+                .json({
+                    success: false,
+                    error:
+                        "Invalid response from document service."
+                });
+
+        }
+
+
+        // =================================================
+        // APPS SCRIPT ERROR
+        // =================================================
+
+        if (
+            !gasResponse.ok ||
+            !data.success
+        ) {
+
+            console.error(
+                "Apps Script document error:",
+                data
+            );
+
+
+            return res
+                .status(502)
+                .json({
+                    success: false,
+                    error:
+                        data.error ||
+                        "Unable to load documents."
+                });
+
+        }
+
+
+        // =================================================
+        // FLAT DOCUMENTS
+        // =================================================
+
+        const documents =
+            Array.isArray(
+                data.documents
+            )
+                ? data.documents.map(
+                    document => ({
+
+                        id:
+                            document.id,
+
+                        name:
+                            document.name,
+
+                        mimeType:
+                            document.mimeType,
+
+                        size:
+                            document.size,
+
+                        url:
+                            document.url,
+
+                        createdAt:
+                            document.createdAt ||
+                            null,
+
+                        updatedAt:
+                            document.updatedAt ||
+                            null,
+
+                        year:
+                            document.year ||
+                            null
+
+                    })
                 )
-            ]
-            .sort(
-                (a, b) => b - a
-            );
+                : [];
 
 
-        yearFilter.innerHTML = "";
+        // =================================================
+        // CACHE
+        // =================================================
 
-
-        const allOption =
-            document.createElement(
-                "option"
-            );
-
-
-        allOption.value =
-            "all";
-
-
-        allOption.textContent =
-            "Semua Tahun";
-
-
-        yearFilter.appendChild(
-            allOption
+        res.setHeader(
+            "Cache-Control",
+            "no-store"
         );
 
 
-        years.forEach(year => {
+        // =================================================
+        // RESPONSE
+        // =================================================
 
-            const option =
-                document.createElement(
-                    "option"
-                );
+        return res
+            .status(200)
+            .json({
 
+                success:
+                    true,
 
-            option.value =
-                String(year);
+                type:
+                    data.type ||
+                    type,
 
+                typeName:
+                    data.typeName ||
+                    null,
 
-            option.textContent =
-                String(year);
+                category:
+                    data.category ||
+                    category,
 
+                categoryName:
+                    data.categoryName ||
+                    null,
 
-            yearFilter.appendChild(
-                option
-            );
+                totalDocuments:
+                    documents.length,
 
-        });
+                documents:
+                    documents,
 
-    }
-
-
-    // ========================================
-    // SEARCH + FILTER
-    // ========================================
-
-    function applyFilters() {
-
-        const keyword =
-            searchInput
-                .value
-                .toLowerCase()
-                .trim();
-
-
-        const selectedYear =
-            yearFilter.value;
-
-
-        const filtered =
-            documents.filter(file => {
-
-
-                const matchesYear =
-                    selectedYear === "all" ||
-                    String(file.year) ===
-                        selectedYear;
-
-
-                const documentName =
-                    String(
-                        file.name || ""
-                    )
-                    .toLowerCase();
-
-
-                const programName =
-                    String(
-                        file.programName || ""
-                    )
-                    .toLowerCase();
-
-
-                const matchesKeyword =
-                    !keyword ||
-                    documentName.includes(keyword) ||
-                    programName.includes(keyword);
-
-
-                return (
-                    matchesYear &&
-                    matchesKeyword
-                );
+                generatedAt:
+                    data.generatedAt ||
+                    null
 
             });
 
 
-        renderDocuments(filtered);
-
-    }
-
-
-    // ========================================
-    // RENDER DOCUMENTS
-    // ========================================
-
-    function renderDocuments(items) {
-
-        documentList.innerHTML = "";
-
-
-        if (items.length === 0) {
-
-            statusElement.style.display =
-                "block";
-
-
-            statusElement.innerHTML = `
-                <i class="fa-regular fa-folder-open"></i>
-                Tiada dokumen dijumpai.
-            `;
-
-
-            return;
-
-        }
-
-
-        statusElement.style.display =
-            "none";
-
-
-        items.forEach(file => {
-
-            const card =
-                createDocumentCard(file);
-
-
-            documentList.appendChild(
-                card
-            );
-
-        });
-
-    }
-
-
-    // ========================================
-    // CREATE DOCUMENT CARD
-    // ========================================
-
-    function createDocumentCard(file) {
-
-        const card =
-            document.createElement(
-                "article"
-            );
-
-
-        card.className =
-            "flat-document-card";
-
-
-        // ========================================
-        // ICON
-        // ========================================
-
-        const icon =
-            document.createElement(
-                "div"
-            );
-
-
-        icon.className =
-            "flat-document-icon";
-
-
-        icon.innerHTML =
-            `<i class="${getFileIcon(file.mimeType)}"></i>`;
-
-
-        // ========================================
-        // CONTENT
-        // ========================================
-
-        const content =
-            document.createElement(
-                "div"
-            );
-
-
-        content.className =
-            "flat-document-content";
-
-
-        const title =
-            document.createElement(
-                "h3"
-            );
-
-
-        title.textContent =
-            file.name ||
-            "Dokumen Tanpa Nama";
-
-
-        const program =
-            document.createElement(
-                "p"
-            );
-
-
-        program.className =
-            "flat-document-program";
-
-
-        program.textContent =
-            file.programName ||
-            "Program tidak dinyatakan";
-
-
-        // ========================================
-        // META
-        // ========================================
-
-        const meta =
-            document.createElement(
-                "div"
-            );
-
-
-        meta.className =
-            "flat-document-meta";
-
-
-        const values = [];
-
-
-        if (file.year) {
-
-            values.push(
-                String(file.year)
-            );
-
-        }
-
-
-        if (file.size) {
-
-            values.push(
-                formatBytes(file.size)
-            );
-
-        }
-
-
-        if (file.updatedAt) {
-
-            values.push(
-                `Kemaskini ${formatDate(file.updatedAt)}`
-            );
-
-        }
-
-
-        meta.textContent =
-            values.join(" • ");
-
-
-        // ========================================
-        // OPEN
-        // ========================================
-
-        const openLink =
-            document.createElement(
-                "a"
-            );
-
-
-        openLink.className =
-            "flat-document-open";
-
-
-        openLink.href =
-            file.url;
-
-
-        openLink.target =
-            "_blank";
-
-
-        openLink.rel =
-            "noopener noreferrer";
-
-
-        openLink.innerHTML = `
-            <span>Buka</span>
-
-            <i class="fa-solid fa-arrow-up-right-from-square"></i>
-        `;
-
-
-        // ========================================
-        // APPEND
-        // ========================================
-
-        content.appendChild(title);
-
-        content.appendChild(program);
-
-        content.appendChild(meta);
-
-
-        card.appendChild(icon);
-
-        card.appendChild(content);
-
-        card.appendChild(openLink);
-
-
-        return card;
-
-    }
-
-
-    // ========================================
-    // FILE ICON
-    // ========================================
-
-    function getFileIcon(
-        mimeType = ""
-    ) {
-
-        const mime =
-            mimeType.toLowerCase();
-
-
-        if (
-            mime.includes("pdf")
-        ) {
-
-            return "fa-solid fa-file-pdf";
-
-        }
-
-
-        if (
-            mime.includes("presentation") ||
-            mime.includes("powerpoint")
-        ) {
-
-            return "fa-solid fa-file-powerpoint";
-
-        }
-
-
-        if (
-            mime.includes("spreadsheet") ||
-            mime.includes("excel")
-        ) {
-
-            return "fa-solid fa-file-excel";
-
-        }
-
-
-        if (
-            mime.includes("document") ||
-            mime.includes("word")
-        ) {
-
-            return "fa-solid fa-file-word";
-
-        }
-
-
-        if (
-            mime.includes("image")
-        ) {
-
-            return "fa-solid fa-file-image";
-
-        }
-
-
-        return "fa-solid fa-file";
-
-    }
-
-
-    // ========================================
-    // DATE
-    // ========================================
-
-    function formatDate(value) {
-
-        try {
-
-            return new Intl.DateTimeFormat(
-                "ms-MY",
-                {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric"
-                }
-            )
-            .format(
-                new Date(value)
-            );
-
-        } catch {
-
-            return "";
-
-        }
-
-    }
-
-
-    // ========================================
-    // FILE SIZE
-    // ========================================
-
-    function formatBytes(bytes) {
-
-        const size =
-            Number(bytes || 0);
-
-
-        if (!size) {
-            return "";
-        }
-
-
-        const units =
-            [
-                "B",
-                "KB",
-                "MB",
-                "GB"
-            ];
-
-
-        let value =
-            size;
-
-
-        let unitIndex =
-            0;
-
-
-        while (
-            value >= 1024 &&
-            unitIndex <
-                units.length - 1
-        ) {
-
-            value /= 1024;
-
-            unitIndex++;
-
-        }
-
-
-        return (
-            value.toFixed(
-                unitIndex === 0
-                    ? 0
-                    : 1
-            )
-            +
-            " "
-            +
-            units[unitIndex]
-        );
-
-    }
-
-
-    // ========================================
-    // STATUS
-    // ========================================
-
-    function showLoading() {
-
-        statusElement.style.display =
-            "block";
-
-
-        statusElement.innerHTML = `
-            <i class="fa-solid fa-spinner fa-spin"></i>
-            Memuatkan dokumen...
-        `;
-
-    }
-
-
-    function showError(message) {
-
-        statusElement.style.display =
-            "block";
-
-
-        statusElement.innerHTML = "";
-
-
-        const icon =
-            document.createElement(
-                "i"
-            );
-
-
-        icon.className =
-            "fa-solid fa-triangle-exclamation";
-
-
-        const text =
-            document.createElement(
-                "span"
-            );
-
-
-        text.textContent =
-            message;
-
-
-        statusElement.appendChild(
-            icon
+    } catch (error) {
+
+        console.error(
+            "Document API error:",
+            error
         );
 
 
-        statusElement.appendChild(
-            text
-        );
+        return res
+            .status(500)
+            .json({
+                success: false,
+                error:
+                    "Unable to load documents."
+            });
 
     }
 
-
-    // ========================================
-    // EVENTS
-    // ========================================
-
-    searchInput.addEventListener(
-        "input",
-        applyFilters
-    );
-
-
-    yearFilter.addEventListener(
-        "change",
-        applyFilters
-    );
-
-
-    // ========================================
-    // START
-    // ========================================
-
-    loadDocuments();
-
-})();
+}

@@ -1,46 +1,25 @@
 (() => {
 
     // ========================================
-    // CATEGORY CONFIG
+    // CONFIG
     // ========================================
 
     const CATEGORY_NAMES = {
-
-        "pembangunan":
-            "PEMBANGUNAN",
-
-        "teknologi-maklumat":
-            "TEKNOLOGI MAKLUMAT",
-
-        "latihan":
-            "LATIHAN",
-
-        "psikologi-kaunseling":
-            "PSIKOLOGI & KAUNSELING",
-
-        "sumber-manusia":
-            "SUMBER MANUSIA",
-
-        "pentadbiran":
-            "PENTADBIRAN",
-
-        "perolehan-aset":
-            "PEROLEHAN & ASET",
-
-        "kewangan":
-            "KEWANGAN"
+        "pembangunan": "PEMBANGUNAN",
+        "teknologi-maklumat": "TEKNOLOGI MAKLUMAT",
+        "latihan": "LATIHAN",
+        "psikologi-kaunseling": "PSIKOLOGI & KAUNSELING",
+        "sumber-manusia": "SUMBER MANUSIA",
+        "pentadbiran": "PENTADBIRAN",
+        "perolehan-aset": "PEROLEHAN & ASET",
+        "kewangan": "KEWANGAN"
     };
 
 
     const TYPE_NAMES = {
-
-        "kertas-kerja":
-            "KERTAS KERJA",
-
-        "slide-kursus":
-            "SLIDE KURSUS"
+        "kertas-kerja": "KERTAS KERJA",
+        "slide-kursus": "SLAID KURSUS"
     };
-
 
 
     // ========================================
@@ -62,47 +41,18 @@
         params.get("category") ||
         "latihan";
 
-// ========================================
-// DYNAMIC BACK BUTTON
-// ========================================
-
-const backLink =
-    document.querySelector("#document-back-link");
-
-const backText =
-    document.querySelector("#document-back-text");
-
-
-if (type === "slide-kursus") {
-
-    backLink.href =
-        "slaid.html";
-
-    backText.textContent =
-        "Kembali ke Slide Kursus";
-
-} else {
-
-    backLink.href =
-        "kerja.html";
-
-    backText.textContent =
-        "Kembali ke Kertas Kerja";
-}
-
-
 
     // ========================================
     // ELEMENTS
     // ========================================
 
-    const programList =
+    const documentList =
         document.querySelector(
             "#program-list"
         );
 
 
-    if (!programList) {
+    if (!documentList) {
         return;
     }
 
@@ -137,21 +87,55 @@ if (type === "slide-kursus") {
         );
 
 
-    const totalProgramsElement =
+    const backLink =
         document.querySelector(
-            "#total-programs"
+            "#document-back-link"
         );
 
 
-    const totalDocumentsElement =
+    const backText =
         document.querySelector(
-            "#total-documents"
+            "#document-back-text"
         );
-
 
 
     // ========================================
-    // VALIDATE URL
+    // BACK BUTTON
+    // ========================================
+
+    if (
+        backLink &&
+        backText
+    ) {
+
+        if (
+            type ===
+            "slide-kursus"
+        ) {
+
+            backLink.href =
+                "slaid.html";
+
+
+            backText.textContent =
+                "Kembali ke Slaid Kursus";
+
+        } else {
+
+            backLink.href =
+                "kerja.html";
+
+
+            backText.textContent =
+                "Kembali ke Kertas Kerja";
+
+        }
+
+    }
+
+
+    // ========================================
+    // VALIDATE
     // ========================================
 
     if (
@@ -159,35 +143,46 @@ if (type === "slide-kursus") {
         !CATEGORY_NAMES[category]
     ) {
 
-        statusElement.innerHTML = `
-            <i class="fa-solid fa-triangle-exclamation"></i>
-            Bahagian tidak sah.
-        `;
+        if (statusElement) {
+
+            statusElement.innerHTML = `
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                Bahagian tidak sah.
+            `;
+
+        }
+
 
         return;
+
     }
 
 
+    if (pageTitle) {
 
-    pageTitle.textContent =
-        TYPE_NAMES[type];
+        pageTitle.textContent =
+            TYPE_NAMES[type];
+
+    }
 
 
-    categoryTitle.textContent =
-        CATEGORY_NAMES[category];
+    if (categoryTitle) {
 
+        categoryTitle.textContent =
+            CATEGORY_NAMES[category];
+
+    }
 
 
     // ========================================
     // STATE
     // ========================================
 
-    let programs = [];
-
+    let documents = [];
 
 
     // ========================================
-    // FETCH DOCUMENTS
+    // LOAD DOCUMENTS
     // ========================================
 
     async function loadDocuments() {
@@ -205,11 +200,8 @@ if (type === "slide-kursus") {
                 await fetch(
                     url,
                     {
-                        method:
-                            "GET",
-
-                        cache:
-                            "no-store"
+                        method: "GET",
+                        cache: "no-store"
                     }
                 );
 
@@ -227,49 +219,45 @@ if (type === "slide-kursus") {
                     data.error ||
                     "Tidak dapat mendapatkan dokumen."
                 );
+
             }
 
 
-            programs =
-                Array.isArray(data.programs)
-                    ? data.programs
+            // ========================================
+            // FLAT DOCUMENT ARRAY
+            // ========================================
+
+            documents =
+                Array.isArray(
+                    data.documents
+                )
+                    ? data.documents
                     : [];
 
 
-            updateSummary(data);
-
             buildYearFilter();
 
-            renderPrograms(programs);
+
+            renderDocuments(
+                documents
+            );
 
 
         } catch (error) {
 
-            console.error(error);
+            console.error(
+                "Document load error:",
+                error
+            );
+
 
             showError(
                 "Dokumen tidak dapat dimuatkan. Sila cuba lagi."
             );
+
         }
 
     }
-
-
-
-    // ========================================
-    // SUMMARY
-    // ========================================
-
-    function updateSummary(data) {
-
-        totalProgramsElement.textContent =
-            data.totalPrograms || 0;
-
-
-        totalDocumentsElement.textContent =
-            data.totalDocuments || 0;
-    }
-
 
 
     // ========================================
@@ -278,174 +266,222 @@ if (type === "slide-kursus") {
 
     function buildYearFilter() {
 
+        if (!yearFilter) {
+            return;
+        }
+
+
         const years =
             [
                 ...new Set(
-                    programs
-                        .map(program => program.year)
-                        .filter(Boolean)
+
+                    documents
+                        .map(
+                            file =>
+                                Number(
+                                    file.year
+                                )
+                        )
+                        .filter(
+                            year =>
+                                Number.isInteger(
+                                    year
+                                )
+                        )
+
                 )
             ]
             .sort(
-                (a, b) => b - a
+                (a, b) =>
+                    b - a
             );
 
 
-        yearFilter.innerHTML = "";
-
+        yearFilter.innerHTML =
+            "";
 
 
         const allOption =
-            document.createElement("option");
+            document.createElement(
+                "option"
+            );
+
 
         allOption.value =
             "all";
 
+
         allOption.textContent =
             "Semua Tahun";
+
 
         yearFilter.appendChild(
             allOption
         );
 
 
+        years.forEach(
+            year => {
 
-        years.forEach(year => {
+                const option =
+                    document.createElement(
+                        "option"
+                    );
 
-            const option =
-                document.createElement(
-                    "option"
+
+                option.value =
+                    String(year);
+
+
+                option.textContent =
+                    String(year);
+
+
+                yearFilter.appendChild(
+                    option
                 );
 
-            option.value =
-                String(year);
-
-            option.textContent =
-                String(year);
-
-            yearFilter.appendChild(
-                option
-            );
-
-        });
+            }
+        );
 
     }
 
 
-
     // ========================================
-    // FILTER
+    // SEARCH + FILTER
     // ========================================
 
     function applyFilters() {
 
         const keyword =
-            searchInput
-                .value
-                .toLowerCase()
-                .trim();
+            String(
+                searchInput?.value || ""
+            )
+            .toLowerCase()
+            .trim();
 
 
         const selectedYear =
-            yearFilter.value;
+            yearFilter?.value ||
+            "all";
 
 
         const filtered =
-            programs.filter(program => {
+            documents.filter(
+                file => {
+
+                    const matchesYear =
+                        selectedYear ===
+                            "all" ||
+                        String(
+                            file.year
+                        ) ===
+                            selectedYear;
 
 
-                const matchesYear =
-                    selectedYear === "all" ||
-                    String(program.year) === selectedYear;
-
-
-                const programName =
-                    String(
-                        program.name || ""
-                    )
-                    .toLowerCase();
-
-
-                const documentNames =
-                    (program.documents || [])
-                        .map(document =>
-                            document.name
+                    const documentName =
+                        String(
+                            file.name || ""
                         )
-                        .join(" ")
                         .toLowerCase();
 
 
-                const matchesKeyword =
-                    !keyword ||
-                    programName.includes(keyword) ||
-                    documentNames.includes(keyword);
+                    const fileType =
+                        getFileTypeLabel(
+                            file.mimeType,
+                            file.name
+                        )
+                        .toLowerCase();
 
 
-                return (
-                    matchesYear &&
-                    matchesKeyword
-                );
+                    const matchesKeyword =
+                        !keyword ||
+                        documentName.includes(
+                            keyword
+                        ) ||
+                        fileType.includes(
+                            keyword
+                        );
 
-            });
+
+                    return (
+                        matchesYear &&
+                        matchesKeyword
+                    );
+
+                }
+            );
 
 
-        renderPrograms(filtered);
+        renderDocuments(
+            filtered
+        );
 
     }
 
 
-
     // ========================================
-    // RENDER PROGRAMS
+    // RENDER
     // ========================================
 
-    function renderPrograms(items) {
+    function renderDocuments(items) {
 
-        programList.innerHTML =
+        documentList.innerHTML =
             "";
 
 
-        if (items.length === 0) {
+        if (
+            !Array.isArray(items) ||
+            items.length === 0
+        ) {
 
-            statusElement.style.display =
-                "block";
+            if (statusElement) {
+
+                statusElement.style.display =
+                    "block";
 
 
-            statusElement.innerHTML = `
-                <i class="fa-regular fa-folder-open"></i>
-                Tiada program atau dokumen dijumpai.
-            `;
+                statusElement.innerHTML = `
+                    <i class="fa-regular fa-folder-open"></i>
+                    Tiada dokumen dijumpai.
+                `;
+
+            }
+
 
             return;
+
         }
 
 
-        statusElement.style.display =
-            "none";
+        if (statusElement) {
+
+            statusElement.style.display =
+                "none";
+
+        }
 
 
-        items.forEach(program => {
+        items.forEach(
+            file => {
 
-            const card =
-                createProgramCard(
-                    program
+                documentList.appendChild(
+                    createDocumentCard(
+                        file
+                    )
                 );
 
-            programList.appendChild(
-                card
-            );
-
-        });
+            }
+        );
 
     }
 
 
-
     // ========================================
-    // CREATE PROGRAM CARD
+    // DOCUMENT CARD
     // ========================================
 
-    function createProgramCard(program) {
+    function createDocumentCard(file) {
 
         const card =
             document.createElement(
@@ -454,42 +490,53 @@ if (type === "slide-kursus") {
 
 
         card.className =
-            "program-card";
+            "flat-document-card";
 
 
-
-        // HEADER
-        const header =
-            document.createElement(
-                "div"
-            );
-
-        header.className =
-            "program-header";
-
-
+        // ========================================
+        // ICON
+        // ========================================
 
         const icon =
             document.createElement(
                 "div"
             );
 
+
         icon.className =
-            "program-icon";
-
-        icon.innerHTML =
-            `<i class="fa-solid fa-folder-open"></i>`;
+            "flat-document-icon";
 
 
+        const iconElement =
+            document.createElement(
+                "i"
+            );
 
-        const info =
+
+        iconElement.className =
+            getFileIcon(
+                file.mimeType,
+                file.name
+            );
+
+
+        icon.appendChild(
+            iconElement
+        );
+
+
+        // ========================================
+        // CONTENT
+        // ========================================
+
+        const content =
             document.createElement(
                 "div"
             );
 
-        info.className =
-            "program-info";
 
+        content.className =
+            "flat-document-content";
 
 
         const title =
@@ -497,318 +544,149 @@ if (type === "slide-kursus") {
                 "h3"
             );
 
+
         title.textContent =
-            program.name;
+            file.name ||
+            "Dokumen Tanpa Nama";
 
 
+        // ========================================
+        // FILE TYPE
+        // ========================================
+
+        const fileType =
+            document.createElement(
+                "p"
+            );
+
+
+        fileType.className =
+            "flat-document-program";
+
+
+        fileType.textContent =
+            getFileTypeLabel(
+                file.mimeType,
+                file.name
+            );
+
+
+        // ========================================
+        // META
+        // ========================================
 
         const meta =
             document.createElement(
                 "div"
             );
 
+
         meta.className =
-            "program-meta";
+            "flat-document-meta";
 
 
-        const countText =
-            `${program.documentCount || 0} dokumen`;
+        const values = [];
 
 
-        const yearText =
-            program.year
-                ? String(program.year)
-                : "Tahun tidak dinyatakan";
+        if (file.year) {
+
+            values.push(
+                String(
+                    file.year
+                )
+            );
+
+        }
+
+
+        if (file.size) {
+
+            values.push(
+                formatBytes(
+                    file.size
+                )
+            );
+
+        }
+
+
+        if (file.updatedAt) {
+
+            const formattedDate =
+                formatDate(
+                    file.updatedAt
+                );
+
+
+            if (formattedDate) {
+
+                values.push(
+                    `Kemaskini ${formattedDate}`
+                );
+
+            }
+
+        }
 
 
         meta.textContent =
-            `${yearText} • ${countText}`;
-
-
-
-        info.appendChild(title);
-        info.appendChild(meta);
-
-
-        header.appendChild(icon);
-        header.appendChild(info);
-
-
-
-        // UPDATED DATE
-        if (program.latestUpdated) {
-
-            const updated =
-                document.createElement(
-                    "div"
-                );
-
-            updated.className =
-                "program-updated";
-
-
-            updated.textContent =
-                `Kemaskini: ${formatDate(program.latestUpdated)}`;
-
-
-            info.appendChild(
-                updated
+            values.join(
+                " • "
             );
 
-        }
 
-
-
-        // BUTTON
-        const toggleButton =
-            document.createElement(
-                "button"
-            );
-
-        toggleButton.type =
-            "button";
-
-        toggleButton.className =
-            "program-toggle";
-
-
-        toggleButton.innerHTML = `
-            <span>
-                Lihat Dokumen
-            </span>
-
-            <i class="fa-solid fa-chevron-down"></i>
-        `;
-
-
-
-        // DOCUMENT CONTAINER
-        const filesContainer =
-            document.createElement(
-                "div"
-            );
-
-        filesContainer.className =
-            "program-files";
-
-
-        filesContainer.hidden =
-            true;
-
-
-
-        const documents =
-            Array.isArray(
-                program.documents
-            )
-                ? program.documents
-                : [];
-
-
-
-        if (documents.length === 0) {
-
-            const empty =
-                document.createElement(
-                    "p"
-                );
-
-            empty.className =
-                "empty-program";
-
-            empty.textContent =
-                "Tiada dokumen dalam program ini.";
-
-
-            filesContainer.appendChild(
-                empty
-            );
-
-        } else {
-
-            documents.forEach(document => {
-
-                const row =
-                    createDocumentRow(
-                        document
-                    );
-
-                filesContainer.appendChild(
-                    row
-                );
-
-            });
-
-        }
-
-
-
-        toggleButton.addEventListener(
-            "click",
-            () => {
-
-                const isHidden =
-                    filesContainer.hidden;
-
-
-                filesContainer.hidden =
-                    !isHidden;
-
-
-                toggleButton
-                    .classList
-                    .toggle(
-                        "active",
-                        isHidden
-                    );
-
-
-                const text =
-                    toggleButton.querySelector(
-                        "span"
-                    );
-
-
-                text.textContent =
-                    isHidden
-                        ? "Tutup Dokumen"
-                        : "Lihat Dokumen";
-
-            }
+        content.appendChild(
+            title
         );
 
 
-
-        card.appendChild(header);
-        card.appendChild(toggleButton);
-        card.appendChild(filesContainer);
-
-
-        return card;
-    }
+        content.appendChild(
+            fileType
+        );
 
 
+        if (
+            values.length > 0
+        ) {
 
-    // ========================================
-    // CREATE DOCUMENT ROW
-    // ========================================
-
-    function createDocumentRow(document) {
-
-        const row =
-            documentCreateElement(
-                "div"
+            content.appendChild(
+                meta
             );
 
-
-        row.className =
-            "document-row";
+        }
 
 
-
-        const left =
-            documentCreateElement(
-                "div"
-            );
-
-        left.className =
-            "document-left";
-
-
-
-        const icon =
-            documentCreateElement(
-                "div"
-            );
-
-        icon.className =
-            "document-file-icon";
-
-
-        const iconClass =
-            getFileIcon(
-                document.mimeType
-            );
-
-
-        icon.innerHTML =
-            `<i class="${iconClass}"></i>`;
-
-
-
-        const info =
-            documentCreateElement(
-                "div"
-            );
-
-        info.className =
-            "document-info";
-
-
-
-        const name =
-            documentCreateElement(
-                "strong"
-            );
-
-        name.textContent =
-            document.name;
-
-
-
-        const meta =
-            documentCreateElement(
-                "span"
-            );
-
-
-        const sizeText =
-            document.size
-                ? formatBytes(document.size)
-                : "";
-
-
-        const updatedText =
-            document.updatedAt
-                ? formatDate(
-                    document.updatedAt
-                )
-                : "";
-
-
-        meta.textContent =
-            [sizeText, updatedText]
-                .filter(Boolean)
-                .join(" • ");
-
-
-
-        info.appendChild(name);
-        info.appendChild(meta);
-
-
-        left.appendChild(icon);
-        left.appendChild(info);
-
-
+        // ========================================
+        // OPEN BUTTON
+        // ========================================
 
         const openLink =
-            documentCreateElement(
+            document.createElement(
                 "a"
             );
 
 
         openLink.className =
-            "document-open-btn";
+            "flat-document-open";
+
 
         openLink.href =
-            document.url;
+            file.url ||
+            "#";
+
 
         openLink.target =
             "_blank";
 
+
         openLink.rel =
             "noopener noreferrer";
+
+
+        openLink.setAttribute(
+            "aria-label",
+            `Buka ${file.name || "dokumen"}`
+        );
 
 
         openLink.innerHTML = `
@@ -817,84 +695,276 @@ if (type === "slide-kursus") {
         `;
 
 
+        if (!file.url) {
 
-        row.appendChild(left);
-        row.appendChild(openLink);
+            openLink.removeAttribute(
+                "target"
+            );
 
 
-        return row;
+            openLink.setAttribute(
+                "aria-disabled",
+                "true"
+            );
+
+
+            openLink.addEventListener(
+                "click",
+                event =>
+                    event.preventDefault()
+            );
+
+        }
+
+
+        // ========================================
+        // APPEND
+        // ========================================
+
+        card.appendChild(
+            icon
+        );
+
+
+        card.appendChild(
+            content
+        );
+
+
+        card.appendChild(
+            openLink
+        );
+
+
+        return card;
+
     }
 
 
-
     // ========================================
-    // SAFE DOM HELPER
+    // FILE TYPE LABEL
     // ========================================
 
-    function documentCreateElement(tag) {
-        return window.document.createElement(tag);
+    function getFileTypeLabel(
+        mimeType = "",
+        fileName = ""
+    ) {
+
+        const mime =
+            String(
+                mimeType
+            )
+            .toLowerCase();
+
+
+        const name =
+            String(
+                fileName
+            )
+            .toLowerCase();
+
+
+        if (
+            mime.includes("pdf") ||
+            name.endsWith(".pdf")
+        ) {
+
+            return "PDF";
+
+        }
+
+
+        if (
+            mime.includes("presentation") ||
+            mime.includes("powerpoint") ||
+            name.endsWith(".ppt") ||
+            name.endsWith(".pptx")
+        ) {
+
+            return "PowerPoint";
+
+        }
+
+
+        if (
+            mime.includes("spreadsheet") ||
+            mime.includes("excel") ||
+            name.endsWith(".xls") ||
+            name.endsWith(".xlsx")
+        ) {
+
+            return "Excel";
+
+        }
+
+
+        if (
+            mime.includes("document") ||
+            mime.includes("word") ||
+            name.endsWith(".doc") ||
+            name.endsWith(".docx")
+        ) {
+
+            return "Word";
+
+        }
+
+
+        if (
+            mime.includes(
+                "application/vnd.google-apps.presentation"
+            )
+        ) {
+
+            return "Google Slides";
+
+        }
+
+
+        if (
+            mime.includes(
+                "application/vnd.google-apps.spreadsheet"
+            )
+        ) {
+
+            return "Google Sheets";
+
+        }
+
+
+        if (
+            mime.includes(
+                "application/vnd.google-apps.document"
+            )
+        ) {
+
+            return "Google Docs";
+
+        }
+
+
+        if (
+            mime.includes("image")
+        ) {
+
+            return "Imej";
+
+        }
+
+
+        return "Dokumen";
+
     }
-
 
 
     // ========================================
     // FILE ICON
     // ========================================
 
-    function getFileIcon(mimeType = "") {
+    function getFileIcon(
+        mimeType = "",
+        fileName = ""
+    ) {
 
         const mime =
-            mimeType.toLowerCase();
+            String(
+                mimeType
+            )
+            .toLowerCase();
 
 
-        if (mime.includes("pdf")) {
+        const name =
+            String(
+                fileName
+            )
+            .toLowerCase();
+
+
+        if (
+            mime.includes("pdf") ||
+            name.endsWith(".pdf")
+        ) {
+
             return "fa-solid fa-file-pdf";
+
         }
 
 
         if (
             mime.includes("presentation") ||
-            mime.includes("powerpoint")
+            mime.includes("powerpoint") ||
+            name.endsWith(".ppt") ||
+            name.endsWith(".pptx")
         ) {
+
             return "fa-solid fa-file-powerpoint";
+
         }
 
 
         if (
             mime.includes("spreadsheet") ||
-            mime.includes("excel")
+            mime.includes("excel") ||
+            name.endsWith(".xls") ||
+            name.endsWith(".xlsx")
         ) {
+
             return "fa-solid fa-file-excel";
+
         }
 
 
         if (
             mime.includes("document") ||
-            mime.includes("word")
+            mime.includes("word") ||
+            name.endsWith(".doc") ||
+            name.endsWith(".docx")
         ) {
+
             return "fa-solid fa-file-word";
+
         }
 
 
-        if (mime.includes("image")) {
+        if (
+            mime.includes("image")
+        ) {
+
             return "fa-solid fa-file-image";
+
         }
 
 
-        return "fa-solid fa-file";
+        return "fa-solid fa-file-lines";
+
     }
 
 
-
     // ========================================
-    // FORMAT DATE
+    // DATE
     // ========================================
 
     function formatDate(value) {
 
-        try {
+        const date =
+            new Date(
+                value
+            );
 
-            return new Intl.DateTimeFormat(
+
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+
+            return "";
+
+        }
+
+
+        return new Intl
+            .DateTimeFormat(
                 "ms-MY",
                 {
                     day:
@@ -908,29 +978,31 @@ if (type === "slide-kursus") {
                 }
             )
             .format(
-                new Date(value)
+                date
             );
 
-        } catch {
-
-            return "";
-        }
     }
 
 
-
     // ========================================
-    // FORMAT FILE SIZE
+    // FILE SIZE
     // ========================================
 
     function formatBytes(bytes) {
 
         const size =
-            Number(bytes || 0);
+            Number(
+                bytes || 0
+            );
 
 
-        if (!size) {
+        if (
+            !Number.isFinite(size) ||
+            size <= 0
+        ) {
+
             return "";
+
         }
 
 
@@ -946,18 +1018,23 @@ if (type === "slide-kursus") {
         let value =
             size;
 
+
         let unitIndex =
             0;
 
 
         while (
             value >= 1024 &&
-            unitIndex < units.length - 1
+            unitIndex <
+                units.length - 1
         ) {
 
-            value /= 1024;
+            value /=
+                1024;
+
 
             unitIndex++;
+
         }
 
 
@@ -966,12 +1043,14 @@ if (type === "slide-kursus") {
                 unitIndex === 0
                     ? 0
                     : 1
-            ) +
-            " " +
+            )
+            +
+            " "
+            +
             units[unitIndex]
         );
-    }
 
+    }
 
 
     // ========================================
@@ -979,6 +1058,11 @@ if (type === "slide-kursus") {
     // ========================================
 
     function showLoading() {
+
+        if (!statusElement) {
+            return;
+        }
+
 
         statusElement.style.display =
             "block";
@@ -992,20 +1076,26 @@ if (type === "slide-kursus") {
     }
 
 
-
     function showError(message) {
+
+        if (!statusElement) {
+            return;
+        }
+
 
         statusElement.style.display =
             "block";
 
 
-        statusElement.innerHTML = "";
+        statusElement.innerHTML =
+            "";
 
 
         const icon =
             document.createElement(
                 "i"
             );
+
 
         icon.className =
             "fa-solid fa-triangle-exclamation";
@@ -1015,6 +1105,7 @@ if (type === "slide-kursus") {
             document.createElement(
                 "span"
             );
+
 
         text.textContent =
             message;
@@ -1028,25 +1119,32 @@ if (type === "slide-kursus") {
         statusElement.appendChild(
             text
         );
-    }
 
+    }
 
 
     // ========================================
     // EVENTS
     // ========================================
 
-    searchInput.addEventListener(
-        "input",
-        applyFilters
-    );
+    if (searchInput) {
+
+        searchInput.addEventListener(
+            "input",
+            applyFilters
+        );
+
+    }
 
 
-    yearFilter.addEventListener(
-        "change",
-        applyFilters
-    );
+    if (yearFilter) {
 
+        yearFilter.addEventListener(
+            "change",
+            applyFilters
+        );
+
+    }
 
 
     // ========================================

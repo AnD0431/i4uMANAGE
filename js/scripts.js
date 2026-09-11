@@ -497,257 +497,276 @@ function getDocumentResultIcon(mimeType = "") {
 
 
 // Papar result carian di dalam bubble Sarah
-function renderDocumentSearchResults(messageElement, data) {
+function renderDocumentSearchResults(
+    messageElement,
+    data
+) {
 
-    messageElement.innerHTML = "";
+    messageElement.innerHTML =
+        "";
 
-    const results =
-        Array.isArray(data.results)
-            ? data.results
-            : [];
+    messageElement.style.color =
+        "";
 
 
-    // =====================================
-    // TAK JUMPA
-    // =====================================
+    // ========================================
+    // NO RESULT
+    // ========================================
 
-    if (results.length === 0) {
+    if (
+        !Array.isArray(
+            data.results
+        ) ||
+        data.results.length === 0
+    ) {
 
         const noResult =
-            document.createElement("p");
+            document.createElement(
+                "p"
+            );
+
 
         noResult.textContent =
             `Saya tidak menemui dokumen yang sepadan dengan "${data.query}".`;
 
-        messageElement.appendChild(noResult);
+
+        messageElement.appendChild(
+            noResult
+        );
+
 
         return;
+
     }
 
 
-    // =====================================
+    // ========================================
     // INTRO
-    // =====================================
+    // ========================================
 
     const intro =
-        document.createElement("p");
+        document.createElement(
+            "p"
+        );
 
-    const filterLabels = [];
+
+    intro.textContent =
+        `Saya menemui ${data.count} dokumen berkaitan "${data.query}".`;
 
 
-if (
-    data.filters?.type ===
-    "kertas-kerja"
-) {
-
-    filterLabels.push(
-        "Kertas Kerja"
+    messageElement.appendChild(
+        intro
     );
 
-}
 
-
-if (
-    data.filters?.type ===
-    "slide-kursus"
-) {
-
-    filterLabels.push(
-        "Slide Kursus"
-    );
-
-}
-
-
-if (
-    data.filters?.category
-) {
-
-    const categoryLabelMap = {
-
-        "pembangunan":
-            "Pembangunan",
-
-        "teknologi-maklumat":
-            "Teknologi Maklumat",
-
-        "latihan":
-            "Latihan",
-
-        "psikologi-kaunseling":
-            "Psikologi & Kaunseling",
-
-        "sumber-manusia":
-            "Sumber Manusia",
-
-        "pentadbiran":
-            "Pentadbiran",
-
-        "perolehan-aset":
-            "Perolehan & Aset",
-
-        "kewangan":
-            "Kewangan"
-    };
-
-
-    filterLabels.push(
-        categoryLabelMap[
-            data.filters.category
-        ]
-    );
-
-}
-
-
-if (data.filters?.year) {
-
-    filterLabels.push(
-        String(
-            data.filters.year
-        )
-    );
-
-}
-
-
-const filterText =
-    filterLabels.length
-        ? ` (${filterLabels.join(" • ")})`
-        : "";
-
-
-const keywordText =
-    data.query
-        ? ` berkaitan "${data.query}"`
-        : "";
-
-
-intro.textContent =
-    `Saya menemui ${results.length} dokumen${keywordText}${filterText}.`;
-
-    messageElement.appendChild(intro);
-
-
-    // =====================================
-    // CONTAINER
-    // =====================================
+    // ========================================
+    // RESULT CONTAINER
+    // ========================================
 
     const resultsContainer =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
+
 
     resultsContainer.className =
         "sarah-document-results";
 
 
-    // =====================================
-    // RESULT CARD
-    // =====================================
+    // ========================================
+    // DOCUMENT CARDS
+    // ========================================
 
-    results.forEach(item => {
+    data.results.forEach(
+        item => {
 
-        const card =
-            document.createElement("div");
+            const card =
+                document.createElement(
+                    "div"
+                );
 
-        card.className =
-            "sarah-document-card";
+
+            card.className =
+                "sarah-document-card";
 
 
-        // ICON
-        const icon =
-            document.createElement("div");
+            // ICON
 
-        icon.className =
-            "sarah-document-icon";
+            const icon =
+                document.createElement(
+                    "div"
+                );
 
-        const iconElement =
-            document.createElement("i");
 
-        iconElement.className =
-            getDocumentResultIcon(
-                item.mimeType
+            icon.className =
+                "sarah-document-icon";
+
+
+            const iconElement =
+                document.createElement(
+                    "i"
+                );
+
+
+            iconElement.className =
+                getDocumentResultIcon(
+                    item.mimeType
+                );
+
+
+            icon.appendChild(
+                iconElement
             );
 
-        icon.appendChild(iconElement);
+
+            // CONTENT
+
+            const content =
+                document.createElement(
+                    "div"
+                );
 
 
-        // CONTENT
-        const content =
-            document.createElement("div");
-
-        content.className =
-            "sarah-document-content";
+            content.className =
+                "sarah-document-content";
 
 
-        const name =
-            document.createElement("strong");
-
-        name.textContent =
-            item.name || "Dokumen";
-
-
-        const program =
-            document.createElement("span");
-
-        program.textContent =
-            item.programName || "";
+            const name =
+                document.createElement(
+                    "strong"
+                );
 
 
-        const meta =
-            document.createElement("small");
-
-        const metaParts = [
-            getDocumentTypeLabel(item.type),
-            item.categoryName,
-            item.year
-        ].filter(Boolean);
-
-        meta.textContent =
-            metaParts.join(" • ");
+            name.textContent =
+                item.name ||
+                "Dokumen";
 
 
-        content.appendChild(name);
+            // META
 
-        if (item.programName) {
-            content.appendChild(program);
+            const meta =
+                document.createElement(
+                    "small"
+                );
+
+
+            const metaParts =
+                [
+                    getDocumentTypeLabel(
+                        item.type
+                    ),
+
+                    item.categoryName,
+
+                    item.year
+                ]
+                .filter(Boolean);
+
+
+            meta.textContent =
+                metaParts.join(
+                    " • "
+                );
+
+
+            content.appendChild(
+                name
+            );
+
+
+            content.appendChild(
+                meta
+            );
+
+
+            // OPEN BUTTON
+
+            const openButton =
+                document.createElement(
+                    "a"
+                );
+
+
+            openButton.className =
+                "sarah-document-open";
+
+
+            openButton.href =
+                item.url ||
+                "#";
+
+
+            openButton.target =
+                "_blank";
+
+
+            openButton.rel =
+                "noopener noreferrer";
+
+
+            openButton.setAttribute(
+                "aria-label",
+                `Buka ${item.name || "dokumen"}`
+            );
+
+
+            openButton.innerHTML = `
+                <span>Buka</span>
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            `;
+
+
+            if (!item.url) {
+
+                openButton.removeAttribute(
+                    "target"
+                );
+
+
+                openButton.setAttribute(
+                    "aria-disabled",
+                    "true"
+                );
+
+
+                openButton.addEventListener(
+                    "click",
+                    event =>
+                        event.preventDefault()
+                );
+
+            }
+
+
+            // APPEND
+
+            card.appendChild(
+                icon
+            );
+
+
+            card.appendChild(
+                content
+            );
+
+
+            card.appendChild(
+                openButton
+            );
+
+
+            resultsContainer.appendChild(
+                card
+            );
+
         }
-
-        content.appendChild(meta);
-
-
-        // BUTTON BUKA
-        const openButton =
-            document.createElement("a");
-
-        openButton.className =
-            "sarah-document-open";
-
-        openButton.href =
-            item.url || "#";
-
-        openButton.target =
-            "_blank";
-
-        openButton.rel =
-            "noopener noreferrer";
-
-        openButton.innerHTML = `
-            <span>Buka</span>
-            <i class="fa-solid fa-arrow-up-right-from-square"></i>
-        `;
-
-
-        card.appendChild(icon);
-        card.appendChild(content);
-        card.appendChild(openButton);
-
-        resultsContainer.appendChild(card);
-    });
+    );
 
 
     messageElement.appendChild(
         resultsContainer
     );
+
 }
 
 
