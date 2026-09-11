@@ -2872,3 +2872,212 @@ body {
     }
 
 }
+
+/* ==================================================
+   KERTAS KERJA - FINAL POLISH
+   ================================================== */
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    background: #f6f8fb;
+    color: #1e293b;
+
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+
+/* ==================================================
+   GLOBAL WIDTH SAFETY
+   ================================================== */
+
+img {
+    max-width: 100%;
+}
+
+.kerja-header,
+.kerja-hero {
+    width: 100%;
+}
+
+.header-inner,
+.hero-grid,
+.dashboard-grid,
+.metrics-panel {
+    box-sizing: border-box;
+}
+
+
+/* ==================================================
+   HERO
+   ================================================== */
+
+.hero-copy,
+.hero-summary {
+    min-width: 0;
+}
+
+.kerja-hero {
+    overflow: hidden;
+}
+
+
+/* ==================================================
+   CATEGORY CARDS
+   ================================================== */
+
+.dashboard-grid {
+    position: relative;
+    z-index: 1;
+}
+
+.dashboard-grid .doc-card {
+    isolation: isolate;
+}
+
+.dashboard-grid .doc-content {
+    min-width: 0;
+}
+
+.dashboard-grid .doc-content h4 {
+    overflow-wrap: anywhere;
+}
+
+.dashboard-grid .doc-action-btn {
+    white-space: nowrap;
+}
+
+.dashboard-grid .doc-card:active {
+    transform: translateY(-1px);
+}
+
+
+/* ==================================================
+   METRICS
+   ================================================== */
+
+.metrics-panel {
+    position: relative;
+    z-index: 1;
+}
+
+.metric-block {
+    isolation: isolate;
+}
+
+
+/* ==================================================
+   ACCESSIBILITY
+   ================================================== */
+
+a:focus-visible,
+button:focus-visible {
+    outline: 3px solid rgba(59, 130, 246, 0.38);
+    outline-offset: 3px;
+}
+
+
+/* ==================================================
+   LARGE SCREEN
+   ================================================== */
+
+@media (min-width: 1400px) {
+
+    .header-inner,
+    .hero-grid,
+    .dashboard-grid {
+        max-width: 1200px;
+    }
+
+    .metrics-panel {
+        max-width: 1136px;
+    }
+
+}
+
+
+/* ==================================================
+   TABLET
+   ================================================== */
+
+@media (max-width: 900px) {
+
+    .hero-copy {
+        max-width: 650px;
+    }
+
+    .dashboard-grid,
+    .metrics-panel {
+        width: 100%;
+        max-width: 100%;
+    }
+
+}
+
+
+/* ==================================================
+   MOBILE
+   ================================================== */
+
+@media (max-width: 600px) {
+
+    body {
+        min-width: 0;
+    }
+
+    .kerja-header,
+    .kerja-hero,
+    .header-inner,
+    .hero-grid,
+    .dashboard-grid,
+    .metrics-panel,
+    .app-footer {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .header-brand-group,
+    .app-brand,
+    .hero-copy,
+    .hero-summary,
+    .doc-card,
+    .doc-content,
+    .metric-block {
+        min-width: 0;
+    }
+
+    .hero-summary-badges {
+        row-gap: 7px;
+    }
+
+    .dashboard-grid .doc-card {
+        border-radius: 14px;
+    }
+
+}
+
+
+/* ==================================================
+   REDUCED MOTION
+   ================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    html {
+        scroll-behavior: auto;
+    }
+
+    .doc-card,
+    .doc-img-wrapper,
+    .doc-action-btn,
+    .metric-block,
+    .home-back-btn,
+    .lang-btn {
+        transition: none !important;
+    }
+
+}
