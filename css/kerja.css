@@ -2153,3 +2153,355 @@ body {
     }
 
 }
+
+/* ==================================================
+   KERTAS KERJA - METRICS PANEL V2
+   ================================================== */
+
+.metrics-panel {
+
+    width:
+        calc(100% - 64px);
+
+    max-width:
+        1116px;
+
+    margin:
+        0 auto 42px;
+
+    padding:
+        0;
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap:
+        12px;
+
+    background:
+        transparent;
+
+    color:
+        #0f3157;
+
+    border-radius:
+        0;
+}
+
+
+/* ==================================================
+   METRIC CARD
+   ================================================== */
+
+.metric-block {
+
+    position:
+        relative;
+
+    min-width:
+        0;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        12px;
+
+    padding:
+        16px;
+
+    overflow:
+        hidden;
+
+    border:
+        1px solid
+        rgba(15, 49, 87, 0.08);
+
+    border-radius:
+        13px;
+
+    background:
+        #ffffff;
+
+    box-shadow:
+        0 6px 18px
+        rgba(15, 23, 42, 0.045);
+
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        border-color 0.18s ease;
+}
+
+
+.metric-block::after {
+
+    content:
+        "";
+
+    position:
+        absolute;
+
+    width:
+        65px;
+
+    height:
+        65px;
+
+    top:
+        -25px;
+
+    right:
+        -22px;
+
+    border-radius:
+        50%;
+
+    background:
+        rgba(37, 99, 235, 0.045);
+
+    pointer-events:
+        none;
+}
+
+
+@media (hover: hover) {
+
+    .metric-block:hover {
+
+        transform:
+            translateY(-2px);
+
+        border-color:
+            rgba(37, 99, 235, 0.14);
+
+        box-shadow:
+            0 10px 24px
+            rgba(15, 23, 42, 0.07);
+    }
+
+}
+
+
+/* ==================================================
+   ICON
+   ================================================== */
+
+.metric-icon {
+
+    position:
+        relative;
+
+    z-index:
+        1;
+
+    width:
+        38px;
+
+    height:
+        38px;
+
+    flex-shrink:
+        0;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        10px;
+
+    background:
+        #eaf2ff;
+
+    color:
+        #1d4ed8;
+
+    font-size:
+        16px;
+}
+
+
+/* ==================================================
+   METRIC TEXT
+   ================================================== */
+
+.metric-block > div {
+
+    position:
+        relative;
+
+    z-index:
+        1;
+
+    min-width:
+        0;
+}
+
+
+.metric-title {
+
+    display:
+        block;
+
+    margin-bottom:
+        3px;
+
+    color:
+        #64748b;
+
+    font-size:
+        0.56rem;
+
+    font-weight:
+        700;
+
+    line-height:
+        1.3;
+
+    letter-spacing:
+        0.55px;
+}
+
+
+.metric-num {
+
+    display:
+        block;
+
+    color:
+        #0b3158;
+
+    font-size:
+        1.35rem;
+
+    font-weight:
+        760;
+
+    line-height:
+        1.1;
+}
+
+
+/* Divider lama dah tak diperlukan */
+
+.metrics-panel
+.divider-line {
+
+    display:
+        none;
+}
+
+
+/* ==================================================
+   TABLET
+   ================================================== */
+
+@media (max-width: 900px) {
+
+    .metrics-panel {
+
+        width:
+            calc(100% - 56px);
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        margin-bottom:
+            36px;
+    }
+
+}
+
+
+/* ==================================================
+   MOBILE
+   ================================================== */
+
+@media (max-width: 600px) {
+
+    .metrics-panel {
+
+        width:
+            calc(100% - 36px);
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap:
+            9px;
+
+        margin-bottom:
+            30px;
+    }
+
+
+    .metric-block {
+
+        align-items:
+            flex-start;
+
+        flex-direction:
+            column;
+
+        gap:
+            9px;
+
+        padding:
+            13px;
+    }
+
+
+    .metric-icon {
+
+        width:
+            33px;
+
+        height:
+            33px;
+
+        font-size:
+            14px;
+    }
+
+
+    .metric-title {
+
+        font-size:
+            0.51rem;
+    }
+
+
+    .metric-num {
+
+        font-size:
+            1.2rem;
+    }
+
+}
+
+
+/* ==================================================
+   REDUCED MOTION
+   ================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .metric-block {
+
+        transition:
+            none !important;
+    }
+
+}
