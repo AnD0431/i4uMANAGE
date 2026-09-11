@@ -2043,3 +2043,154 @@ body {
     }
 
 }
+
+/* ==================================================
+   PUNCA KUASA - FINAL POLISH
+   ================================================== */
+
+body {
+    background: #f6f8fb;
+    color: #1e293b;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+
+/* ==================================================
+   HERO TO CONTENT TRANSITION
+   ================================================== */
+
+.punca-header {
+    overflow: hidden;
+}
+
+.cards-container-sub {
+    position: relative;
+    z-index: 2;
+}
+
+
+/* ==================================================
+   CARD ALIGNMENT
+   ================================================== */
+
+.card-sub {
+    min-width: 0;
+}
+
+.card-body-sub {
+    min-width: 0;
+}
+
+.card-body-sub h3 {
+    overflow-wrap: anywhere;
+}
+
+.card-body-sub p {
+    min-height: 5.6em;
+}
+
+
+/* ==================================================
+   FOOTER SPACING
+   ================================================== */
+
+.footer-values {
+    margin-top: 10px;
+}
+
+
+/* ==================================================
+   ACCESSIBILITY
+   ================================================== */
+
+a:focus-visible,
+button:focus-visible {
+    outline: 3px solid rgba(59, 130, 246, 0.38);
+    outline-offset: 3px;
+}
+
+
+/* ==================================================
+   LARGE DESKTOP
+   ================================================== */
+
+@media (min-width: 1400px) {
+
+    .punca-header .navbar,
+    .cards-container-sub {
+        max-width: 1200px;
+    }
+
+}
+
+
+/* ==================================================
+   TABLET
+   ================================================== */
+
+@media (max-width: 1000px) {
+
+    .card-body-sub p {
+        min-height: 0;
+    }
+
+}
+
+
+/* ==================================================
+   MOBILE
+   ================================================== */
+
+@media (max-width: 600px) {
+
+    body {
+        min-width: 0;
+    }
+
+    .punca-header,
+    .punca-header .navbar,
+    .punca-header .hero-content-sub,
+    .cards-container-sub,
+    .footer-values {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .hero-text-sub,
+    .sub-header-bg,
+    .card-sub,
+    .card-body-sub {
+        min-width: 0;
+    }
+
+    .card-body-sub p {
+        min-height: 0;
+    }
+
+    .footer-values {
+        margin-top: 6px;
+    }
+
+}
+
+
+/* ==================================================
+   REDUCED MOTION
+   ================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    html {
+        scroll-behavior: auto;
+    }
+
+    .card-sub,
+    .card-image-sub,
+    .btn-sub,
+    .home-back-btn,
+    .lang-btn {
+        transition: none !important;
+    }
+
+}
