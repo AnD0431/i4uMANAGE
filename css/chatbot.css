@@ -3841,3 +3841,279 @@ a::before {
     }
 
 }
+
+/* ==================================================
+   SARAH QUICK REPLIES - PREMIUM V2
+   ================================================== */
+
+.quick-replies-bar {
+
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    flex-wrap: nowrap;
+
+    gap: 8px;
+
+    width: 100%;
+
+    padding:
+        9px 18px 8px;
+
+    box-sizing: border-box;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    flex-shrink: 0;
+
+    background:
+        rgba(255, 255, 255, 0.52);
+
+    -webkit-backdrop-filter:
+        blur(14px)
+        saturate(135%);
+
+    backdrop-filter:
+        blur(14px)
+        saturate(135%);
+
+    border-top:
+        1px solid
+        rgba(37, 99, 235, 0.08);
+
+    scrollbar-width:
+        none;
+
+    -webkit-overflow-scrolling:
+        touch;
+
+    scroll-behavior:
+        smooth;
+}
+
+
+/* Hide scrollbar Chrome / Safari */
+
+.quick-replies-bar::-webkit-scrollbar {
+
+    display:
+        none;
+}
+
+
+/* Empty tetap tak ambil ruang */
+
+.quick-replies-bar:empty {
+
+    display:
+        none;
+
+    padding:
+        0;
+
+    border:
+        none;
+}
+
+
+/* ==================================================
+   QUICK REPLY CHIP
+   ================================================== */
+
+.quick-reply-btn {
+
+    flex:
+        0 0 auto;
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        6px;
+
+    min-height:
+        34px;
+
+    padding:
+        7px 12px;
+
+    border:
+        1px solid
+        rgba(37, 99, 235, 0.16);
+
+    border-radius:
+        999px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.88),
+            rgba(239, 246, 255, 0.72)
+        );
+
+    color:
+        #1d4ed8;
+
+    box-shadow:
+        0 3px 10px
+        rgba(30, 64, 175, 0.05);
+
+    font-family:
+        inherit;
+
+    font-size:
+        0.72rem;
+
+    font-weight:
+        600;
+
+    line-height:
+        1;
+
+    white-space:
+        nowrap;
+
+    cursor:
+        pointer;
+
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        box-shadow 0.18s ease,
+        transform 0.18s ease,
+        color 0.18s ease;
+}
+
+
+/* Icon */
+
+.quick-reply-icon {
+
+    font-size:
+        16px;
+
+    color:
+        #3b82f6;
+
+    transition:
+        color 0.18s ease,
+        transform 0.18s ease;
+}
+
+
+/* ==================================================
+   DESKTOP HOVER
+   ================================================== */
+
+@media (hover: hover) {
+
+    .quick-reply-btn:hover {
+
+        color:
+            #ffffff;
+
+        background:
+            linear-gradient(
+                135deg,
+                #2563eb,
+                #1d4ed8
+            );
+
+        border-color:
+            #2563eb;
+
+        box-shadow:
+            0 6px 16px
+            rgba(37, 99, 235, 0.18);
+
+        transform:
+            translateY(-1px);
+    }
+
+
+    .quick-reply-btn:hover
+    .quick-reply-icon {
+
+        color:
+            #ffffff;
+
+        transform:
+            scale(1.05);
+    }
+
+}
+
+
+/* Click feedback */
+
+.quick-reply-btn:active {
+
+    transform:
+        scale(0.97);
+}
+
+
+/* Keyboard accessibility */
+
+.quick-reply-btn:focus-visible {
+
+    outline:
+        2px solid
+        rgba(37, 99, 235, 0.5);
+
+    outline-offset:
+        2px;
+}
+
+
+/* ==================================================
+   MOBILE
+   ================================================== */
+
+@media (max-width: 600px) {
+
+    .quick-replies-bar {
+
+        gap:
+            7px;
+
+        padding:
+            8px 14px 7px;
+
+        scroll-snap-type:
+            x proximity;
+    }
+
+
+    .quick-reply-btn {
+
+        min-height:
+            32px;
+
+        padding:
+            7px 11px;
+
+        font-size:
+            0.68rem;
+
+        scroll-snap-align:
+            start;
+    }
+
+
+    .quick-reply-icon {
+
+        font-size:
+            15px;
+    }
+
+}
