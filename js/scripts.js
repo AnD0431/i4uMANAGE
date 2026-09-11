@@ -1311,8 +1311,7 @@ Ada sebarang dokumen atau tugasan yang ingin saya bantu sediakan sekarang? Sila 
     {
         icon: "search",
         label: "Cari Dokumen",
-        message:
-            "Cari dokumen Design Thinking"
+        action: "document-search"
     },
 
     {
@@ -1377,13 +1376,77 @@ const showQuickReplies = () => {
     </span>
 `;
         btn.addEventListener("click", () => {
-            // Kalau ada staticReply, jawab terus tanpa API. Kalau tak, hantar ke Sarah macam biasa.
-            if (item.staticReply) {
-                sendStaticReply(item.message, item.staticReply);
-            } else {
-                sendUserMessage(item.message); // chip kekal, tak dibuang
-            }
-        });
+
+    // ========================================
+    // CARI DOKUMEN
+    // ========================================
+
+    if (
+        item.action ===
+        "document-search"
+    ) {
+
+        messageInput.value =
+            "Cari dokumen ";
+
+
+        messageInput.focus();
+
+
+        const cursorPosition =
+            messageInput.value.length;
+
+
+        messageInput.setSelectionRange(
+            cursorPosition,
+            cursorPosition
+        );
+
+
+        messageInput.dispatchEvent(
+            new Event(
+                "input",
+                {
+                    bubbles: true
+                }
+            )
+        );
+
+
+        return;
+
+    }
+
+
+    // ========================================
+    // STATIC REPLY
+    // ========================================
+
+    if (item.staticReply) {
+
+        sendStaticReply(
+            item.message,
+            item.staticReply
+        );
+
+        return;
+
+    }
+
+
+    // ========================================
+    // NORMAL QUICK REPLY
+    // ========================================
+
+    if (item.message) {
+
+        sendUserMessage(
+            item.message
+        );
+
+    }
+
+});
         quickRepliesBar.appendChild(btn);
     });
 }
