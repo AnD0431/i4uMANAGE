@@ -1136,3 +1136,447 @@
     }
 
 }
+
+/* ==================================================
+   DOCUMENT BROWSER - TOOLBAR + SUMMARY V2
+   ================================================== */
+
+
+/* ==================================================
+   DOCUMENT BROWSER CONTAINER
+   ================================================== */
+
+.document-browser {
+    width: 100%;
+    max-width: 1180px;
+
+    margin: 0 auto;
+
+    padding:
+        34px 32px 48px;
+
+    box-sizing: border-box;
+}
+
+
+/* ==================================================
+   TOOLBAR
+   ================================================== */
+
+.document-toolbar {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin: 0 0 18px;
+}
+
+
+/* ==================================================
+   SEARCH BOX
+   ================================================== */
+
+.document-search {
+    position: relative;
+
+    flex: 1;
+
+    max-width: none;
+}
+
+
+.document-search i {
+    position: absolute;
+
+    top: 50%;
+    left: 15px;
+
+    transform: translateY(-50%);
+
+    z-index: 2;
+
+    color: #94a3b8;
+
+    font-size: 0.78rem;
+
+    pointer-events: none;
+}
+
+
+.document-search input {
+    width: 100%;
+    min-height: 44px;
+
+    padding:
+        10px
+        16px
+        10px
+        42px;
+
+    border:
+        1px solid rgba(15, 49, 87, 0.10);
+
+    border-radius: 11px;
+
+    background: #ffffff;
+
+    color: #1e293b;
+
+    font-family: inherit;
+
+    font-size: 0.76rem;
+
+    outline: none;
+
+    box-shadow:
+        0 4px 14px rgba(15, 23, 42, 0.035);
+
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease,
+        background 0.18s ease;
+}
+
+
+.document-search input::placeholder {
+    color: #94a3b8;
+}
+
+
+.document-search input:focus {
+    border-color:
+        rgba(37, 99, 235, 0.35);
+
+    background: #ffffff;
+
+    box-shadow:
+        0 0 0 3px rgba(37, 99, 235, 0.08),
+        0 6px 16px rgba(15, 23, 42, 0.04);
+}
+
+
+/* ==================================================
+   YEAR FILTER
+   ================================================== */
+
+.year-filter {
+    min-width: 155px;
+    min-height: 44px;
+
+    padding:
+        10px
+        34px
+        10px
+        13px;
+
+    border:
+        1px solid rgba(15, 49, 87, 0.10);
+
+    border-radius: 11px;
+
+    background-color: #ffffff;
+
+    color: #475569;
+
+    font-family: inherit;
+
+    font-size: 0.74rem;
+    font-weight: 600;
+
+    outline: none;
+    cursor: pointer;
+
+    box-shadow:
+        0 4px 14px rgba(15, 23, 42, 0.035);
+
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+
+.year-filter:focus {
+    border-color:
+        rgba(37, 99, 235, 0.35);
+
+    box-shadow:
+        0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+
+/* ==================================================
+   SUMMARY
+   ================================================== */
+
+.document-summary {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 190px));
+
+    gap: 10px;
+
+    margin:
+        0 0 24px;
+}
+
+
+/* ==================================================
+   SUMMARY CARD
+   ================================================== */
+
+.summary-item {
+    position: relative;
+
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+
+    gap: 11px;
+
+    padding: 13px 15px;
+
+    overflow: hidden;
+
+    border:
+        1px solid rgba(15, 49, 87, 0.08);
+
+    border-radius: 12px;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 5px 16px rgba(15, 23, 42, 0.04);
+}
+
+
+.summary-item::after {
+    content: "";
+
+    position: absolute;
+
+    width: 55px;
+    height: 55px;
+
+    top: -22px;
+    right: -18px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(37, 99, 235, 0.045);
+
+    pointer-events: none;
+}
+
+
+/* ==================================================
+   SUMMARY ICON
+   ================================================== */
+
+.summary-item > i {
+    position: relative;
+    z-index: 1;
+
+    width: 35px;
+    height: 35px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 9px;
+
+    background: #eaf2ff;
+
+    color: #1d4ed8;
+
+    font-size: 14px;
+}
+
+
+/* ==================================================
+   SUMMARY TEXT
+   ================================================== */
+
+.summary-item > div {
+    position: relative;
+    z-index: 1;
+}
+
+
+.summary-item strong {
+    display: block;
+
+    margin: 0;
+
+    color: #0b3158;
+
+    font-size: 1.15rem;
+    font-weight: 760;
+
+    line-height: 1.05;
+}
+
+
+.summary-item span {
+    display: block;
+
+    margin-top: 3px;
+
+    color: #64748b;
+
+    font-size: 0.60rem;
+    font-weight: 600;
+}
+
+
+/* ==================================================
+   STATUS BOX
+   ================================================== */
+
+.document-status {
+    width: 100%;
+
+    margin: 10px 0 24px;
+
+    padding: 28px 20px;
+
+    border:
+        1px dashed rgba(15, 49, 87, 0.13);
+
+    border-radius: 13px;
+
+    background:
+        rgba(255, 255, 255, 0.72);
+
+    color: #64748b;
+
+    font-size: 0.76rem;
+
+    text-align: center;
+
+    box-shadow: none;
+}
+
+
+.document-status i {
+    margin-right: 6px;
+
+    color: #1d4ed8;
+}
+
+
+/* Error state icon */
+
+.document-status
+.fa-triangle-exclamation {
+    color: #d97706;
+}
+
+
+/* ==================================================
+   TABLET
+   ================================================== */
+
+@media (max-width: 900px) {
+
+    .document-browser {
+        padding:
+            30px 28px 42px;
+    }
+
+}
+
+
+/* ==================================================
+   MOBILE
+   ================================================== */
+
+@media (max-width: 700px) {
+
+    .document-browser {
+        padding:
+            25px 18px 34px;
+    }
+
+
+    .document-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+
+        gap: 9px;
+
+        margin-bottom: 16px;
+    }
+
+
+    .document-search {
+        width: 100%;
+    }
+
+
+    .document-search input {
+        min-height: 43px;
+
+        font-size: 0.74rem;
+    }
+
+
+    .year-filter {
+        width: 100%;
+        min-height: 43px;
+    }
+
+
+    .document-summary {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 8px;
+
+        margin-bottom: 20px;
+    }
+
+
+    .summary-item {
+        width: auto;
+
+        padding: 12px;
+
+        gap: 9px;
+    }
+
+
+    .summary-item > i {
+        width: 32px;
+        height: 32px;
+
+        font-size: 13px;
+    }
+
+
+    .summary-item strong {
+        font-size: 1.05rem;
+    }
+
+
+    .summary-item span {
+        font-size: 0.56rem;
+    }
+
+
+    .document-status {
+        padding: 23px 15px;
+
+        font-size: 0.72rem;
+    }
+
+}
