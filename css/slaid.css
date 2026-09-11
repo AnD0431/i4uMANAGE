@@ -1905,3 +1905,269 @@ body {
     }
 
 }
+
+/* ==================================================
+   SLAID KURSUS - FOOTER V2
+   ================================================== */
+
+.main-footer {
+    width: 100%;
+
+    margin-top: auto;
+
+    padding:
+        22px
+        max(
+            24px,
+            calc((100% - 1180px) / 2)
+        )
+        0;
+
+    background:
+        linear-gradient(
+            180deg,
+            #061a31 0%,
+            #041426 100%
+        );
+
+    color: #ffffff;
+
+    border-top:
+        1px solid rgba(255, 255, 255, 0.08);
+
+    box-sizing: border-box;
+}
+
+
+/* ==================================================
+   VALUES GRID
+   ================================================== */
+
+.main-footer .footer-values {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 0;
+
+    margin: 0;
+}
+
+
+/* ==================================================
+   VALUE ITEM
+   ================================================== */
+
+.main-footer .value-item {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    gap: 11px;
+
+    min-width: 0;
+
+    padding: 14px 20px;
+}
+
+
+.main-footer .value-icon {
+    width: 34px;
+    height: 34px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background:
+        rgba(245, 158, 11, 0.10);
+
+    color: #f59e0b;
+
+    font-size: 15px;
+}
+
+
+.main-footer .value-item strong {
+    display: block;
+
+    color: #ffffff;
+
+    font-size: 0.69rem;
+    font-weight: 750;
+
+    line-height: 1.2;
+    letter-spacing: 0.3px;
+}
+
+
+.main-footer .value-item p {
+    margin: 3px 0 0;
+
+    color:
+        rgba(255, 255, 255, 0.55);
+
+    font-size: 0.58rem;
+    line-height: 1.35;
+}
+
+
+/* Divider lama */
+
+.main-footer .value-divider {
+    display: none;
+}
+
+
+/* Divider visual baru */
+
+.main-footer
+.value-item:not(:last-of-type)::after {
+    content: "";
+
+    position: absolute;
+
+    top: 20%;
+    right: 0;
+
+    width: 1px;
+    height: 60%;
+
+    background:
+        rgba(255, 255, 255, 0.08);
+}
+
+
+/* ==================================================
+   TAGLINE
+   ================================================== */
+
+.main-footer .footer-tagline {
+    width: 100%;
+
+    margin-top: 10px;
+
+    padding: 15px 0 17px;
+
+    border-top:
+        1px solid rgba(255, 255, 255, 0.08);
+
+    color: #f59e0b;
+
+    font-size: 0.60rem;
+    font-weight: 600;
+
+    letter-spacing: 0.15px;
+
+    text-align: center;
+}
+
+
+/* ==================================================
+   FULL VIEWPORT FIX
+   Prevent empty space below footer on zoom-out
+   ================================================== */
+
+html {
+    min-height: 100%;
+}
+
+
+body {
+    min-height: 100vh;
+    min-height: 100dvh;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow-x: hidden;
+}
+
+
+.slaid-header,
+.slaid-hero,
+.grid-container,
+.stats-bar {
+    flex-shrink: 0;
+}
+
+
+.main-footer {
+    flex-shrink: 0;
+    margin-top: auto;
+}
+
+
+/* ==================================================
+   TABLET
+   ================================================== */
+
+@media (max-width: 900px) {
+
+    .main-footer .footer-values {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+
+    .main-footer
+    .value-item:nth-child(2)::after {
+        display: none;
+    }
+
+}
+
+
+/* ==================================================
+   MOBILE
+   ================================================== */
+
+@media (max-width: 600px) {
+
+    .main-footer {
+        padding:
+            14px 18px 0;
+    }
+
+
+    .main-footer .footer-values {
+        grid-template-columns: 1fr;
+    }
+
+
+    .main-footer .value-item {
+        padding: 12px 5px;
+
+        border-bottom:
+            1px solid rgba(255, 255, 255, 0.06);
+    }
+
+
+    .main-footer .value-item::after {
+        display: none;
+    }
+
+
+    .main-footer .value-icon {
+        width: 32px;
+        height: 32px;
+
+        font-size: 14px;
+    }
+
+
+    .main-footer .footer-tagline {
+        margin-top: 0;
+
+        border-top: none;
+
+        padding: 16px 0 18px;
+    }
+
+}
