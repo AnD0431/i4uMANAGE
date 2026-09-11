@@ -2171,3 +2171,213 @@ body {
     }
 
 }
+
+/* ==================================================
+   SLAID KURSUS - FINAL POLISH
+   ================================================== */
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+
+    background: #f6f8fb;
+    color: #1e293b;
+
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+
+/* ==================================================
+   GLOBAL WIDTH SAFETY
+   ================================================== */
+
+img {
+    max-width: 100%;
+}
+
+.slaid-header,
+.slaid-hero {
+    width: 100%;
+}
+
+.slaid-header .header-inner,
+.slaid-hero .hero-grid,
+.grid-container,
+.stats-bar {
+    box-sizing: border-box;
+}
+
+
+/* ==================================================
+   HERO
+   ================================================== */
+
+.slaid-hero {
+    overflow: hidden;
+}
+
+.slaid-hero .hero-copy,
+.slaid-hero .hero-summary {
+    min-width: 0;
+}
+
+
+/* ==================================================
+   CARDS
+   ================================================== */
+
+.grid-container {
+    position: relative;
+    z-index: 1;
+}
+
+.grid-container .card {
+    isolation: isolate;
+}
+
+.grid-container .card-body {
+    min-width: 0;
+}
+
+.grid-container .card-tag {
+    overflow-wrap: anywhere;
+}
+
+.grid-container .card-btn {
+    white-space: nowrap;
+}
+
+.grid-container .card:active {
+    transform: translateY(-1px);
+}
+
+
+/* ==================================================
+   STATS
+   ================================================== */
+
+.stats-bar {
+    position: relative;
+    z-index: 1;
+}
+
+.stat-item {
+    isolation: isolate;
+}
+
+
+/* ==================================================
+   ACCESSIBILITY
+   ================================================== */
+
+a:focus-visible,
+button:focus-visible {
+    outline: 3px solid rgba(59, 130, 246, 0.38);
+    outline-offset: 3px;
+}
+
+
+/* ==================================================
+   LARGE SCREEN
+   ================================================== */
+
+@media (min-width: 1400px) {
+
+    .slaid-header .header-inner,
+    .slaid-hero .hero-grid,
+    .grid-container {
+        max-width: 1200px;
+    }
+
+    .stats-bar {
+        max-width: 1136px;
+    }
+
+}
+
+
+/* ==================================================
+   TABLET
+   ================================================== */
+
+@media (max-width: 900px) {
+
+    .slaid-hero .hero-copy {
+        max-width: 650px;
+    }
+
+    .grid-container,
+    .stats-bar {
+        width: 100%;
+        max-width: 100%;
+    }
+
+}
+
+
+/* ==================================================
+   MOBILE
+   ================================================== */
+
+@media (max-width: 600px) {
+
+    body {
+        min-width: 0;
+    }
+
+    .slaid-header,
+    .slaid-hero,
+    .slaid-header .header-inner,
+    .slaid-hero .hero-grid,
+    .grid-container,
+    .stats-bar,
+    .main-footer {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .slaid-header .header-brand-group,
+    .slaid-header .brand-title,
+    .slaid-hero .hero-copy,
+    .slaid-hero .hero-summary,
+    .grid-container .card,
+    .grid-container .card-body,
+    .stat-item {
+        min-width: 0;
+    }
+
+    .slaid-hero .hero-summary-badges {
+        row-gap: 7px;
+    }
+
+    .grid-container .card {
+        border-radius: 14px;
+    }
+
+}
+
+
+/* ==================================================
+   REDUCED MOTION
+   ================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    html {
+        scroll-behavior: auto;
+    }
+
+    .card,
+    .card-image,
+    .card-btn,
+    .stat-item,
+    .home-back-btn,
+    .lang-btn {
+        transition: none !important;
+    }
+
+}
