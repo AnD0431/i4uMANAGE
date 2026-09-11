@@ -17,61 +17,171 @@
 </head>
 <body>
 
-    <header class="hero-section">
-        <nav class="navbar">
-            <div class="brand-container">
-                <div class="malaysia-logo">
-                    <div class="logo-box">
-                        <img src="image/jata.png" alt="Malaysia Logo" class="malaysia-logo-img">
-                    </div>
-                </div>
-                <div class="logo-text">
-                    <span>KEMENTERIAN KESIHATAN MALAYSIA</span>
-                    <span>JABATAN KESIHATAN NEGERI TERENGGANU</span>
-                    <span class="unit-latihan">UNIT LATIHAN</span>
-                </div>
-                <div class="divider"></div>
-                <div class="main-title">
-                    <h1>i4uManage</h1>
-                    <p data-i18n="main_title_sub">SISTEM PENGURUSAN DOKUMEN & LATIHAN</p>
+    <header class="hero-section punca-header">
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+
+        <div class="brand-container">
+
+            <div class="malaysia-logo">
+                <div class="logo-box">
+                    <img
+                        src="image/jata.png"
+                        alt="Malaysia Logo"
+                        class="malaysia-logo-img"
+                    >
                 </div>
             </div>
 
-            <!-- LANGUAGE SWITCHER -->
-            <div class="lang-switcher" id="lang-switcher">
-                <button type="button" class="lang-btn active" data-lang="ms">BM</button>
-                <span class="lang-sep">|</span>
-                <button type="button" class="lang-btn" data-lang="en">EN</button>
-            </div>
-            <!-- LANGUAGE SWITCHER -->
+            <div class="logo-text">
+                <span>
+                    KEMENTERIAN KESIHATAN MALAYSIA
+                </span>
 
-            <!--<div class="user-profile">
-                <div class="profile-icon"><i class="fa-solid fa-circle-user"></i></div>
-                <div class="profile-info">
-                    <span class="welcome">Selamat Datang,</span>
-                    <span class="username">Pengguna <i class="fa-solid fa-chevron-down"></i></span>
-                </div>-->
-            </div>
-            <a href="index.html" class="home-back-btn">
-    <i class="fa-solid fa-arrow-left"></i>
-    <span>Kembali ke Halaman Utama</span>
-</a>
-        </nav>
+                <span>
+                    JABATAN KESIHATAN NEGERI TERENGGANU
+                </span>
 
-         
+                <span class="unit-latihan">
+                    UNIT LATIHAN
+                </span>
+            </div>
 
-        <div class="hero-content-sub">
-            <div class="breadcrumb">
-                <span data-i18n="breadcrumb_home">Utama</span> / <span class="current" data-i18n="punca_title">Punca Kuasa</span>
+            <div class="divider"></div>
+
+            <div class="main-title">
+                <h1>i4uManage</h1>
+
+                <p data-i18n="main_title_sub">
+                    SISTEM PENGURUSAN DOKUMEN & LATIHAN
+                </p>
             </div>
-            <div class="hero-text-sub">
-                <h2 data-i18n="punca_heading">PUNCA KUASA</h2>
-                <div class="orange-bar"></div>
-                <p data-i18n="punca_desc">Pautan ke sumber punca kuasa rasmi bagi rujukan dan pelaksanaan.</p>
-            </div>
-            <div class="sub-header-bg"></div>
+
         </div>
-    </header>
+
+
+        <!-- RIGHT NAVIGATION -->
+        <div class="nav-actions">
+
+            <a
+                href="index.html"
+                class="home-back-btn"
+                aria-label="Kembali ke halaman utama"
+            >
+                <span class="material-symbols-rounded">
+                    arrow_back
+                </span>
+
+                <span>
+                    Halaman Utama
+                </span>
+            </a>
+
+
+            <div
+                class="lang-switcher"
+                id="lang-switcher"
+            >
+                <button
+                    type="button"
+                    class="lang-btn active"
+                    data-lang="ms"
+                >
+                    BM
+                </button>
+
+                <span class="lang-sep">|</span>
+
+                <button
+                    type="button"
+                    class="lang-btn"
+                    data-lang="en"
+                >
+                    EN
+                </button>
+            </div>
+
+        </div>
+
+    </nav>
+
+
+    <!-- PAGE HERO -->
+    <div class="hero-content-sub">
+
+        <div class="breadcrumb">
+
+            <a
+                href="index.html"
+                data-i18n="breadcrumb_home"
+            >
+                Utama
+            </a>
+
+            <span class="material-symbols-rounded breadcrumb-arrow">
+                chevron_right
+            </span>
+
+            <span
+                class="current"
+                data-i18n="punca_title"
+            >
+                Punca Kuasa
+            </span>
+
+        </div>
+
+
+        <div class="hero-text-sub">
+
+            <div class="hero-kicker-sub">
+
+                <span class="material-symbols-rounded">
+                    verified
+                </span>
+
+                <span>
+                    RUJUKAN RASMI
+                </span>
+
+            </div>
+
+            <h2 data-i18n="punca_heading">
+                PUNCA KUASA
+            </h2>
+
+            <p data-i18n="punca_desc">
+                Pautan ke sumber punca kuasa rasmi
+                bagi rujukan dan pelaksanaan.
+            </p>
+
+        </div>
+
+
+        <div
+            class="sub-header-bg"
+            role="img"
+            aria-label="Ilustrasi dokumen dan punca kuasa"
+        >
+
+            <div class="sub-visual-badge">
+
+                <span class="material-symbols-rounded">
+                    verified_user
+                </span>
+
+                <span>
+                    Sumber Rasmi Kerajaan
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</header>
 
     <main class="cards-container-sub">
         

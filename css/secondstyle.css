@@ -455,3 +455,1077 @@ body {
         font-size: 1.8rem;
     }
 }
+
+/* ==================================================
+   PUNCA KUASA - HEADER + HERO V2
+   ================================================== */
+
+
+/* ==================================================
+   HEADER
+   ================================================== */
+
+.punca-header {
+
+    width: 100%;
+
+    background:
+        linear-gradient(
+            135deg,
+            #061a31 0%,
+            #08294d 100%
+        );
+
+    color: #ffffff;
+}
+
+
+/* ==================================================
+   NAVBAR
+   ================================================== */
+
+.punca-header .navbar {
+
+    width:
+        calc(100% - 48px);
+
+    max-width:
+        1180px;
+
+    min-height:
+        74px;
+
+    margin:
+        0 auto;
+
+    padding:
+        13px 0;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+    gap:
+        24px;
+
+    background:
+        transparent;
+
+    border-bottom:
+        1px solid
+        rgba(255, 255, 255, 0.10);
+}
+
+
+/* ==================================================
+   BRAND
+   ================================================== */
+
+.punca-header
+.brand-container {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        12px;
+
+    min-width:
+        0;
+}
+
+
+.punca-header
+.logo-box {
+
+    width:
+        58px;
+
+    height:
+        58px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    flex-shrink:
+        0;
+}
+
+
+.punca-header
+.malaysia-logo-img {
+
+    width:
+        100%;
+
+    height:
+        100%;
+
+    object-fit:
+        contain;
+}
+
+
+/* Government labels */
+
+.punca-header
+.logo-text {
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    gap:
+        1px;
+
+    color:
+        #ffffff;
+}
+
+
+.punca-header
+.logo-text span {
+
+    font-size:
+        0.60rem;
+
+    font-weight:
+        650;
+
+    line-height:
+        1.3;
+
+    letter-spacing:
+        0.1px;
+
+    white-space:
+        nowrap;
+}
+
+
+.punca-header
+.logo-text
+.unit-latihan {
+
+    margin-top:
+        2px;
+
+    color:
+        #f59e0b;
+
+    font-size:
+        0.62rem;
+
+    font-weight:
+        750;
+}
+
+
+/* Divider */
+
+.punca-header
+.divider {
+
+    width:
+        1px;
+
+    height:
+        40px;
+
+    margin:
+        0 2px;
+
+    flex-shrink:
+        0;
+
+    background:
+        rgba(255, 255, 255, 0.18);
+}
+
+
+/* ==================================================
+   I4UMANAGE BRAND
+   ================================================== */
+
+.punca-header
+.main-title {
+
+    min-width:
+        0;
+}
+
+
+.punca-header
+.main-title h1 {
+
+    margin:
+        0;
+
+    padding-bottom:
+        2px;
+
+    overflow:
+        visible;
+
+    color:
+        #ffffff;
+
+    font-size:
+        clamp(
+            1.65rem,
+            2.3vw,
+            2rem
+        );
+
+    font-weight:
+        750;
+
+    line-height:
+        1.12;
+
+    letter-spacing:
+        -0.8px;
+}
+
+
+.punca-header
+.main-title p {
+
+    margin:
+        3px 0 0;
+
+    color:
+        rgba(255, 255, 255, 0.62);
+
+    font-size:
+        0.55rem;
+
+    font-weight:
+        550;
+
+    line-height:
+        1.3;
+
+    letter-spacing:
+        1.3px;
+
+    white-space:
+        nowrap;
+}
+
+
+/* ==================================================
+   RIGHT NAVIGATION
+   ================================================== */
+
+.punca-header
+.nav-actions {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        10px;
+
+    flex-shrink:
+        0;
+}
+
+
+/* Back button */
+
+.punca-header
+.home-back-btn {
+
+    min-height:
+        34px;
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        6px;
+
+    padding:
+        6px 11px;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.16);
+
+    border-radius:
+        999px;
+
+    background:
+        rgba(255, 255, 255, 0.07);
+
+    color:
+        rgba(255, 255, 255, 0.88);
+
+    font-size:
+        0.66rem;
+
+    font-weight:
+        600;
+
+    text-decoration:
+        none;
+
+    -webkit-backdrop-filter:
+        blur(10px);
+
+    backdrop-filter:
+        blur(10px);
+
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        transform 0.18s ease;
+}
+
+
+.punca-header
+.home-back-btn
+.material-symbols-rounded {
+
+    font-size:
+        16px;
+}
+
+
+@media (hover: hover) {
+
+    .punca-header
+    .home-back-btn:hover {
+
+        transform:
+            translateX(-2px);
+
+        background:
+            rgba(255, 255, 255, 0.12);
+
+        border-color:
+            rgba(255, 255, 255, 0.25);
+    }
+
+}
+
+
+/* ==================================================
+   LANGUAGE SWITCHER
+   ================================================== */
+
+.punca-header
+.lang-switcher {
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    padding:
+        3px;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.18);
+
+    border-radius:
+        999px;
+
+    background:
+        rgba(255, 255, 255, 0.06);
+}
+
+
+.punca-header
+.lang-sep {
+
+    display:
+        none;
+}
+
+
+.punca-header
+.lang-btn {
+
+    min-width:
+        35px;
+
+    height:
+        27px;
+
+    padding:
+        0 8px;
+
+    border:
+        none;
+
+    border-radius:
+        999px;
+
+    background:
+        transparent;
+
+    color:
+        rgba(255, 255, 255, 0.60);
+
+    font-family:
+        inherit;
+
+    font-size:
+        0.65rem;
+
+    font-weight:
+        650;
+
+    cursor:
+        pointer;
+}
+
+
+.punca-header
+.lang-btn.active {
+
+    color:
+        #f59e0b;
+
+    background:
+        rgba(255, 255, 255, 0.10);
+}
+
+
+/* ==================================================
+   HERO
+   ================================================== */
+
+.punca-header
+.hero-content-sub {
+
+    width:
+        100%;
+
+    margin:
+        0;
+
+    padding:
+        44px
+        max(
+            24px,
+            calc((100% - 1180px) / 2)
+        )
+        50px;
+
+    display:
+        grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(330px, 0.82fr);
+
+    grid-template-areas:
+        "breadcrumb visual"
+        "content visual";
+
+    column-gap:
+        60px;
+
+    row-gap:
+        10px;
+
+    align-items:
+        center;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f8fafc 0%,
+            #eef4f8 100%
+        );
+
+    color:
+        #0f3157;
+
+    min-height:
+        0;
+}
+
+
+/* ==================================================
+   BREADCRUMB
+   ================================================== */
+
+.punca-header
+.breadcrumb {
+
+    grid-area:
+        breadcrumb;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        4px;
+
+    margin:
+        0;
+
+    color:
+        #64748b;
+
+    font-size:
+        0.70rem;
+}
+
+
+.punca-header
+.breadcrumb a {
+
+    color:
+        #64748b;
+
+    font-weight:
+        550;
+
+    text-decoration:
+        none;
+}
+
+
+.punca-header
+.breadcrumb a:hover {
+
+    color:
+        #1d4ed8;
+}
+
+
+.punca-header
+.breadcrumb-arrow {
+
+    color:
+        #94a3b8;
+
+    font-size:
+        15px;
+}
+
+
+.punca-header
+.breadcrumb .current {
+
+    color:
+        #0f3157;
+
+    font-weight:
+        650;
+}
+
+
+/* ==================================================
+   HERO TEXT
+   ================================================== */
+
+.punca-header
+.hero-text-sub {
+
+    grid-area:
+        content;
+
+    max-width:
+        570px;
+
+    position:
+        relative;
+
+    z-index:
+        2;
+}
+
+
+/* Small label */
+
+.hero-kicker-sub {
+
+    width:
+        fit-content;
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    gap:
+        6px;
+
+    margin-bottom:
+        10px;
+
+    padding:
+        6px 9px;
+
+    border:
+        1px solid
+        rgba(29, 78, 216, 0.10);
+
+    border-radius:
+        999px;
+
+    background:
+        #eaf2ff;
+
+    color:
+        #1d4ed8;
+
+    font-size:
+        0.62rem;
+
+    font-weight:
+        750;
+
+    letter-spacing:
+        0.6px;
+}
+
+
+.hero-kicker-sub
+.material-symbols-rounded {
+
+    font-size:
+        15px;
+}
+
+
+/* Page title */
+
+.punca-header
+.hero-text-sub h2 {
+
+    margin:
+        0;
+
+    color:
+        #0b2d51;
+
+    font-size:
+        clamp(
+            2.4rem,
+            4vw,
+            3.6rem
+        );
+
+    font-weight:
+        780;
+
+    line-height:
+        1;
+
+    letter-spacing:
+        -1.5px;
+}
+
+
+/* Description */
+
+.punca-header
+.hero-text-sub p {
+
+    max-width:
+        520px;
+
+    margin:
+        16px 0 0;
+
+    color:
+        #64748b;
+
+    font-size:
+        0.87rem;
+
+    line-height:
+        1.65;
+}
+
+
+/* ==================================================
+   HERO VISUAL
+   ================================================== */
+
+.punca-header
+.sub-header-bg {
+
+    grid-area:
+        visual;
+
+    position:
+        relative;
+
+    inset:
+        auto;
+
+    width:
+        100%;
+
+    min-height:
+        240px;
+
+    overflow:
+        hidden;
+
+    border:
+        1px solid
+        rgba(15, 49, 87, 0.08);
+
+    border-radius:
+        18px;
+
+    background-image:
+        linear-gradient(
+            180deg,
+            rgba(2, 20, 45, 0.02),
+            rgba(2, 20, 45, 0.30)
+        ),
+        url('../image/tukulpanjang.png');
+
+    background-size:
+        cover;
+
+    background-position:
+        center;
+
+    opacity:
+        1;
+
+    box-shadow:
+        0 16px 35px
+        rgba(15, 23, 42, 0.09);
+}
+
+
+/* Official badge */
+
+.sub-visual-badge {
+
+    position:
+        absolute;
+
+    left:
+        14px;
+
+    bottom:
+        14px;
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    gap:
+        6px;
+
+    padding:
+        6px 9px;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.20);
+
+    border-radius:
+        999px;
+
+    background:
+        rgba(2, 20, 45, 0.64);
+
+    color:
+        #ffffff;
+
+    -webkit-backdrop-filter:
+        blur(10px);
+
+    backdrop-filter:
+        blur(10px);
+
+    font-size:
+        0.62rem;
+
+    font-weight:
+        600;
+}
+
+
+.sub-visual-badge
+.material-symbols-rounded {
+
+    color:
+        #6ee7b7;
+
+    font-size:
+        15px;
+}
+
+
+/* ==================================================
+   TABLET
+   ================================================== */
+
+@media (max-width: 900px) {
+
+    .punca-header
+    .navbar {
+
+        width:
+            calc(100% - 40px);
+    }
+
+
+    .punca-header
+    .hero-content-sub {
+
+        grid-template-columns:
+            1fr;
+
+        grid-template-areas:
+            "breadcrumb"
+            "content"
+            "visual";
+
+        gap:
+            15px;
+
+        padding:
+            36px 28px 42px;
+
+        text-align:
+            left;
+    }
+
+
+    .punca-header
+    .sub-header-bg {
+
+        width:
+            100%;
+
+        height:
+            auto;
+
+        min-height:
+            220px;
+
+        margin-top:
+            12px;
+    }
+
+}
+
+
+/* ==================================================
+   MOBILE
+   ================================================== */
+
+@media (max-width: 600px) {
+
+    .punca-header
+    .navbar {
+
+        width:
+            calc(100% - 30px);
+
+        padding:
+            11px 0;
+
+        flex-direction:
+            row;
+
+        gap:
+            8px;
+    }
+
+
+    .punca-header
+    .brand-container {
+
+        flex:
+            1;
+
+        min-width:
+            0;
+
+        gap:
+            7px;
+    }
+
+
+    .punca-header
+    .logo-box {
+
+        width:
+            43px;
+
+        height:
+            43px;
+    }
+
+
+    .punca-header
+    .logo-text {
+
+        display:
+            none;
+    }
+
+
+    .punca-header
+    .divider {
+
+        height:
+            30px;
+
+        margin:
+            0 2px;
+    }
+
+
+    .punca-header
+    .main-title h1 {
+
+        font-size:
+            1.35rem;
+    }
+
+
+    .punca-header
+    .main-title p {
+
+        display:
+            none;
+    }
+
+
+    .punca-header
+    .nav-actions {
+
+        gap:
+            5px;
+    }
+
+
+    .punca-header
+    .home-back-btn {
+
+        width:
+            31px;
+
+        height:
+            31px;
+
+        min-height:
+            31px;
+
+        padding:
+            0;
+    }
+
+
+    .punca-header
+    .home-back-btn
+    span:last-child {
+
+        display:
+            none;
+    }
+
+
+    .punca-header
+    .lang-btn {
+
+        min-width:
+            29px;
+
+        height:
+            25px;
+
+        padding:
+            0 5px;
+
+        font-size:
+            0.58rem;
+    }
+
+
+    .punca-header
+    .hero-content-sub {
+
+        padding:
+            28px 18px 34px;
+
+        gap:
+            12px;
+    }
+
+
+    .punca-header
+    .hero-text-sub h2 {
+
+        font-size:
+            clamp(
+                2.15rem,
+                11vw,
+                2.8rem
+            );
+    }
+
+
+    .punca-header
+    .hero-text-sub p {
+
+        margin-top:
+            13px;
+
+        font-size:
+            0.80rem;
+    }
+
+
+    .punca-header
+    .sub-header-bg {
+
+        min-height:
+            185px;
+
+        border-radius:
+            15px;
+    }
+
+}
