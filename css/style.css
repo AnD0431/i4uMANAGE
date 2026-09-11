@@ -1070,3 +1070,27 @@ html {
     }
 
 }
+
+/* ==================================================
+   HERO TEXT WIDTH FINAL FIX
+   ================================================== */
+
+.hero-content {
+    width: 100% !important;
+    max-width: 1180px !important;
+}
+
+.hero-text {
+    width: 100% !important;
+    max-width: 620px !important;
+    min-width: 0;
+}
+
+.hero-text h2 {
+    width: 100% !important;
+}
+
+.hero-text h2 > span:first-child {
+    display: block !important;
+    white-space: nowrap !important;
+}
