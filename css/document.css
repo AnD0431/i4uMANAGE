@@ -2447,3 +2447,253 @@ body {
     }
 
 }
+
+/* ==================================================
+   DOCUMENT BROWSER - FINAL POLISH
+   ================================================== */
+
+html {
+    scroll-behavior: smooth;
+}
+
+
+body {
+    margin: 0;
+
+    background: #f6f8fb;
+    color: #1e293b;
+
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+
+/* ==================================================
+   GLOBAL WIDTH SAFETY
+   ================================================== */
+
+img {
+    max-width: 100%;
+}
+
+
+.document-header,
+.document-hero {
+    width: 100%;
+}
+
+
+.document-header .header-inner,
+.document-hero-grid,
+.document-browser {
+    box-sizing: border-box;
+}
+
+
+/* ==================================================
+   HERO SAFETY
+   ================================================== */
+
+.document-hero-copy,
+.document-hero-panel {
+    min-width: 0;
+}
+
+
+.document-hero
+.section-title,
+.document-hero
+.section-subtitle {
+    overflow-wrap: anywhere;
+}
+
+
+/* ==================================================
+   TOOLBAR SAFETY
+   ================================================== */
+
+.document-toolbar,
+.document-search,
+.document-summary {
+    min-width: 0;
+}
+
+
+.document-search input,
+.year-filter {
+    font-family: inherit;
+}
+
+
+/* ==================================================
+   PROGRAM GRID SAFETY
+   ================================================== */
+
+.program-grid {
+    position: relative;
+    z-index: 1;
+}
+
+
+.program-card {
+    isolation: isolate;
+}
+
+
+.program-info,
+.document-left,
+.document-info {
+    min-width: 0;
+}
+
+
+/* ==================================================
+   FILE NAMES
+   ================================================== */
+
+.document-info strong {
+    max-width: 100%;
+}
+
+
+.document-row:active {
+    background: #f1f5f9;
+}
+
+
+/* ==================================================
+   BUTTON ACTIVE STATES
+   ================================================== */
+
+.program-toggle:active,
+.document-open-btn:active,
+.back-link:active {
+    transform: scale(0.98);
+}
+
+
+/* ==================================================
+   ACCESSIBILITY
+   ================================================== */
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+    outline:
+        3px solid
+        rgba(59, 130, 246, 0.32);
+
+    outline-offset: 3px;
+}
+
+
+/* ==================================================
+   LARGE SCREEN
+   ================================================== */
+
+@media (min-width: 1400px) {
+
+    .document-header .header-inner,
+    .document-hero-grid,
+    .document-browser {
+        max-width: 1200px;
+    }
+
+}
+
+
+/* ==================================================
+   TABLET
+   ================================================== */
+
+@media (max-width: 900px) {
+
+    .document-browser {
+        width: 100%;
+        max-width: 100%;
+    }
+
+
+    .document-hero-copy {
+        max-width: 650px;
+    }
+
+}
+
+
+/* ==================================================
+   MOBILE
+   ================================================== */
+
+@media (max-width: 600px) {
+
+    body {
+        min-width: 0;
+    }
+
+
+    .document-header,
+    .document-hero,
+    .document-header .header-inner,
+    .document-hero-grid,
+    .document-browser,
+    .app-footer {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+
+    .document-header .header-brand-group,
+    .document-header .app-brand,
+    .document-hero-copy,
+    .document-hero-panel,
+    .program-card,
+    .program-info,
+    .document-row,
+    .document-left,
+    .document-info {
+        min-width: 0;
+    }
+
+
+    .document-hero-features {
+        row-gap: 7px;
+    }
+
+
+    .document-toolbar {
+        width: 100%;
+    }
+
+
+    .program-card {
+        border-radius: 13px;
+    }
+
+}
+
+
+/* ==================================================
+   REDUCED MOTION
+   ================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    html {
+        scroll-behavior: auto;
+    }
+
+
+    .program-card,
+    .program-toggle,
+    .program-toggle i,
+    .document-row,
+    .document-open-btn,
+    .back-link,
+    .home-back-btn,
+    .lang-btn {
+        transition: none !important;
+    }
+
+}
