@@ -3282,42 +3282,48 @@ body {
 }
 
 /* =========================================================
-   LARGE DESKTOP WIDTH
-   Gunakan lebih banyak ruang skrin pada desktop
+   DESKTOP WIDE LAYOUT
    ========================================================= */
 
 @media (min-width: 1100px) {
 
-    /* HEADER / NAVBAR */
+    /* NAVBAR */
     .navbar {
-        width: min(94%, 1600px);
-        margin-left: auto;
-        margin-right: auto;
+        width: 100%;
+        max-width: none;
+        padding-left: 4%;
+        padding-right: 4%;
     }
 
 
-    /* HERO CONTENT */
+    /* HERO */
     .hero-content {
-        width: min(94%, 1600px);
+        width: 100%;
         max-width: none;
-        margin-left: auto;
-        margin-right: auto;
+        padding-left: 4%;
+        padding-right: 4%;
     }
 
 
-    /* SERVICE / CATEGORY SECTION */
+    /* SERVICES SECTION */
     .cards-container {
-        width: min(94%, 1600px);
+        width: 100%;
         max-width: none;
-        margin-left: auto;
-        margin-right: auto;
+        padding-left: 4%;
+        padding-right: 4%;
     }
 
 
-    /* FOOTER CONTENT */
+    /* 3 KAD BESAR */
+    .cards-container {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+
+    /* FOOTER */
     .footer-values {
-        padding-left: 3%;
-        padding-right: 3%;
+        padding-left: 4%;
+        padding-right: 4%;
     }
 
 }
