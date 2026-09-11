@@ -2593,48 +2593,202 @@ else {
         ) .values()
        ];
 
-       if (uniqueSources.length > 0) {
-        const sourcesDiv =
-            document.createElement("div");
+       if (
+    uniqueSources.length > 0
+) {
 
-        sourcesDiv.classList.add(
-            "message-sources"
+    const sourcesDiv =
+        document.createElement(
+            "div"
         );
 
-        const sourceTitle =
-            verification?.mode === "government" 
-                ? "Rujukan Rasmi"
-                : "Rujukan";
 
-        const title =
-            document.createElement("strong");
+    sourcesDiv.classList.add(
+        "message-sources"
+    );
 
-        title.textContent =
-            sourceTitle;
 
-        sourcesDiv.appendChild(
-            title
+    // ========================================
+    // SOURCE TITLE
+    // ========================================
+
+    const sourceTitle =
+        verification?.mode ===
+        "government"
+            ? "Rujukan Rasmi"
+            : "Rujukan";
+
+
+    // ========================================
+    // HEADER / TOGGLE
+    // ========================================
+
+    const sourceToggle =
+        document.createElement(
+            "button"
         );
 
-        uniqueSources.forEach(source => {
+
+    sourceToggle.type =
+        "button";
+
+
+    sourceToggle.className =
+        "message-sources-toggle";
+
+
+    sourceToggle.setAttribute(
+        "aria-expanded",
+        "false"
+    );
+
+
+    sourceToggle.innerHTML = `
+
+        <div class="message-sources-heading">
+
+            <span
+                class="material-symbols-rounded source-heading-icon"
+            >
+                ${verification?.mode === "government"
+                    ? "verified"
+                    : "link"}
+            </span>
+
+            <strong>
+                ${sourceTitle}
+            </strong>
+
+        </div>
+
+
+        <div class="message-sources-meta">
+
+            <span class="source-count">
+
+                ${uniqueSources.length}
+                ${uniqueSources.length === 1
+                    ? "sumber"
+                    : "sumber"}
+
+            </span>
+
+            <span
+                class="material-symbols-rounded source-chevron"
+            >
+                expand_more
+            </span>
+
+        </div>
+    `;
+
+
+    // ========================================
+    // COLLAPSIBLE AREA
+    // ========================================
+
+    const sourcesCollapse =
+        document.createElement(
+            "div"
+        );
+
+
+    sourcesCollapse.className =
+        "message-sources-collapse";
+
+
+    const sourcesList =
+        document.createElement(
+            "div"
+        );
+
+
+    sourcesList.className =
+        "message-sources-list";
+
+
+    // ========================================
+    // SOURCE LINKS
+    // ========================================
+
+    uniqueSources.forEach(
+        source => {
+
             const link =
-                document.createElement("a");
-
-                link.href = source.uri;
-                link.target = "_blank";
-                link.rel = "noopener noreferrer";
-                link.textContent = source.title ||
-                "Sumber";
-
-                sourcesDiv.appendChild(
-                    link
+                document.createElement(
+                    "a"
                 );
-        });
 
-        messageElement.appendChild(
-            sourcesDiv
-        );
-    }
+
+            link.href =
+                source.uri;
+
+
+            link.target =
+                "_blank";
+
+
+            link.rel =
+                "noopener noreferrer";
+
+
+            link.textContent =
+                source.title ||
+                "Sumber rasmi";
+
+
+            sourcesList.appendChild(
+                link
+            );
+
+        }
+    );
+
+
+    sourcesCollapse.appendChild(
+        sourcesList
+    );
+
+
+    sourcesDiv.appendChild(
+        sourceToggle
+    );
+
+
+    sourcesDiv.appendChild(
+        sourcesCollapse
+    );
+
+
+    // ========================================
+    // EXPAND / COLLAPSE
+    // ========================================
+
+    sourceToggle.addEventListener(
+        "click",
+        () => {
+
+            const isOpen =
+                sourcesDiv.classList
+                    .toggle(
+                        "sources-open"
+                    );
+
+
+            sourceToggle.setAttribute(
+                "aria-expanded",
+                String(isOpen)
+            );
+
+        }
+    );
+
+
+    messageElement.appendChild(
+        sourcesDiv
+    );
+
+}
 
         // add bot chat history
         chatHistory.push({

@@ -3452,3 +3452,392 @@ button {
     }
 
 }
+
+/* ==================================================
+   SARAH SOURCES - COMPACT / COLLAPSIBLE
+   ================================================== */
+
+.message-sources {
+
+    display: block;
+
+    width: 100%;
+
+    margin-top: 15px;
+    padding-top: 10px;
+
+    border-top:
+        1px solid
+        rgba(37, 99, 235, 0.10);
+
+    color:
+        #475569;
+}
+
+
+/* ==================================================
+   SOURCE HEADER
+   ================================================== */
+
+.message-sources-toggle {
+
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    padding:
+        7px 8px;
+
+    margin: 0;
+
+    border: none;
+
+    border-radius:
+        9px;
+
+    background:
+        transparent;
+
+    color:
+        inherit;
+
+    font-family:
+        inherit;
+
+    cursor:
+        pointer;
+
+    transition:
+        background 0.18s ease;
+}
+
+
+@media (hover: hover) {
+
+    .message-sources-toggle:hover {
+
+        background:
+            rgba(37, 99, 235, 0.055);
+    }
+
+}
+
+
+/* Kiri */
+
+.message-sources-heading {
+
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+
+    min-width: 0;
+}
+
+
+.message-sources-heading
+.source-heading-icon {
+
+    color:
+        #2563eb;
+
+    font-size:
+        17px;
+
+    flex-shrink:
+        0;
+}
+
+
+.message-sources
+.message-sources-heading
+strong {
+
+    display: block;
+
+    margin: 0;
+
+    color:
+        #1d4ed8;
+
+    font-size:
+        0.73rem;
+
+    font-weight:
+        700;
+}
+
+
+/* Kanan */
+
+.message-sources-meta {
+
+    display: flex;
+    align-items: center;
+
+    gap: 5px;
+
+    flex-shrink:
+        0;
+}
+
+
+.source-count {
+
+    padding:
+        3px 7px;
+
+    border-radius:
+        999px;
+
+    background:
+        rgba(37, 99, 235, 0.07);
+
+    color:
+        #64748b;
+
+    font-size:
+        0.61rem;
+
+    font-weight:
+        600;
+}
+
+
+.source-chevron {
+
+    color:
+        #64748b;
+
+    font-size:
+        18px;
+
+    transition:
+        transform 0.22s ease;
+}
+
+
+/* ==================================================
+   COLLAPSED CONTENT
+   ================================================== */
+
+.message-sources-collapse {
+
+    max-height:
+        0;
+
+    overflow:
+        hidden;
+
+    opacity:
+        0;
+
+    transform:
+        translateY(-3px);
+
+    transition:
+        max-height 0.28s ease,
+        opacity 0.20s ease,
+        transform 0.20s ease;
+}
+
+
+/* Dibuka */
+
+.message-sources.sources-open
+.message-sources-collapse {
+
+    max-height:
+        600px;
+
+    opacity:
+        1;
+
+    transform:
+        translateY(0);
+}
+
+
+.message-sources.sources-open
+.source-chevron {
+
+    transform:
+        rotate(180deg);
+}
+
+
+/* ==================================================
+   SOURCE LIST
+   ================================================== */
+
+.message-sources-list {
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 6px;
+
+    padding:
+        7px 8px 3px;
+}
+
+
+/* Override source link lama */
+
+.message-sources
+.message-sources-list
+a {
+
+    display: flex;
+    align-items: flex-start;
+
+    gap: 7px;
+
+    width: 100%;
+
+    padding:
+        7px 9px;
+
+    box-sizing:
+        border-box;
+
+    border:
+        1px solid
+        rgba(37, 99, 235, 0.08);
+
+    border-radius:
+        8px;
+
+    background:
+        rgba(255, 255, 255, 0.48);
+
+    color:
+        #2563eb;
+
+    font-size:
+        0.69rem;
+
+    font-weight:
+        550;
+
+    line-height:
+        1.4;
+
+    text-decoration:
+        none;
+
+    word-break:
+        break-word;
+
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        transform 0.18s ease;
+}
+
+
+/* Existing arrow */
+
+.message-sources
+.message-sources-list
+a::before {
+
+    content:
+        "↗";
+
+    flex-shrink:
+        0;
+
+    color:
+        #3b82f6;
+
+    font-weight:
+        700;
+}
+
+
+@media (hover: hover) {
+
+    .message-sources
+    .message-sources-list
+    a:hover {
+
+        background:
+            rgba(37, 99, 235, 0.07);
+
+        border-color:
+            rgba(37, 99, 235, 0.15);
+
+        transform:
+            translateX(2px);
+
+        text-decoration:
+            none;
+    }
+
+}
+
+
+/* ==================================================
+   MOBILE
+   ================================================== */
+
+@media (max-width: 600px) {
+
+    .message-sources {
+
+        margin-top:
+            12px;
+
+        padding-top:
+            8px;
+    }
+
+
+    .message-sources-toggle {
+
+        padding:
+            6px;
+    }
+
+
+    .message-sources
+    .message-sources-heading
+    strong {
+
+        font-size:
+            0.69rem;
+    }
+
+
+    .source-heading-icon {
+
+        font-size:
+            16px !important;
+    }
+
+
+    .source-count {
+
+        font-size:
+            0.58rem;
+    }
+
+
+    .message-sources
+    .message-sources-list
+    a {
+
+        padding:
+            7px 8px;
+
+        font-size:
+            0.66rem;
+    }
+
+}
