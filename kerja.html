@@ -20,55 +20,212 @@
 <body>
 
     <!-- APP TOP BAR -->
-    <header class="main-header">
-        <div class="header-logo-group">
-            <div class="national-crest">
-                <img src="image/jata.png" alt="Malaysia Logo" class="national-crest">
-            </div>
-            <div class="logo-labels">
-                <span class="lbl-gov">KEMENTERIAN KESIHATAN MALAYSIA</span>
-                <span class="lbl-state">JABATAN KESIHATAN NEGERI TERENGGANU</span>
-                <span class="lbl-unit">UNIT LATIHAN</span>
-            </div>
-        </div>
-        <div class="app-brand">
-            <h1><span>i4U</span>Manage</h1>
-            <p data-i18n="main_title_sub">SISTEM PENGURUSAN DOKUMEN & LATIHAN</p>
-        </div>
-        <div class="profile-dropdown">
-            <!-- LANGUAGE SWITCHER -->
-            <div class="lang-switcher" id="lang-switcher">
-                <button type="button" class="lang-btn active" data-lang="ms">BM</button>
-                <span class="lang-sep">|</span>
-                <button type="button" class="lang-btn" data-lang="en">EN</button>
-            </div>
-            <!-- LANGUAGE SWITCHER -->
-            <!--<i class="fa-solid fa-circle-user avatar-icon"></i>
-            <div class="profile-meta">
-                <span class="greeting">Selamat Datang,</span>
-                <span class="username">Pengguna <i class="fa-solid fa-chevron-down"></i></span>
-            </div>-->
-        </div>
-      <a href="index.html" class="home-back-btn">
-    <i class="fa-solid fa-arrow-left"></i>
-    <span>Kembali ke Halaman Utama</span>
-</a>
-    </header>
+    <header class="main-header kerja-header">
 
-    <!-- HERO INTRODUCTION BANNER -->
-    <section class="hero-section">
-        <div class="hero-wrapper">
-            <h2 class="section-title" data-i18n="kerja_page_title">KERTAS KERJA</h2>
-            <h3 class="section-subtitle" data-i18n="bahagian_pengurusan">Bahagian Pengurusan</h3>
-            <p class="section-desc" data-i18n="kerja_page_desc">
-                Platform sehenti untuk mengakses semua kertas kerja program, latihan, bengkel dan dokumen rasmi mengikut bahagian dengan cepat, tersusun dan selamat.
-            </p>
-            <!--<div class="search-box">
-                <i class="fa-solid fa-magnifying-glass search-bar-icon"></i>
-                <input type="text" placeholder="Cari Kertas Kerja...">
-            </div>-->
+    <div class="header-inner">
+
+        <div class="header-brand-group">
+
+            <div class="national-crest">
+                <img
+                    src="image/jata.png"
+                    alt="Malaysia Logo"
+                >
+            </div>
+
+            <div class="logo-labels">
+
+                <span class="lbl-gov">
+                    KEMENTERIAN KESIHATAN MALAYSIA
+                </span>
+
+                <span class="lbl-state">
+                    JABATAN KESIHATAN NEGERI TERENGGANU
+                </span>
+
+                <span class="lbl-unit">
+                    UNIT LATIHAN
+                </span>
+
+            </div>
+
+            <div class="header-divider"></div>
+
+            <div class="app-brand">
+
+                <h1>
+                    i4uManage
+                </h1>
+
+                <p data-i18n="main_title_sub">
+                    SISTEM PENGURUSAN DOKUMEN & LATIHAN
+                </p>
+
+            </div>
+
         </div>
-    </section>
+
+
+        <div class="header-actions">
+
+            <a
+                href="index.html"
+                class="home-back-btn"
+                aria-label="Kembali ke halaman utama"
+            >
+                <span class="material-symbols-rounded">
+                    arrow_back
+                </span>
+
+                <span>
+                    Halaman Utama
+                </span>
+            </a>
+
+
+            <div
+                class="lang-switcher"
+                id="lang-switcher"
+            >
+                <button
+                    type="button"
+                    class="lang-btn active"
+                    data-lang="ms"
+                >
+                    BM
+                </button>
+
+                <span class="lang-sep">|</span>
+
+                <button
+                    type="button"
+                    class="lang-btn"
+                    data-lang="en"
+                >
+                    EN
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<section class="hero-section kerja-hero">
+
+    <div class="hero-grid">
+
+        <div class="hero-copy">
+
+            <div class="breadcrumb">
+
+                <a href="index.html">
+                    Utama
+                </a>
+
+                <span class="material-symbols-rounded">
+                    chevron_right
+                </span>
+
+                <span class="current">
+                    Kertas Kerja
+                </span>
+
+            </div>
+
+
+            <div class="hero-kicker">
+
+                <span class="material-symbols-rounded">
+                    description
+                </span>
+
+                <span>
+                    PENGURUSAN DOKUMEN
+                </span>
+
+            </div>
+
+
+            <h2
+                class="section-title"
+                data-i18n="kerja_page_title"
+            >
+                KERTAS KERJA
+            </h2>
+
+
+            <h3
+                class="section-subtitle"
+                data-i18n="bahagian_pengurusan"
+            >
+                Bahagian Pengurusan
+            </h3>
+
+
+            <p
+                class="section-desc"
+                data-i18n="kerja_page_desc"
+            >
+                Platform sehenti untuk mengakses semua
+                kertas kerja program, latihan, bengkel
+                dan dokumen rasmi mengikut bahagian
+                dengan cepat, tersusun dan selamat.
+            </p>
+
+        </div>
+
+
+        <div class="hero-summary">
+
+            <div class="hero-summary-icon">
+                <span class="material-symbols-rounded">
+                    folder_open
+                </span>
+            </div>
+
+            <div class="hero-summary-content">
+
+                <span class="hero-summary-label">
+                    KATEGORI TERSEDIA
+                </span>
+
+                <strong>
+                    8 Bahagian
+                </strong>
+
+                <p>
+                    Dokumen disusun mengikut kategori
+                    untuk akses yang lebih teratur.
+                </p>
+
+            </div>
+
+            <div class="hero-summary-badges">
+
+                <span>
+                    <span class="material-symbols-rounded">
+                        verified
+                    </span>
+                    Tersusun
+                </span>
+
+                <span>
+                    <span class="material-symbols-rounded">
+                        search
+                    </span>
+                    Mudah Dicari
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
 
     <!-- KERTAS KERJA CARDS GRID -->
     <main class="dashboard-grid">
