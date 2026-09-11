@@ -1238,3 +1238,427 @@ body {
     }
 
 }
+
+/* ==================================================
+   SLAID KURSUS - CATEGORY CARDS V2
+   ================================================== */
+
+.grid-container {
+    width: 100%;
+    max-width: 1180px;
+
+    margin: 0 auto;
+    padding: 36px 32px 46px;
+
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    gap: 18px;
+}
+
+
+/* ==================================================
+   CARD
+   ================================================== */
+
+.grid-container .card {
+    position: relative;
+
+    min-width: 0;
+    overflow: hidden;
+
+    display: flex;
+    flex-direction: column;
+
+    background: #ffffff;
+
+    border:
+        1px solid rgba(15, 49, 87, 0.08);
+
+    border-radius: 16px;
+
+    box-shadow:
+        0 8px 24px rgba(15, 23, 42, 0.06);
+
+    transition:
+        transform 0.22s ease,
+        box-shadow 0.22s ease,
+        border-color 0.22s ease;
+}
+
+
+@media (hover: hover) {
+
+    .grid-container .card:hover {
+        transform: translateY(-5px);
+
+        border-color:
+            rgba(37, 99, 235, 0.14);
+
+        box-shadow:
+            0 16px 34px rgba(15, 23, 42, 0.10);
+    }
+
+}
+
+
+/* ==================================================
+   CARD HEADER
+   ================================================== */
+
+.grid-container .card-header {
+    min-height: 42px;
+
+    padding: 9px 12px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+
+    position: relative;
+
+    background:
+        linear-gradient(
+            135deg,
+            #eef5fb,
+            #f8fafc
+        );
+
+    color: #0b3158;
+
+    border-bottom:
+        1px solid rgba(15, 49, 87, 0.06);
+}
+
+
+/* Number */
+
+.grid-container .card-number {
+    width: 27px;
+    height: 27px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #0b3158;
+    color: #ffffff;
+
+    font-size: 0.64rem;
+    font-weight: 750;
+}
+
+
+/* Header label */
+
+.grid-container .card-header-text {
+    color: #315879;
+
+    font-size: 0.60rem;
+    font-weight: 750;
+
+    letter-spacing: 0.7px;
+}
+
+
+/* Crest lama tak digunakan */
+
+.grid-container .card-crest {
+    display: none;
+}
+
+
+/* ==================================================
+   IMAGE
+   ================================================== */
+
+.grid-container .card-image {
+    position: relative;
+
+    height: 145px;
+
+    flex-shrink: 0;
+
+    overflow: hidden;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    transition:
+        transform 0.35s ease;
+}
+
+
+.grid-container .card-image::after {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(2, 20, 45, 0.01),
+            rgba(2, 20, 45, 0.30)
+        );
+
+    pointer-events: none;
+}
+
+
+@media (hover: hover) {
+
+    .grid-container
+    .card:hover
+    .card-image {
+        transform: scale(1.025);
+    }
+
+}
+
+
+/* ==================================================
+   CATEGORY TAG
+   ================================================== */
+
+.grid-container .card-tag {
+    position: relative;
+    z-index: 2;
+
+    max-width:
+        calc(100% - 20px);
+
+    margin: 0 0 10px 10px;
+
+    padding: 6px 9px;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.20);
+
+    border-radius: 7px;
+
+    background:
+        rgba(2, 20, 45, 0.72);
+
+    color: #ffffff;
+
+    font-size: 0.62rem;
+    font-weight: 700;
+
+    line-height: 1.25;
+    letter-spacing: 0.3px;
+
+    -webkit-backdrop-filter:
+        blur(8px);
+
+    backdrop-filter:
+        blur(8px);
+}
+
+
+/* ==================================================
+   BODY
+   ================================================== */
+
+.grid-container .card-body {
+    flex: 1;
+
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    padding: 18px 17px 16px;
+
+    text-align: left;
+}
+
+
+.grid-container .card-body p {
+    flex: 1;
+
+    min-height: 4.8em;
+
+    margin: 0 0 17px;
+
+    color: #64748b;
+
+    font-size: 0.72rem;
+
+    line-height: 1.6;
+}
+
+
+/* ==================================================
+   BUTTON
+   ================================================== */
+
+.grid-container .card-btn {
+    width: 100%;
+    min-height: 39px;
+
+    margin-top: auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+
+    gap: 7px;
+
+    padding: 9px 12px;
+
+    border: none;
+    border-radius: 9px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0b3158,
+            #082744
+        );
+
+    color: #ffffff;
+
+    font-size: 0.70rem;
+    font-weight: 650;
+
+    text-decoration: none;
+
+    box-shadow:
+        0 5px 13px rgba(11, 49, 88, 0.12);
+
+    transition:
+        transform 0.18s ease,
+        background 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+
+.grid-container
+.card-btn
+.fa-chevron-right {
+    margin-left: auto;
+
+    font-size: 0.62rem;
+
+    transition:
+        transform 0.18s ease;
+}
+
+
+@media (hover: hover) {
+
+    .grid-container .card-btn:hover {
+        transform: translateY(-1px);
+
+        background:
+            linear-gradient(
+                135deg,
+                #164d80,
+                #0b3158
+            );
+
+        box-shadow:
+            0 8px 18px rgba(11, 49, 88, 0.18);
+    }
+
+
+    .grid-container
+    .card-btn:hover
+    .fa-chevron-right {
+        transform: translateX(3px);
+    }
+
+}
+
+
+/* ==================================================
+   TABLET
+   ================================================== */
+
+@media (max-width: 1000px) {
+
+    .grid-container {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        padding:
+            32px 28px 42px;
+    }
+
+
+    .grid-container
+    .card-body p {
+        min-height: 0;
+    }
+
+}
+
+
+/* ==================================================
+   MOBILE
+   ================================================== */
+
+@media (max-width: 600px) {
+
+    .grid-container {
+        grid-template-columns:
+            1fr;
+
+        gap: 14px;
+
+        padding:
+            26px 18px 34px;
+    }
+
+
+    .grid-container .card {
+        border-radius: 14px;
+    }
+
+
+    .grid-container .card-image {
+        height: 145px;
+    }
+
+
+    .grid-container .card-body {
+        padding:
+            17px 15px 15px;
+    }
+
+
+    .grid-container
+    .card-body p {
+        min-height: 0;
+
+        font-size: 0.72rem;
+    }
+
+}
+
+
+/* ==================================================
+   REDUCED MOTION
+   ================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .grid-container .card,
+    .grid-container .card-image,
+    .grid-container .card-btn {
+        transition: none !important;
+    }
+
+}
