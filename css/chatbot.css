@@ -4117,3 +4117,332 @@ a::before {
     }
 
 }
+
+/* ==================================================
+   SARAH COMPOSER / INPUT - PREMIUM V2
+   ================================================== */
+
+.chat-footer .chat-form {
+
+    position: relative;
+
+    border:
+        1px solid
+        rgba(148, 163, 184, 0.28);
+
+    outline:
+        none;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.86),
+            rgba(248, 250, 252, 0.74)
+        );
+
+    box-shadow:
+        0 4px 14px
+        rgba(15, 23, 42, 0.04),
+        inset 0 1px 0
+        rgba(255, 255, 255, 0.75);
+
+    transition:
+        border-color 0.20s ease,
+        box-shadow 0.20s ease,
+        background 0.20s ease;
+}
+
+
+/* ==================================================
+   FOCUS STATE
+   ================================================== */
+
+.chat-footer
+.chat-form:focus-within {
+
+    outline:
+        none;
+
+    border-color:
+        rgba(37, 99, 235, 0.42);
+
+    background:
+        rgba(255, 255, 255, 0.92);
+
+    box-shadow:
+        0 0 0 3px
+        rgba(37, 99, 235, 0.08),
+
+        0 8px 24px
+        rgba(37, 99, 235, 0.08),
+
+        inset 0 1px 0
+        rgba(255, 255, 255, 0.9);
+}
+
+
+/* ==================================================
+   TEXTAREA
+   ================================================== */
+
+.chat-form
+.message-input {
+
+    color:
+        #0f172a;
+
+    caret-color:
+        #2563eb;
+
+    transition:
+        color 0.18s ease;
+}
+
+
+.chat-form
+.message-input::placeholder {
+
+    color:
+        #94a3b8;
+
+    opacity:
+        1;
+}
+
+
+/* ==================================================
+   CONTROL BUTTONS
+   ================================================== */
+
+.chat-form
+.chat-controls
+button {
+
+    transition:
+        background 0.18s ease,
+        color 0.18s ease,
+        opacity 0.18s ease,
+        transform 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+
+/* Emoji + attachment */
+
+.chat-form
+.chat-controls
+button:not(#send-message) {
+
+    color:
+        #64748b;
+}
+
+
+@media (hover: hover) {
+
+    .chat-form
+    .chat-controls
+    button:not(#send-message):hover {
+
+        color:
+            #2563eb;
+
+        background:
+            rgba(37, 99, 235, 0.07);
+
+        transform:
+            translateY(-1px);
+    }
+
+}
+
+
+/* ==================================================
+   SEND BUTTON - IDLE
+   ================================================== */
+
+.chat-form
+#send-message {
+
+    background:
+        rgba(37, 99, 235, 0.10);
+
+    color:
+        #64748b;
+
+    box-shadow:
+        none;
+
+    transform:
+        scale(0.94);
+
+    opacity:
+        0.72;
+}
+
+
+/* ==================================================
+   SEND BUTTON - USER HAS TEXT
+   ================================================== */
+
+.chat-form:has(
+    .message-input:not(:placeholder-shown)
+)
+#send-message {
+
+    color:
+        #ffffff;
+
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #1d4ed8
+        );
+
+    opacity:
+        1;
+
+    transform:
+        scale(1);
+
+    box-shadow:
+        0 5px 14px
+        rgba(37, 99, 235, 0.24);
+}
+
+
+/* ==================================================
+   SEND BUTTON - ATTACHMENT ONLY
+   ================================================== */
+
+.chat-form:has(
+    .file-upload-wrapper.file-uploaded
+)
+#send-message {
+
+    color:
+        #ffffff;
+
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #1d4ed8
+        );
+
+    opacity:
+        1;
+
+    transform:
+        scale(1);
+
+    box-shadow:
+        0 5px 14px
+        rgba(37, 99, 235, 0.24);
+}
+
+
+/* ==================================================
+   ACTIVE SEND HOVER
+   ================================================== */
+
+@media (hover: hover) {
+
+    .chat-form:has(
+        .message-input:not(:placeholder-shown)
+    )
+    #send-message:hover,
+
+    .chat-form:has(
+        .file-upload-wrapper.file-uploaded
+    )
+    #send-message:hover {
+
+        background:
+            linear-gradient(
+                135deg,
+                #1d4ed8,
+                #1e40af
+            );
+
+        transform:
+            translateY(-1px)
+            scale(1.03);
+
+        box-shadow:
+            0 7px 18px
+            rgba(37, 99, 235, 0.30);
+    }
+
+}
+
+
+/* Click */
+
+.chat-form
+#send-message:active {
+
+    transform:
+        scale(0.94);
+}
+
+
+/* ==================================================
+   DISABLED WHILE SARAH IS PROCESSING
+   ================================================== */
+
+.chat-form
+#send-message:disabled {
+
+    background:
+        rgba(148, 163, 184, 0.12);
+
+    color:
+        #94a3b8;
+
+    opacity:
+        0.55;
+
+    box-shadow:
+        none;
+
+    transform:
+        scale(0.94);
+
+    cursor:
+        default;
+}
+
+
+/* Input disabled */
+
+.chat-form
+.message-input:disabled {
+
+    color:
+        #94a3b8;
+
+    cursor:
+        default;
+}
+
+
+/* ==================================================
+   MOBILE
+   ================================================== */
+
+@media (max-width: 600px) {
+
+    .chat-footer
+    .chat-form:focus-within {
+
+        box-shadow:
+            0 0 0 2px
+            rgba(37, 99, 235, 0.07),
+
+            0 5px 16px
+            rgba(37, 99, 235, 0.07);
+    }
+
+}
