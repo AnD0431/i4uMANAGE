@@ -2570,3 +2570,336 @@ img.malaysia-logo {
     }
 
 }
+
+/* ==================================================
+   I4UMANAGE HOME FOOTER - PREMIUM V2
+   ================================================== */
+
+.footer-values {
+
+    position:
+        relative;
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap:
+        0;
+
+    width:
+        100%;
+
+    padding:
+        22px
+        max(
+            24px,
+            calc((100% - 1180px) / 2)
+        )
+        0;
+
+    box-sizing:
+        border-box;
+
+    background:
+        linear-gradient(
+            180deg,
+            #061a31 0%,
+            #041426 100%
+        );
+
+    color:
+        #ffffff;
+
+    border-top:
+        1px solid
+        rgba(255, 255, 255, 0.08);
+}
+
+
+/* ==================================================
+   VALUE ITEM
+   ================================================== */
+
+.footer-values
+.value-item {
+
+    position:
+        relative;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        11px;
+
+    min-width:
+        0;
+
+    padding:
+        14px 20px;
+}
+
+
+/* Divider between items */
+
+.footer-values
+.value-item:not(:last-of-type)::after {
+
+    content:
+        "";
+
+    position:
+        absolute;
+
+    top:
+        20%;
+
+    right:
+        0;
+
+    width:
+        1px;
+
+    height:
+        60%;
+
+    background:
+        rgba(255, 255, 255, 0.08);
+}
+
+
+/* ==================================================
+   ICON
+   ================================================== */
+
+.footer-values
+.value-item > i {
+
+    width:
+        34px;
+
+    height:
+        34px;
+
+    flex-shrink:
+        0;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        10px;
+
+    background:
+        rgba(245, 158, 11, 0.10);
+
+    color:
+        #f59e0b;
+
+    font-size:
+        15px;
+}
+
+
+/* ==================================================
+   TEXT
+   ================================================== */
+
+.footer-values
+.value-item div {
+
+    min-width:
+        0;
+}
+
+
+.footer-values
+.value-item strong {
+
+    display:
+        block;
+
+    color:
+        #ffffff;
+
+    font-size:
+        0.69rem;
+
+    font-weight:
+        750;
+
+    line-height:
+        1.2;
+
+    letter-spacing:
+        0.3px;
+}
+
+
+.footer-values
+.value-item p {
+
+    margin:
+        3px 0 0;
+
+    color:
+        rgba(255, 255, 255, 0.55);
+
+    font-size:
+        0.58rem;
+
+    line-height:
+        1.35;
+}
+
+
+/* ==================================================
+   TAGLINE
+   ================================================== */
+
+.footer-values
+.footer-tagline {
+
+    grid-column:
+        1 / -1;
+
+    width:
+        100%;
+
+    margin-top:
+        10px;
+
+    padding:
+        15px 0 17px;
+
+    border-top:
+        1px solid
+        rgba(255, 255, 255, 0.08);
+
+    color:
+        #f59e0b;
+
+    font-size:
+        0.60rem;
+
+    font-weight:
+        600;
+
+    letter-spacing:
+        0.15px;
+
+    text-align:
+        center;
+}
+
+
+/* ==================================================
+   TABLET
+   ================================================== */
+
+@media (max-width: 900px) {
+
+    .footer-values {
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        padding:
+            18px 24px 0;
+    }
+
+
+    .footer-values
+    .value-item:nth-child(2)::after {
+
+        display:
+            none;
+    }
+
+
+    .footer-values
+    .value-item {
+
+        padding:
+            13px 16px;
+    }
+
+}
+
+
+/* ==================================================
+   MOBILE
+   ================================================== */
+
+@media (max-width: 600px) {
+
+    .footer-values {
+
+        grid-template-columns:
+            1fr;
+
+        padding:
+            14px 18px 0;
+    }
+
+
+    .footer-values
+    .value-item {
+
+        padding:
+            12px 5px;
+
+        border-bottom:
+            1px solid
+            rgba(255, 255, 255, 0.06);
+    }
+
+
+    .footer-values
+    .value-item::after {
+
+        display:
+            none;
+    }
+
+
+    .footer-values
+    .value-item > i {
+
+        width:
+            32px;
+
+        height:
+            32px;
+
+        font-size:
+            14px;
+    }
+
+
+    .footer-values
+    .footer-tagline {
+
+        margin-top:
+            0;
+
+        border-top:
+            none;
+
+        padding:
+            16px 0 18px;
+    }
+
+}
