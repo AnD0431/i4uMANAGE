@@ -3280,3 +3280,44 @@ body {
     width: 100%;
     flex-shrink: 0;
 }
+
+/* =========================================================
+   LARGE DESKTOP WIDTH
+   Gunakan lebih banyak ruang skrin pada desktop
+   ========================================================= */
+
+@media (min-width: 1100px) {
+
+    /* HEADER / NAVBAR */
+    .navbar {
+        width: min(94%, 1600px);
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+
+    /* HERO CONTENT */
+    .hero-content {
+        width: min(94%, 1600px);
+        max-width: none;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+
+    /* SERVICE / CATEGORY SECTION */
+    .cards-container {
+        width: min(94%, 1600px);
+        max-width: none;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+
+    /* FOOTER CONTENT */
+    .footer-values {
+        padding-left: 3%;
+        padding-right: 3%;
+    }
+
+}
