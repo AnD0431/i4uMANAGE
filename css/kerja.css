@@ -1615,3 +1615,541 @@ body {
     }
 
 }
+
+/* ==================================================
+   KERTAS KERJA - CATEGORY CARDS V2
+   ================================================== */
+
+.dashboard-grid {
+
+    width:
+        100%;
+
+    max-width:
+        1180px;
+
+    margin:
+        0 auto;
+
+    padding:
+        36px 32px 46px;
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap:
+        18px;
+}
+
+
+/* ==================================================
+   CARD
+   ================================================== */
+
+.dashboard-grid
+.doc-card {
+
+    position:
+        relative;
+
+    min-width:
+        0;
+
+    overflow:
+        hidden;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    background:
+        #ffffff;
+
+    border:
+        1px solid
+        rgba(15, 49, 87, 0.08);
+
+    border-radius:
+        16px;
+
+    box-shadow:
+        0 8px 24px
+        rgba(15, 23, 42, 0.06);
+
+    transition:
+        transform 0.22s ease,
+        box-shadow 0.22s ease,
+        border-color 0.22s ease;
+}
+
+
+@media (hover: hover) {
+
+    .dashboard-grid
+    .doc-card:hover {
+
+        transform:
+            translateY(-5px);
+
+        border-color:
+            rgba(37, 99, 235, 0.14);
+
+        box-shadow:
+            0 16px 34px
+            rgba(15, 23, 42, 0.10);
+    }
+
+}
+
+
+/* Hilangkan theme lama */
+
+.dashboard-grid
+.bg-purple-theme {
+
+    background:
+        #ffffff;
+}
+
+
+/* ==================================================
+   CARD IMAGE
+   ================================================== */
+
+.dashboard-grid
+.doc-img-wrapper {
+
+    position:
+        relative;
+
+    height:
+        145px;
+
+    flex-shrink:
+        0;
+
+    overflow:
+        hidden;
+
+    background-size:
+        cover;
+
+    background-position:
+        center;
+
+    background-repeat:
+        no-repeat;
+
+    transition:
+        transform 0.35s ease;
+}
+
+
+.dashboard-grid
+.doc-img-wrapper::after {
+
+    content:
+        "";
+
+    position:
+        absolute;
+
+    inset:
+        0;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(2, 20, 45, 0.01),
+            rgba(2, 20, 45, 0.18)
+        );
+
+    pointer-events:
+        none;
+}
+
+
+@media (hover: hover) {
+
+    .dashboard-grid
+    .doc-card:hover
+    .doc-img-wrapper {
+
+        transform:
+            scale(1.025);
+    }
+
+}
+
+
+/* ==================================================
+   NUMBER BADGE
+   ================================================== */
+
+.dashboard-grid
+.doc-badge {
+
+    position:
+        absolute;
+
+    top:
+        12px;
+
+    left:
+        12px;
+
+    z-index:
+        5;
+
+    width:
+        28px;
+
+    height:
+        28px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.25);
+
+    border-radius:
+        8px;
+
+    background:
+        rgba(2, 20, 45, 0.74);
+
+    color:
+        #ffffff;
+
+    font-size:
+        0.67rem;
+
+    font-weight:
+        750;
+
+    -webkit-backdrop-filter:
+        blur(8px);
+
+    backdrop-filter:
+        blur(8px);
+}
+
+
+/* ==================================================
+   CONTENT
+   ================================================== */
+
+.dashboard-grid
+.doc-content {
+
+    flex:
+        1;
+
+    min-width:
+        0;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    justify-content:
+        flex-start;
+
+    padding:
+        19px 17px 16px;
+
+    text-align:
+        left;
+}
+
+
+.dashboard-grid
+.doc-content h4 {
+
+    margin:
+        0 0 8px;
+
+    color:
+        #0b3158;
+
+    font-size:
+        0.86rem;
+
+    font-weight:
+        750;
+
+    line-height:
+        1.3;
+
+    letter-spacing:
+        0;
+
+    overflow-wrap:
+        anywhere;
+}
+
+
+.dashboard-grid
+.doc-content p {
+
+    flex:
+        1;
+
+    min-height:
+        4.8em;
+
+    margin:
+        0 0 17px;
+
+    color:
+        #64748b;
+
+    font-size:
+        0.72rem;
+
+    line-height:
+        1.6;
+}
+
+
+/* ==================================================
+   ACTION BUTTON
+   Works for <button> and <a>
+   ================================================== */
+
+.dashboard-grid
+.doc-action-btn {
+
+    width:
+        100%;
+
+    min-height:
+        39px;
+
+    margin-top:
+        auto;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        flex-start;
+
+    gap:
+        7px;
+
+    padding:
+        9px 12px;
+
+    box-sizing:
+        border-box;
+
+    border:
+        none;
+
+    border-radius:
+        9px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0b3158,
+            #082744
+        );
+
+    color:
+        #ffffff;
+
+    font-family:
+        inherit;
+
+    font-size:
+        0.70rem;
+
+    font-weight:
+        650;
+
+    text-decoration:
+        none;
+
+    cursor:
+        pointer;
+
+    box-shadow:
+        0 5px 13px
+        rgba(11, 49, 88, 0.12);
+
+    transition:
+        transform 0.18s ease,
+        background 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+
+.dashboard-grid
+.doc-action-btn
+.fa-chevron-right {
+
+    margin-left:
+        auto;
+
+    font-size:
+        0.62rem;
+
+    transition:
+        transform 0.18s ease;
+}
+
+
+@media (hover: hover) {
+
+    .dashboard-grid
+    .doc-action-btn:hover {
+
+        transform:
+            translateY(-1px);
+
+        background:
+            linear-gradient(
+                135deg,
+                #164d80,
+                #0b3158
+            );
+
+        box-shadow:
+            0 8px 18px
+            rgba(11, 49, 88, 0.18);
+    }
+
+
+    .dashboard-grid
+    .doc-action-btn:hover
+    .fa-chevron-right {
+
+        transform:
+            translateX(3px);
+    }
+
+}
+
+
+/* ==================================================
+   TABLET
+   ================================================== */
+
+@media (max-width: 1000px) {
+
+    .dashboard-grid {
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        padding:
+            32px 28px 42px;
+    }
+
+
+    .dashboard-grid
+    .doc-content p {
+
+        min-height:
+            0;
+    }
+
+}
+
+
+/* ==================================================
+   MOBILE
+   ================================================== */
+
+@media (max-width: 600px) {
+
+    .dashboard-grid {
+
+        grid-template-columns:
+            1fr;
+
+        gap:
+            14px;
+
+        padding:
+            26px 18px 34px;
+    }
+
+
+    .dashboard-grid
+    .doc-img-wrapper {
+
+        height:
+            145px;
+    }
+
+
+    .dashboard-grid
+    .doc-content {
+
+        padding:
+            17px 15px 15px;
+    }
+
+
+    .dashboard-grid
+    .doc-content h4 {
+
+        font-size:
+            0.84rem;
+    }
+
+
+    .dashboard-grid
+    .doc-content p {
+
+        min-height:
+            0;
+
+        font-size:
+            0.72rem;
+    }
+
+}
+
+
+/* ==================================================
+   REDUCED MOTION
+   ================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .dashboard-grid
+    .doc-card,
+
+    .dashboard-grid
+    .doc-img-wrapper,
+
+    .dashboard-grid
+    .doc-action-btn {
+
+        transition:
+            none !important;
+    }
+
+}
