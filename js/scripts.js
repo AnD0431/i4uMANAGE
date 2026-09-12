@@ -3024,6 +3024,24 @@ function getSarahThinkingState(message = "") {
 
     }
 
+    // ========================================
+// ARAHAN KAWALAN DALAMAN
+// ========================================
+
+if (
+    isAkdQuery(
+        message
+    )
+) {
+
+    return {
+        icon:
+            "policy",
+
+        text:
+            "Sarah sedang membaca Arahan Kawalan Dalaman..."
+    };
+}
 
     // ========================================
     // DOCUMENT SEARCH

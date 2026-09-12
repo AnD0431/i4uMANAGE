@@ -4251,6 +4251,440 @@ function isAkdQuery(
     );
 }
 
+// =========================================================
+// AKD SMART DOCUMENT RETRIEVAL
+// Pilih dokumen berdasarkan soalan pengguna
+// =========================================================
+
+function normalizeAkdText(
+    value = ""
+) {
+
+    return String(value || "")
+        .toLowerCase()
+
+        .normalize("NFD")
+
+        .replace(
+            /[\u0300-\u036f]/g,
+            ""
+        )
+
+        .replace(
+            /[^a-z0-9]+/g,
+            " "
+        )
+
+        .replace(
+            /\s+/g,
+            " "
+        )
+
+        .trim();
+}
+
+
+// =========================================================
+// AKD CATALOG REQUEST
+// User cuma mahu senarai dokumen
+// =========================================================
+
+function isAkdCatalogRequest(
+    message = ""
+) {
+
+    const text =
+        normalizeAkdText(
+            message
+        );
+
+
+    const patterns = [
+
+        "senarai dokumen",
+        "senaraikan dokumen",
+        "semua dokumen",
+        "dokumen tersedia",
+        "dokumen yang ada",
+        "apa dokumen",
+        "list dokumen"
+
+    ];
+
+
+    return patterns.some(
+        pattern =>
+            text.includes(pattern)
+    );
+}
+
+
+// =========================================================
+// AKD QUERY TERMS
+// =========================================================
+
+function getAkdQueryTerms(
+    message = ""
+) {
+
+    const stopWords =
+        new Set([
+
+            "arahan",
+            "kawalan",
+            "dalaman",
+            "akd",
+
+            "dokumen",
+            "berdasarkan",
+            "dalam",
+            "daripada",
+
+            "yang",
+            "dan",
+            "atau",
+            "bagi",
+            "untuk",
+
+            "apa",
+            "apakah",
+            "berapa",
+            "macam",
+            "mana",
+
+            "saya",
+            "nak",
+            "mahu",
+            "boleh",
+            "tolong",
+
+            "ini",
+            "itu",
+            "tersebut"
+
+        ]);
+
+
+    return [
+        ...new Set(
+
+            normalizeAkdText(
+                message
+            )
+                .split(" ")
+
+                .filter(
+                    term =>
+                        term.length >= 3 &&
+                        !stopWords.has(term)
+                )
+
+        )
+    ];
+}
+
+
+// =========================================================
+// SCORE AKD DOCUMENT
+// =========================================================
+
+function scoreAkdDocument(
+    document,
+    message
+) {
+
+    const query =
+        normalizeAkdText(
+            message
+        );
+
+
+    const name =
+        normalizeAkdText(
+            document?.name || ""
+        );
+
+
+    const terms =
+        getAkdQueryTerms(
+            message
+        );
+
+
+    let score = 0;
+
+
+    // ========================================
+    // TOKEN MATCH
+    // ========================================
+
+    terms.forEach(
+        term => {
+
+            if (
+                name.includes(term)
+            ) {
+
+                score +=
+                    term.length >= 7
+                        ? 20
+                        : 10;
+            }
+
+        }
+    );
+
+
+    // ========================================
+    // TOPIC BOOST
+    // ========================================
+
+    const topicRules = [
+
+        {
+            queries: [
+                "belanjawan",
+                "budget",
+                "gp belanjawan"
+            ],
+
+            documents: [
+                "belanjawan"
+            ]
+        },
+
+        {
+            queries: [
+                "cenderahati",
+                "promosi",
+                "kempen"
+            ],
+
+            documents: [
+                "cenderahati",
+                "promosi",
+                "kempen"
+            ]
+        },
+
+        {
+            queries: [
+                "sekatan peruntukan",
+                "perbelanjaan mengurus",
+                "oe"
+            ],
+
+            documents: [
+                "sekatan peruntukan",
+                "perbelanjaan mengurus",
+                "oe"
+            ]
+        },
+
+        {
+            queries: [
+                "kadar hadiah",
+                "hadiah"
+            ],
+
+            documents: [
+                "kadar hadiah",
+                "hadiah"
+            ]
+        },
+
+        {
+            queries: [
+                "ap11",
+                "api11"
+            ],
+
+            documents: [
+                "ap11",
+                "api11"
+            ]
+        }
+
+    ];
+
+
+    topicRules.forEach(
+        rule => {
+
+            const queryMatch =
+                rule.queries.some(
+                    keyword =>
+                        query.includes(
+                            keyword
+                        )
+                );
+
+
+            if (!queryMatch) {
+                return;
+            }
+
+
+            const documentMatch =
+                rule.documents.some(
+                    keyword =>
+                        name.includes(
+                            keyword
+                        )
+                );
+
+
+            if (documentMatch) {
+
+                score += 80;
+            }
+
+        }
+    );
+
+
+    // ========================================
+    // YEAR
+    // ========================================
+
+    const yearMatch =
+        query.match(
+            /\b20\d{2}\b/
+        );
+
+
+    if (
+        yearMatch &&
+        Number(document?.year) ===
+            Number(yearMatch[0])
+    ) {
+
+        score += 30;
+    }
+
+
+    return score;
+}
+
+
+// =========================================================
+// SELECT TOP AKD DOCUMENTS
+// =========================================================
+
+function selectAkdDocuments(
+    documents = [],
+    message = "",
+    maxDocuments = 3
+) {
+
+    if (
+        !Array.isArray(documents) ||
+        documents.length === 0
+    ) {
+
+        return [];
+    }
+
+
+    const scored =
+        documents
+            .map(
+                document => ({
+
+                    document:
+
+                        document,
+
+                    score:
+
+                        scoreAkdDocument(
+                            document,
+                            message
+                        )
+
+                })
+            )
+
+            .sort(
+                (a, b) => {
+
+                    if (
+                        b.score !==
+                        a.score
+                    ) {
+
+                        return (
+                            b.score -
+                            a.score
+                        );
+                    }
+
+
+                    return (
+                        new Date(
+                            b.document
+                                ?.updatedAt ||
+                            0
+                        )
+                        -
+                        new Date(
+                            a.document
+                                ?.updatedAt ||
+                            0
+                        )
+                    );
+
+                }
+            );
+
+
+    const matched =
+        scored.filter(
+            item =>
+                item.score > 0
+        );
+
+
+    // Ada match yang jelas
+    if (
+        matched.length > 0
+    ) {
+
+        return matched
+            .slice(
+                0,
+                maxDocuments
+            )
+            .map(
+                item =>
+                    item.document
+            );
+    }
+
+
+    // ========================================
+    // FALLBACK
+    // ========================================
+    // Koleksi masih kecil:
+    // baca semua untuk elak terlepas fakta.
+    // Apabila koleksi besar nanti,
+    // limit kepada dokumen terbaru.
+
+    if (
+        documents.length <= 5
+    ) {
+
+        return documents;
+    }
+
+
+    return documents
+        .slice(
+            0,
+            maxDocuments
+        );
+}
+
 
 // =========================================================
 // GET AKD DOCUMENT CATALOG
@@ -4673,11 +5107,12 @@ function appendAkdDocumentsToPayload(
 // =========================================================
 
 function getAkdInstruction(
-    documents = []
+    availableDocuments = [],
+    loadedDocuments = []
 ) {
 
-    const documentNames =
-        documents
+    const availableNames =
+        availableDocuments
             .map(
                 document =>
                     `- ${document.name}`
@@ -4685,61 +5120,93 @@ function getAkdInstruction(
             .join("\n");
 
 
+    const loadedNames =
+        loadedDocuments.length > 0
+
+            ? loadedDocuments
+                .map(
+                    document =>
+                        `- ${document.name}`
+                )
+                .join("\n")
+
+            : "Tiada PDF perlu dibaca untuk permintaan ini.";
+
+
     return `
 MOD ARAHAN KAWALAN DALAMAN JKNT.
 
-Pengguna sedang bertanya tentang dokumen
+Pengguna sedang bertanya tentang koleksi
 Arahan Kawalan Dalaman yang disimpan dalam
 i4uManage.
 
-DOKUMEN YANG DIBEKALKAN:
 
-${documentNames}
+=========================================================
+KOLEKSI AKD YANG TERSEDIA
+=========================================================
+
+${availableNames}
+
+
+=========================================================
+DOKUMEN YANG DIPILIH UNTUK SOALAN INI
+=========================================================
+
+${loadedNames}
+
 
 PERATURAN WAJIB:
 
-1. BACA dokumen PDF yang dilampirkan dalam request ini.
+1. Jika PDF dilampirkan dalam request ini,
+   BACA kandungan PDF tersebut sebelum menjawab.
 
 2. Jawab berdasarkan kandungan sebenar dokumen
-   Arahan Kawalan Dalaman tersebut.
+   Arahan Kawalan Dalaman yang dibekalkan.
 
-3. Jangan mereka maklumat yang tidak terdapat
+3. Jangan mereka fakta yang tidak terdapat
    dalam dokumen.
 
-4. Jika jawapan tidak dapat ditemui dalam dokumen
-   yang dibekalkan, nyatakan dengan jelas bahawa
-   maklumat tersebut tidak ditemui dalam koleksi
-   Arahan Kawalan Dalaman yang tersedia.
+4. Jika pengguna cuma meminta senarai dokumen,
+   gunakan senarai KOLEKSI AKD YANG TERSEDIA.
+   Tidak perlu mereka isi kandungan dokumen.
 
-5. Jika lebih daripada satu dokumen berkaitan,
-   bandingkan kandungannya sebelum menjawab.
+5. Jika jawapan tidak ditemui dalam dokumen
+   yang telah dibaca, nyatakan bahawa maklumat
+   tersebut tidak ditemui dalam dokumen AKD
+   yang dipilih.
 
-6. Jika terdapat maklumat yang bercanggah,
-   nyatakan nama dokumen yang memberikan
-   maklumat berbeza.
+6. Jangan gunakan pengetahuan dalaman model
+   sebagai pengganti fakta dalam AKD.
 
-7. Nyatakan nama dokumen yang digunakan sebagai
-   rujukan pada bahagian akhir jawapan.
+7. Jangan cipta:
+   - kadar;
+   - amaun;
+   - tarikh;
+   - kelulusan;
+   - nombor arahan;
+   - syarat;
+   - atau fakta operasi.
 
-8. Jangan cipta nombor arahan, kadar, amaun,
-   tarikh, kelulusan atau syarat.
+8. Jika lebih daripada satu PDF diberikan,
+   bandingkan dokumen sebelum membuat kesimpulan.
 
-9. Jangan gunakan pengetahuan dalaman model
-   sebagai bukti untuk maklumat yang sepatutnya
-   datang daripada AKD.
+9. Nyatakan dokumen yang benar-benar digunakan
+   pada akhir jawapan.
 
-10. Jangan jalankan Google Search hanya untuk
-    menggantikan kandungan dokumen AKD.
+10. Jangan nyatakan dokumen sebagai rujukan
+    jika kandungannya tidak digunakan.
 
-11. Jawab perkara yang pengguna tanya sahaja.
+11. Jangan jalankan Google Search untuk
+    menggantikan dokumen AKD.
 
 12. Gunakan Bahasa Melayu profesional dan jelas
     kecuali pengguna meminta bahasa lain.
 
-FORMAT RUJUKAN:
+
+FORMAT AKHIR:
 
 Rujukan AKD:
-- Nama dokumen yang digunakan
+- Nama dokumen sebenar yang digunakan
 `;
 }
 
@@ -5335,10 +5802,40 @@ if (akdMode) {
 
     } else {
 
-        const akdPdfs =
-            await loadAkdPdfs(
-                akdDocuments
-            );
+// ========================================
+// SMART AKD SELECTION
+// ========================================
+
+const selectedAkdDocuments =
+
+    isAkdCatalogRequest(
+        latestUserMessage
+    )
+
+        // Kalau cuma minta senarai,
+        // tak perlu download PDF.
+        ? []
+
+        : selectAkdDocuments(
+            akdDocuments,
+            latestUserMessage,
+            3
+        );
+
+
+console.log(
+    "I4U_AKD_SELECTED",
+    selectedAkdDocuments.map(
+        document =>
+            document.name
+    )
+);
+
+
+const akdPdfs =
+    await loadAkdPdfs(
+        selectedAkdDocuments
+    );
 
 
         if (
@@ -5374,9 +5871,10 @@ if (akdMode) {
                 appendSystemInstruction(
                     payload,
                     getAkdInstruction(
-                        akdDocumentsUsed
-                    )
-                );
+                    akdDocuments,
+                    akdDocumentsUsed
+                )
+            );
 
         }
 
