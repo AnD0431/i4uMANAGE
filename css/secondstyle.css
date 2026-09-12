@@ -302,6 +302,7 @@ body {
 .img-treasury { background-image: url('../image/treasury.png'); }
 .img-pekeliling-kkm { background-image: url('../image/pekeling.png'); }
 .img-akta-kkm { background-image: url('../image/akta.png'); }
+.img-akd { background-image: url('../image/akd.png');}
 
 .badge-number-sub {
     position: absolute;
