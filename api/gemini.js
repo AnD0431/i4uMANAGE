@@ -1798,6 +1798,242 @@ async function callGemini(
 }
 
 // =========================================================
+// AKD CLAIM AUDIT
+// Second-pass verification terhadap PDF sebenar
+// =========================================================
+
+async function auditAkdResponse(
+    googleUrl,
+    originalPayload,
+    originalData,
+    sourceDocuments = []
+) {
+
+    const originalAnswer =
+        getVisibleFinalResponseText(
+            originalData
+        );
+
+
+    if (
+        !originalAnswer ||
+        !Array.isArray(sourceDocuments) ||
+        sourceDocuments.length === 0
+    ) {
+
+        return {
+            data:
+                originalData,
+
+            audited:
+                false,
+
+            reason:
+                "No AKD answer or source document."
+        };
+    }
+
+
+    const documentNames =
+        sourceDocuments
+            .map(
+                document =>
+                    `- ${document.name}`
+            )
+            .join("\n");
+
+
+    const auditInstruction =
+        `
+AKD CLAIM AUDIT — SEMAKAN WAJIB.
+
+Anda sedang membuat semakan kedua terhadap
+jawapan yang telah dihasilkan berdasarkan
+dokumen Arahan Kawalan Dalaman KKM.
+
+DOKUMEN SUMBER YANG DIBENARKAN:
+
+${documentNames}
+
+
+TUGAS:
+
+1. Baca semula PDF AKD yang telah dilampirkan
+   dalam perbualan ini.
+
+2. Semak SETIAP fakta dalam jawapan terdahulu.
+
+3. Beri perhatian khusus kepada:
+   - amaun;
+   - kadar;
+   - nombor;
+   - tarikh;
+   - kod;
+   - nombor pekeliling;
+   - syarat;
+   - kelulusan;
+   - had;
+   - pengecualian;
+   - bilangan pegawai;
+   - tempoh;
+   - nama pihak berkuasa.
+
+4. Jika sesuatu fakta TIDAK disokong oleh PDF,
+   BUANG fakta tersebut.
+
+5. Jika sesuatu fakta tidak tepat,
+   BETULKAN berdasarkan PDF.
+
+6. Jangan gunakan pengetahuan umum,
+   memori model atau Google Search.
+
+7. Jangan menambah fakta baru yang tidak
+   diperlukan untuk menjawab soalan pengguna.
+
+8. Kekalkan jawapan dalam Bahasa Melayu
+   profesional dan mudah difahami.
+
+9. Jangan terangkan proses audit kepada pengguna.
+
+10. Pulangkan JAWAPAN AKHIR sahaja.
+
+11. Di akhir jawapan, kekalkan format:
+
+Rujukan AKD:
+- Nama dokumen sebenar yang digunakan
+
+12. Hanya senaraikan dokumen yang benar-benar
+    menyokong jawapan akhir.
+
+Jawapan terdahulu perlu dianggap sebagai DRAF
+yang mesti disahkan semula terhadap PDF.
+        `.trim();
+
+
+    const auditPayload = {
+
+        ...originalPayload,
+
+        contents: [
+
+            ...(
+                Array.isArray(
+                    originalPayload?.contents
+                )
+                    ? originalPayload.contents
+                    : []
+            ),
+
+            {
+                role:
+                    "model",
+
+                parts: [
+                    {
+                        text:
+                            originalAnswer
+                    }
+                ]
+            },
+
+            {
+                role:
+                    "user",
+
+                parts: [
+                    {
+                        text:
+                            auditInstruction
+                    }
+                ]
+            }
+
+        ]
+
+    };
+
+
+    try {
+
+        const auditResult =
+            await callGemini(
+                googleUrl,
+                auditPayload,
+                60000
+            );
+
+
+        if (
+            !auditResult.response.ok ||
+            !hasUsableFinalResponse(
+                auditResult.data
+            )
+        ) {
+
+            console.warn(
+                "I4U_AKD_CLAIM_AUDIT_FAILED"
+            );
+
+            return {
+                data:
+                    originalData,
+
+                audited:
+                    false,
+
+                reason:
+                    "Audit response unavailable."
+            };
+        }
+
+
+        console.log(
+            "I4U_AKD_CLAIM_AUDIT_PASS",
+            {
+                documents:
+                    sourceDocuments.map(
+                        document =>
+                            document.name
+                    )
+            }
+        );
+
+
+        return {
+            data:
+                auditResult.data,
+
+            audited:
+                true,
+
+            reason:
+                "AKD claims verified."
+        };
+
+
+    } catch (error) {
+
+        console.error(
+            "I4U_AKD_CLAIM_AUDIT_ERROR",
+            error?.message || error
+        );
+
+
+        return {
+            data:
+                originalData,
+
+            audited:
+                false,
+
+            reason:
+                "Audit request failed."
+        };
+    }
+
+}
+
+// =========================================================
 // READ GOVERNMENT CURRENT-STATUS MARKER
 // =========================================================
 
@@ -6164,11 +6400,51 @@ if (governmentMode) {
         }
 
 
-        // ===============================
-        // STANDARD MODE
-        // ===============================
+// ===============================
+// STANDARD / AKD MODE
+// ===============================
 
-        if (!governmentMode) {
+if (!governmentMode) {
+
+    // ========================================
+    // AKD CLAIM AUDIT
+    // Semak jawapan sekali lagi terhadap
+    // PDF sebenar sebelum dihantar ke user.
+    // ========================================
+
+    let akdAudit =
+        null;
+
+
+    if (
+        akdMode &&
+        Array.isArray(
+            akdDocumentsUsed
+        ) &&
+        akdDocumentsUsed.length > 0
+    ) {
+
+        akdAudit =
+            await auditAkdResponse(
+                GOOGLE_URL,
+                payload,
+                data,
+                akdDocumentsUsed
+            );
+
+
+        // Gunakan jawapan yang telah diaudit.
+        // Jika audit gagal, function audit akan
+        // pulangkan jawapan asal secara selamat.
+        data =
+            akdAudit.data;
+
+    }
+
+
+    // ========================================
+    // FRONTEND VERIFICATION METADATA
+    // ========================================
 
     data.i4uVerification = {
 
@@ -6182,11 +6458,32 @@ if (governmentMode) {
 
         ...(akdMode
             ? {
+
                 sourceName:
                     "ARAHAN KAWALAN DALAMAN",
 
                 sourceDocuments:
-                    akdDocumentsUsed
+                    akdDocumentsUsed,
+
+                claimAudit: {
+
+                    required:
+                        true,
+
+                    audited:
+                        akdAudit?.audited ===
+                        true,
+
+                    reason:
+                        akdAudit?.reason ||
+                        (
+                            akdDocumentsUsed.length === 0
+                                ? "No AKD PDF loaded."
+                                : "Audit was not executed."
+                        )
+
+                }
+
             }
             : {}
         )
@@ -6197,6 +6494,7 @@ if (governmentMode) {
     return res
         .status(200)
         .json(data);
+
 }
 
 
