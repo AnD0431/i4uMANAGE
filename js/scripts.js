@@ -3618,7 +3618,7 @@ function linkSarahAkdReferences(
 
 
             link.href =
-                `AKD.html?doc=${encodeURIComponent(
+                `akd.html?doc=${encodeURIComponent(
                     matchedDocument.id
                 )}`;
 
