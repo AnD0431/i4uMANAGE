@@ -4215,41 +4215,6 @@ function shouldUseGovernmentMode(
     return false;
 }
 
-// =========================================================
-// AKD MODE
-// ARAHAN KAWALAN DALAMAN
-// =========================================================
-
-function isAkdQuery(
-    message = ""
-) {
-
-    const text =
-        String(message || "")
-            .toLowerCase()
-            .trim();
-
-
-    const keywords = [
-
-        "arahan kawalan dalaman",
-        "akd",
-
-        "gp belanjawan",
-        "cenderahati",
-        "sekatan peruntukan",
-        "perbelanjaan mengurus",
-        "kadar hadiah",
-        "ap11"
-
-    ];
-
-
-    return keywords.some(
-        keyword =>
-            text.includes(keyword)
-    );
-}
 
 // =========================================================
 // AKD AUTO INDEX RETRIEVAL
