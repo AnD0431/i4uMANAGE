@@ -2040,6 +2040,94 @@ yang mesti disahkan semula terhadap PDF.
 }
 
 // =========================================================
+// AKD NO-ANSWER HARD GUARD
+// Jangan benarkan model mereka rujukan luar apabila
+// maklumat tidak ditemui dalam AKD.
+// =========================================================
+
+function enforceAkdNoAnswerSafety(
+    data
+) {
+
+    const text =
+        getVisibleFinalResponseText(
+            data
+        );
+
+
+    if (!text) {
+        return data;
+    }
+
+
+    const normalized =
+        text.toLowerCase();
+
+
+    const isNoAnswer =
+        normalized.includes(
+            "tidak ditemui"
+        ) ||
+        normalized.includes(
+            "tidak terdapat"
+        ) ||
+        normalized.includes(
+            "tiada maklumat"
+        ) ||
+        normalized.includes(
+            "tidak dinyatakan"
+        );
+
+
+    if (!isNoAnswer) {
+        return data;
+    }
+
+
+    const parts =
+        data?.candidates?.[0]
+            ?.content
+            ?.parts;
+
+
+    if (!Array.isArray(parts)) {
+        return data;
+    }
+
+
+    const finalTextPart =
+        parts.find(
+            part =>
+                typeof part?.text ===
+                "string" &&
+                part.thought !== true
+        );
+
+
+    if (!finalTextPart) {
+        return data;
+    }
+
+
+    finalTextPart.text =
+        `Maklumat yang diminta tidak ditemui dalam dokumen Arahan Kawalan Dalaman (AKD) yang telah disemak.
+
+Untuk maklumat rasmi lanjut, sila rujuk sumber rasmi Kerajaan atau pegawai/unit yang bertanggungjawab.
+
+Rujukan AKD:
+
+- Tiada (maklumat tidak terdapat dalam dokumen AKD yang disemak)`;
+
+
+    console.log(
+        "I4U_AKD_NO_ANSWER_GUARD"
+    );
+
+
+    return data;
+}
+
+// =========================================================
 // READ GOVERNMENT CURRENT-STATUS MARKER
 // =========================================================
 
@@ -6444,6 +6532,11 @@ if (!governmentMode) {
         // pulangkan jawapan asal secara selamat.
         data =
             akdAudit.data;
+
+        data =
+            enforceAkdNoAnswerSafety(
+        data
+    );
 
     }
 
