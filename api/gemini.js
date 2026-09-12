@@ -5765,11 +5765,13 @@ mahu ia dilabel sebagai cadangan.
         // REMOVE INTERNAL FRONTEND FIELD
         // ===============================
 
-        const {
+    const {
 
     government_mode,
 
     akd_mode,
+
+    akd_selected_ids,
 
     ...clientPayload
 
@@ -5787,30 +5789,45 @@ mahu ia dilabel sebagai cadangan.
             );
 
 // ========================================
-// AKD AUTO INTENT DETECTION
+// AKD MODE
+// Selection sudah dibuat oleh
+// /api/akd-selector sebelum request ini.
 // ========================================
 
-const akdIndexDocuments =
-    await getAkdIndexDocuments();
+const selectedAkdIds =
 
+    Array.isArray(
+        akd_selected_ids
+    )
 
-const explicitAkdMode =
-    akd_mode === true ||
-    isAkdQuery(
-        latestUserMessage
-    );
+        ? akd_selected_ids
 
+            .map(
+                id =>
+                    String(
+                        id || ""
+                    )
+            )
 
-const akdRelevance =
-    getAkdAutomaticRelevance(
-        latestUserMessage,
-        akdIndexDocuments
-    );
+            .filter(Boolean)
+
+            .slice(
+                0,
+                3
+            )
+
+        : [];
 
 
 const akdMode =
-    explicitAkdMode ||
-    akdRelevance.relevant;
+
+    akd_mode === true ||
+
+    selectedAkdIds.length > 0 ||
+
+    isAkdQuery(
+        latestUserMessage
+    );
 
 
 if (akdMode) {
@@ -5818,14 +5835,13 @@ if (akdMode) {
     console.log(
         "I4U_AKD_MODE",
         {
+            selectedIds:
+                selectedAkdIds.length,
+
             explicit:
-                explicitAkdMode,
-
-            autoDetected:
-                akdRelevance.relevant,
-
-            relevanceScore:
-                akdRelevance.bestScore
+                isAkdQuery(
+                    latestUserMessage
+                )
         }
     );
 
@@ -5960,11 +5976,51 @@ if (
     )
 ) {
 
-    const aiSelection =
-        await selectAkdDocumentsWithAi(
-            req,
-            latestUserMessage
+    // ========================================
+// USE DOCUMENT IDs FROM AI SELECTOR
+// ========================================
+
+let selectedAkdDocuments =
+    [];
+
+
+if (
+    !isAkdCatalogRequest(
+        latestUserMessage
+    )
+) {
+
+    const selectedIds =
+        new Set(
+            selectedAkdIds
         );
+
+
+    selectedAkdDocuments =
+        akdDocuments
+            .filter(
+                document =>
+                    selectedIds.has(
+                        String(
+                            document.id
+                        )
+                    )
+            )
+            .slice(
+                0,
+                3
+            );
+
+}
+
+
+console.log(
+    "I4U_AKD_SELECTED",
+    selectedAkdDocuments.map(
+        document =>
+            document.name
+    )
+);
 
 
     const selectedIds =

@@ -109,6 +109,7 @@ if (
 const API_URL = "/api/gemini";
 const DOCUMENT_SEARCH_API = "/api/search-document";
 const AKD_INDEX_API = "/api/akd-index";
+const AKD_SELECTOR_API = "/api/akd-selector";
 
 // =========================================================
 // SARAH AKD MODE
@@ -242,6 +243,184 @@ async function syncAkdIndexSilently() {
         console.warn(
             "AKD Auto Index unavailable:",
             error
+        );
+
+    }
+
+}
+
+// =========================================================
+// SARAH AKD AI SELECTOR
+// =========================================================
+
+async function getAkdSelectionForSarah(
+    message = ""
+) {
+
+    const explicitAkd =
+        isAkdQuery(
+            message
+        );
+
+
+    const controller =
+        new AbortController();
+
+
+    const timeout =
+        setTimeout(
+            () =>
+                controller.abort(),
+            20000
+        );
+
+
+    try {
+
+        const response =
+            await fetch(
+                AKD_SELECTOR_API,
+                {
+                    method:
+                        "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+                            query:
+                                message
+                        }),
+
+                    cache:
+                        "no-store",
+
+                    signal:
+                        controller.signal
+                }
+            );
+
+
+        const text =
+            await response.text();
+
+
+        let data = {};
+
+
+        try {
+
+            data =
+                JSON.parse(
+                    text
+                );
+
+        } catch {
+
+            console.warn(
+                "AKD Selector returned non-JSON:",
+                text.slice(
+                    0,
+                    200
+                )
+            );
+
+
+            return {
+                mode:
+                    explicitAkd,
+
+                selectedIds:
+                    []
+            };
+
+        }
+
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            console.warn(
+                "AKD Selector failed:",
+                data
+            );
+
+
+            return {
+                mode:
+                    explicitAkd,
+
+                selectedIds:
+                    []
+            };
+
+        }
+
+
+        const documents =
+            Array.isArray(
+                data.documents
+            )
+                ? data.documents
+                : [];
+
+
+        const selectedIds =
+            documents
+                .map(
+                    document =>
+                        String(
+                            document.id ||
+                            ""
+                        )
+                )
+                .filter(Boolean)
+                .slice(
+                    0,
+                    3
+                );
+
+
+        return {
+
+            mode:
+                explicitAkd ||
+                selectedIds.length > 0,
+
+            selectedIds:
+                selectedIds
+
+        };
+
+
+    } catch (error) {
+
+        console.warn(
+            "AKD Selector unavailable:",
+            error
+        );
+
+
+        return {
+
+            mode:
+                explicitAkd,
+
+            selectedIds:
+                []
+
+        };
+
+
+    } finally {
+
+        clearTimeout(
+            timeout
         );
 
     }
@@ -2439,6 +2618,27 @@ const generateBotResponse = async (incomingMessageDiv) => {
 
     // Simpan prompt asal sebelum apa-apa berubah — untuk detect format docx/pdf
     const requestedFormats = detectRequestedFormats(userData.message);
+// ========================================
+// AKD SELECTION
+// ========================================
+
+const akdSelection =
+
+    userData.file?.data
+
+        ? {
+            mode:
+                isAkdQuery(
+                    userData.message
+                ),
+
+            selectedIds:
+                []
+        }
+
+        : await getAkdSelectionForSarah(
+            userData.message
+        );
     government_mode: false,
 
     // add user message chat history
@@ -2487,9 +2687,10 @@ const generateBotResponse = async (incomingMessageDiv) => {
         false,
 
     akd_mode:
-        isAkdQuery(
-            userData.message
-        ),
+    akdSelection.mode,
+
+    akd_selected_ids:
+    akdSelection.selectedIds,
 
     system_instruction: {
             parts: [{
@@ -2500,17 +2701,74 @@ const generateBotResponse = async (incomingMessageDiv) => {
     })
 }
 
-const controller = new AbortController();
-const requestTimeout = setTimeout(
-    () => controller.abort(),
-    35000
-)
+const requestTimeout =
+    setTimeout(
+        () =>
+            controller.abort(),
+
+        akdSelection.mode
+            ? 65000
+            : 35000
+    );
 
     try {
         // Fetch bot response from API
-        const response = await fetch(API_URL, { ...requestOptions, signal: controller.signal });
-        const data = await response.json();
-        if(!response.ok) throw new Error(data.error.message);
+        const response =
+    await fetch(
+        API_URL,
+        {
+            ...requestOptions,
+
+            signal:
+                controller.signal
+        }
+    );
+
+
+const rawResponse =
+    await response.text();
+
+
+let data;
+
+
+try {
+
+    data =
+        JSON.parse(
+            rawResponse
+        );
+
+} catch {
+
+    throw new Error(
+        response.ok
+            ? "Sarah menerima respons server yang tidak sah."
+            : (
+                rawResponse
+                    .trim()
+                    .slice(
+                        0,
+                        200
+                    ) ||
+                `Server error ${response.status}`
+            )
+    );
+
+}
+
+
+if (!response.ok) {
+
+    throw new Error(
+
+        data?.error?.message ||
+        data?.error ||
+        `Server error ${response.status}`
+
+    );
+
+}
 
 // ========================================
 // EXTRACT GEMINI RESPONSE TEXT
