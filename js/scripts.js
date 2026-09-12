@@ -1925,6 +1925,17 @@ function markdownToChatHtml(text) {
 
         let result = value;
 
+// ========================================
+// ALLOW SAFE LINE BREAKS FROM AI
+// <br>, <br/>, <br />
+// HTML lain kekal escaped untuk keselamatan.
+// ========================================
+
+result = result.replace(
+    /&lt;br\s*\/?&gt;/gi,
+    "<br>"
+);
+
 
         // Inline code
         result = result.replace(
