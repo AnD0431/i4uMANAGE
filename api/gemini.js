@@ -5914,14 +5914,48 @@ if (akdMode) {
 
 
     if (
-        akdDocuments.length === 0
-    ) {
+    akdDocuments.length === 0
+) {
 
-        console.warn(
-            "No AKD documents available."
-        );
+    console.error(
+        "AKD mode active but catalog is unavailable."
+    );
 
-    } else {
+
+    return res
+        .status(200)
+        .json({
+
+            candidates: [
+                {
+                    content: {
+                        role:
+                            "model",
+
+                        parts: [
+                            {
+                                text:
+                                    "Maaf, dokumen Arahan Kawalan Dalaman tidak dapat dicapai buat masa ini. Sila cuba lagi sebentar."
+                            }
+                        ]
+                    },
+
+                    finishReason:
+                        "STOP"
+                }
+            ],
+
+            i4uAkd: {
+                mode:
+                    true,
+
+                available:
+                    false
+            }
+
+        });
+
+} else {
 
 // ========================================
 // SMART AKD SELECTION
