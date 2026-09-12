@@ -3605,7 +3605,7 @@ function linkSarahAkdReferences(
 
             if (
                 !matchedDocument ||
-                !matchedDocument.id
+                !matchedDocument.url
             ) {
                 return;
             }
@@ -3618,9 +3618,14 @@ function linkSarahAkdReferences(
 
 
             link.href =
-                `akd.html?doc=${encodeURIComponent(
-                    matchedDocument.id
-                )}`;
+                matchedDocument.url;
+
+            link.target =
+                "_blank";
+
+
+            link.rel =
+                "noopener noreferrer";
 
 
             link.className =
