@@ -1890,10 +1890,16 @@ TUGAS:
 7. Jangan menambah fakta baru yang tidak
    diperlukan untuk menjawab soalan pengguna.
 
-8. Kekalkan jawapan dalam Bahasa Melayu
-   profesional dan mudah difahami.
+8. Jika jawapan tidak ditemui dalam PDF AKD,
+   JANGAN menamakan pekeliling, kod, portal,
+   nombor rujukan atau sumber luar tertentu
+   kecuali sumber tersebut memang disebut
+   secara jelas dalam PDF yang dilampirkan.
 
-9. Jangan terangkan proses audit kepada pengguna.
+9. Jika tiada maklumat dalam PDF, cukup nyatakan
+   bahawa maklumat tersebut tidak ditemui dalam
+   dokumen AKD yang disemak dan pengguna perlu
+   merujuk sumber rasmi berkaitan.
 
 10. Pulangkan JAWAPAN AKHIR sahaja.
 
