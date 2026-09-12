@@ -776,6 +776,7 @@ body.show-chatbot .chatbot-popup {
     height: 47px;
     flex: 1;                 /* Mengambil baki ruang kosong dengan adil */
     resize: none;
+    font-family: 'Inter', Arial, sans-serif;
     font-size: 0.95rem;
     border-radius: inherit;
     
