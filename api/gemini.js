@@ -4216,6 +4216,534 @@ function shouldUseGovernmentMode(
 }
 
 // =========================================================
+// AKD MODE
+// ARAHAN KAWALAN DALAMAN
+// =========================================================
+
+function isAkdQuery(
+    message = ""
+) {
+
+    const text =
+        String(message || "")
+            .toLowerCase()
+            .trim();
+
+
+    const keywords = [
+
+        "arahan kawalan dalaman",
+        "akd",
+
+        "gp belanjawan",
+        "cenderahati",
+        "sekatan peruntukan",
+        "perbelanjaan mengurus",
+        "kadar hadiah",
+        "ap11"
+
+    ];
+
+
+    return keywords.some(
+        keyword =>
+            text.includes(keyword)
+    );
+}
+
+
+// =========================================================
+// GET AKD DOCUMENT CATALOG
+// Google Apps Script → Google Drive
+// =========================================================
+
+async function getAkdDocuments() {
+
+    const gasUrl =
+        process.env.I4UMANAGE_GAS_URL;
+
+
+    const apiSecret =
+        process.env.I4UMANAGE_DOC_SECRET;
+
+
+    if (
+        !gasUrl ||
+        !apiSecret
+    ) {
+
+        console.error(
+            "AKD environment variables missing."
+        );
+
+        return [];
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                gasUrl,
+                {
+                    method:
+                        "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            token:
+                                apiSecret,
+
+                            source:
+                                "akd"
+
+                        })
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !data.success ||
+            !Array.isArray(
+                data.documents
+            )
+        ) {
+
+            console.error(
+                "Unable to retrieve AKD catalog:",
+                data
+            );
+
+            return [];
+        }
+
+
+        return data.documents;
+
+
+    } catch (error) {
+
+        console.error(
+            "AKD catalog error:",
+            error
+        );
+
+
+        return [];
+    }
+}
+
+
+// =========================================================
+// DOWNLOAD ONE AKD PDF
+// =========================================================
+
+async function fetchAkdPdf(
+    document
+) {
+
+    if (
+        !document?.id ||
+        !String(
+            document.mimeType || ""
+        )
+            .toLowerCase()
+            .includes("pdf")
+    ) {
+
+        return null;
+    }
+
+
+    // Elak PDF terlalu besar
+    const MAX_PDF_BYTES =
+        8 * 1024 * 1024;
+
+
+    if (
+        Number(document.size) >
+        MAX_PDF_BYTES
+    ) {
+
+        console.warn(
+            "AKD PDF too large:",
+            document.name
+        );
+
+        return null;
+    }
+
+
+    const downloadUrl =
+        `https://drive.google.com/uc?export=download&id=${encodeURIComponent(document.id)}`;
+
+
+    const controller =
+        new AbortController();
+
+
+    const timeout =
+        setTimeout(
+            () =>
+                controller.abort(),
+            15000
+        );
+
+
+    try {
+
+        const response =
+            await fetch(
+                downloadUrl,
+                {
+                    method:
+                        "GET",
+
+                    redirect:
+                        "follow",
+
+                    signal:
+                        controller.signal,
+
+                    headers: {
+                        "User-Agent":
+                            "Mozilla/5.0 i4uManage-Sarah"
+                    }
+                }
+            );
+
+
+        if (!response.ok) {
+
+            console.warn(
+                "AKD PDF download failed:",
+                document.name,
+                response.status
+            );
+
+            return null;
+        }
+
+
+        const arrayBuffer =
+            await response.arrayBuffer();
+
+
+        if (
+            arrayBuffer.byteLength === 0 ||
+            arrayBuffer.byteLength >
+                MAX_PDF_BYTES
+        ) {
+
+            return null;
+        }
+
+
+        const buffer =
+            Buffer.from(
+                arrayBuffer
+            );
+
+
+        // Pastikan betul-betul PDF,
+        // bukan HTML Google Drive.
+        const signature =
+            buffer
+                .subarray(0, 4)
+                .toString("utf8");
+
+
+        if (
+            signature !== "%PDF"
+        ) {
+
+            console.warn(
+                "AKD file is not direct PDF:",
+                document.name
+            );
+
+            return null;
+        }
+
+
+        return {
+
+            id:
+                document.id,
+
+            name:
+                document.name,
+
+            url:
+                document.url,
+
+            year:
+                document.year,
+
+            data:
+                buffer.toString(
+                    "base64"
+                )
+
+        };
+
+
+    } catch (error) {
+
+        console.error(
+            "AKD PDF fetch error:",
+            document?.name,
+            error?.message || error
+        );
+
+
+        return null;
+
+
+    } finally {
+
+        clearTimeout(
+            timeout
+        );
+    }
+}
+
+
+// =========================================================
+// LOAD ALL AKD PDFs
+// =========================================================
+
+async function loadAkdPdfs(
+    documents = []
+) {
+
+    const pdfDocuments =
+        documents
+            .filter(
+                document =>
+                    String(
+                        document?.mimeType || ""
+                    )
+                        .toLowerCase()
+                        .includes("pdf")
+            )
+            .slice(0, 8);
+
+
+    const results =
+        await Promise.all(
+            pdfDocuments.map(
+                document =>
+                    fetchAkdPdf(
+                        document
+                    )
+            )
+        );
+
+
+    return results.filter(Boolean);
+}
+
+
+// =========================================================
+// ATTACH AKD PDF TO GEMINI PAYLOAD
+// =========================================================
+
+function appendAkdDocumentsToPayload(
+    payload,
+    pdfs = []
+) {
+
+    if (
+        !Array.isArray(
+            payload?.contents
+        ) ||
+        pdfs.length === 0
+    ) {
+
+        return payload;
+    }
+
+
+    const contents =
+        payload.contents.map(
+            item => ({
+                ...item,
+                parts:
+                    Array.isArray(
+                        item?.parts
+                    )
+                        ? [...item.parts]
+                        : []
+            })
+        );
+
+
+    // Cari mesej USER yang terakhir.
+    let userIndex =
+        -1;
+
+
+    for (
+        let i =
+            contents.length - 1;
+        i >= 0;
+        i--
+    ) {
+
+        if (
+            contents[i]?.role ===
+            "user"
+        ) {
+
+            userIndex = i;
+
+            break;
+        }
+    }
+
+
+    if (
+        userIndex === -1
+    ) {
+
+        return payload;
+    }
+
+
+    pdfs.forEach(
+        pdf => {
+
+            // Label supaya model tahu
+            // nama dokumen yang sedang dibaca.
+            contents[
+                userIndex
+            ].parts.push({
+
+                text:
+                    `\n\nDOKUMEN ARAHAN KAWALAN DALAMAN: ${pdf.name}\n`
+
+            });
+
+
+            contents[
+                userIndex
+            ].parts.push({
+
+                inline_data: {
+
+                    mime_type:
+                        "application/pdf",
+
+                    data:
+                        pdf.data
+
+                }
+
+            });
+
+        }
+    );
+
+
+    return {
+
+        ...payload,
+
+        contents:
+            contents
+
+    };
+}
+
+
+// =========================================================
+// AKD SYSTEM INSTRUCTION
+// =========================================================
+
+function getAkdInstruction(
+    documents = []
+) {
+
+    const documentNames =
+        documents
+            .map(
+                document =>
+                    `- ${document.name}`
+            )
+            .join("\n");
+
+
+    return `
+MOD ARAHAN KAWALAN DALAMAN JKNT.
+
+Pengguna sedang bertanya tentang dokumen
+Arahan Kawalan Dalaman yang disimpan dalam
+i4uManage.
+
+DOKUMEN YANG DIBEKALKAN:
+
+${documentNames}
+
+PERATURAN WAJIB:
+
+1. BACA dokumen PDF yang dilampirkan dalam request ini.
+
+2. Jawab berdasarkan kandungan sebenar dokumen
+   Arahan Kawalan Dalaman tersebut.
+
+3. Jangan mereka maklumat yang tidak terdapat
+   dalam dokumen.
+
+4. Jika jawapan tidak dapat ditemui dalam dokumen
+   yang dibekalkan, nyatakan dengan jelas bahawa
+   maklumat tersebut tidak ditemui dalam koleksi
+   Arahan Kawalan Dalaman yang tersedia.
+
+5. Jika lebih daripada satu dokumen berkaitan,
+   bandingkan kandungannya sebelum menjawab.
+
+6. Jika terdapat maklumat yang bercanggah,
+   nyatakan nama dokumen yang memberikan
+   maklumat berbeza.
+
+7. Nyatakan nama dokumen yang digunakan sebagai
+   rujukan pada bahagian akhir jawapan.
+
+8. Jangan cipta nombor arahan, kadar, amaun,
+   tarikh, kelulusan atau syarat.
+
+9. Jangan gunakan pengetahuan dalaman model
+   sebagai bukti untuk maklumat yang sepatutnya
+   datang daripada AKD.
+
+10. Jangan jalankan Google Search hanya untuk
+    menggantikan kandungan dokumen AKD.
+
+11. Jawab perkara yang pengguna tanya sahaja.
+
+12. Gunakan Bahasa Melayu profesional dan jelas
+    kecuali pengguna meminta bahasa lain.
+
+FORMAT RUJUKAN:
+
+Rujukan AKD:
+- Nama dokumen yang digunakan
+`;
+}
+
+// =========================================================
 // MAIN HANDLER
 // =========================================================
 
@@ -4670,10 +5198,15 @@ mahu ia dilabel sebagai cadangan.
         // ===============================
 
         const {
-            government_mode,
-            ...clientPayload
-        } =
-            req.body || {};
+
+    government_mode,
+
+    akd_mode,
+
+    ...clientPayload
+
+} =
+    req.body || {};
 
 
         // ===============================
@@ -4683,6 +5216,12 @@ mahu ia dilabel sebagai cadangan.
         const latestUserMessage =
             getLatestUserMessage(
                 clientPayload.contents
+            );
+
+        const akdMode =
+            akd_mode === true ||
+            isAkdQuery(
+            latestUserMessage
             );
 
         const governmentTopic =
@@ -4712,6 +5251,8 @@ const strictGovernmentFactRequest =
     )
 
 const governmentMode =
+
+    !akdMode &&
 
     !kertasKerjaAnalysisMode &&
 
@@ -4769,6 +5310,79 @@ const governmentMode =
 let payload = {
     ...clientPayload
 };
+
+// ========================================
+// LOAD ARAHAN KAWALAN DALAMAN
+// ========================================
+
+let akdDocumentsUsed =
+    [];
+
+
+if (akdMode) {
+
+    const akdDocuments =
+        await getAkdDocuments();
+
+
+    if (
+        akdDocuments.length === 0
+    ) {
+
+        console.warn(
+            "No AKD documents available."
+        );
+
+    } else {
+
+        const akdPdfs =
+            await loadAkdPdfs(
+                akdDocuments
+            );
+
+
+        if (
+            akdPdfs.length > 0
+        ) {
+
+            akdDocumentsUsed =
+                akdPdfs.map(
+                    pdf => ({
+                        id:
+                            pdf.id,
+
+                        name:
+                            pdf.name,
+
+                        url:
+                            pdf.url,
+
+                        year:
+                            pdf.year
+                    })
+                );
+
+
+            payload =
+                appendAkdDocumentsToPayload(
+                    payload,
+                    akdPdfs
+                );
+
+
+            payload =
+                appendSystemInstruction(
+                    payload,
+                    getAkdInstruction(
+                        akdDocumentsUsed
+                    )
+                );
+
+        }
+
+    }
+
+}
 
 
 // ========================================
@@ -4852,12 +5466,17 @@ if (governmentMode) {
 
         } =
             await callGemini(
-                GOOGLE_URL,
-                payload,
-                kertasKerjaAnalysisMode
-                    ? 50000
-                    : 25000
-            );
+    GOOGLE_URL,
+    payload,
+
+    akdMode
+        ? 60000
+        : (
+            kertasKerjaAnalysisMode
+                ? 50000
+                : 25000
+        )
+);
 
 
         // Gemini API error
@@ -4877,21 +5496,34 @@ if (governmentMode) {
 
         if (!governmentMode) {
 
-            data.i4uVerification = {
+    data.i4uVerification = {
 
-                mode:
-                    "standard",
+        mode:
+            akdMode
+                ? "akd"
+                : "standard",
 
-                checkedAt:
-                    checkedAt
+        checkedAt:
+            checkedAt,
 
-            };
+        ...(akdMode
+            ? {
+                sourceName:
+                    "ARAHAN KAWALAN DALAMAN",
+
+                sourceDocuments:
+                    akdDocumentsUsed
+            }
+            : {}
+        )
+
+    };
 
 
-            return res
-                .status(200)
-                .json(data);
-        }
+    return res
+        .status(200)
+        .json(data);
+}
 
 
         // ===============================
