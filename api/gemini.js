@@ -4252,8 +4252,8 @@ function isAkdQuery(
 }
 
 // =========================================================
-// AKD SMART DOCUMENT RETRIEVAL
-// Pilih dokumen berdasarkan soalan pengguna
+// AKD AUTO INDEX RETRIEVAL
+// Tiada keyword dokumen hardcode.
 // =========================================================
 
 function normalizeAkdText(
@@ -4286,7 +4286,6 @@ function normalizeAkdText(
 
 // =========================================================
 // AKD CATALOG REQUEST
-// User cuma mahu senarai dokumen
 // =========================================================
 
 function isAkdCatalogRequest(
@@ -4316,81 +4315,132 @@ function isAkdCatalogRequest(
         pattern =>
             text.includes(pattern)
     );
+
 }
 
 
 // =========================================================
-// AKD QUERY TERMS
+// EXPLICIT AKD REQUEST
 // =========================================================
 
-function getAkdQueryTerms(
+function isAkdQuery(
     message = ""
 ) {
 
-    const stopWords =
-        new Set([
-
-            "arahan",
-            "kawalan",
-            "dalaman",
-            "akd",
-
-            "dokumen",
-            "berdasarkan",
-            "dalam",
-            "daripada",
-
-            "yang",
-            "dan",
-            "atau",
-            "bagi",
-            "untuk",
-
-            "apa",
-            "apakah",
-            "berapa",
-            "macam",
-            "mana",
-
-            "saya",
-            "nak",
-            "mahu",
-            "boleh",
-            "tolong",
-
-            "ini",
-            "itu",
-            "tersebut"
-
-        ]);
+    const text =
+        String(message || "")
+            .toLowerCase()
+            .trim();
 
 
-    return [
-        ...new Set(
+    return (
+        text.includes(
+            "arahan kawalan dalaman"
+        ) ||
+        /\bakd\b/i.test(text)
+    );
 
-            normalizeAkdText(
-                message
-            )
-                .split(" ")
-
-                .filter(
-                    term =>
-                        term.length >= 3 &&
-                        !stopWords.has(term)
-                )
-
-        )
-    ];
 }
 
 
 // =========================================================
-// SCORE AKD DOCUMENT
+// READ AUTO AKD INDEX
 // =========================================================
 
-function scoreAkdDocument(
-    document,
-    message
+async function getAkdIndexDocuments() {
+
+    const gasUrl =
+        process.env.I4UMANAGE_GAS_URL;
+
+
+    const apiSecret =
+        process.env.I4UMANAGE_DOC_SECRET;
+
+
+    if (
+        !gasUrl ||
+        !apiSecret
+    ) {
+
+        return [];
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                gasUrl,
+                {
+                    method:
+                        "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            token:
+                                apiSecret,
+
+                            source:
+                                "akd-index"
+
+                        })
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !data.success ||
+            !Array.isArray(
+                data.documents
+            )
+        ) {
+
+            return [];
+        }
+
+
+        return data.documents
+            .filter(
+                document =>
+                    document.indexStatus ===
+                    "ready"
+            );
+
+
+    } catch (error) {
+
+        console.error(
+            "AKD index read error:",
+            error
+        );
+
+
+        return [];
+    }
+
+}
+
+
+// =========================================================
+// AUTOMATIC INDEX RELEVANCE
+// Gunakan metadata AI:
+// title + summary + topics + keywords
+// =========================================================
+
+function getAkdAutomaticRelevance(
+    message,
+    documents = []
 ) {
 
     const query =
@@ -4399,290 +4449,341 @@ function scoreAkdDocument(
         );
 
 
-    const name =
-        normalizeAkdText(
-            document?.name || ""
-        );
+    if (!query) {
+
+        return {
+            relevant: false,
+            bestScore: 0
+        };
+    }
+
+
+    const stopWords =
+        new Set([
+
+            "apa",
+            "apakah",
+            "bagaimana",
+            "macam",
+            "mana",
+
+            "yang",
+            "dan",
+            "atau",
+
+            "saya",
+            "aku",
+            "kami",
+
+            "boleh",
+            "nak",
+            "mahu",
+            "ingin",
+
+            "untuk",
+            "dalam",
+            "daripada",
+            "berdasarkan",
+
+            "dokumen",
+            "rujuk",
+            "rujukan"
+
+        ]);
 
 
     const terms =
-        getAkdQueryTerms(
-            message
-        );
+        [
+            ...new Set(
+                query
+                    .split(" ")
 
-
-    let score = 0;
-
-
-    // ========================================
-    // TOKEN MATCH
-    // ========================================
-
-    terms.forEach(
-        term => {
-
-            if (
-                name.includes(term)
-            ) {
-
-                score +=
-                    term.length >= 7
-                        ? 20
-                        : 10;
-            }
-
-        }
-    );
-
-
-    // ========================================
-    // TOPIC BOOST
-    // ========================================
-
-    const topicRules = [
-
-        {
-            queries: [
-                "belanjawan",
-                "budget",
-                "gp belanjawan"
-            ],
-
-            documents: [
-                "belanjawan"
-            ]
-        },
-
-        {
-            queries: [
-                "cenderahati",
-                "promosi",
-                "kempen"
-            ],
-
-            documents: [
-                "cenderahati",
-                "promosi",
-                "kempen"
-            ]
-        },
-
-        {
-            queries: [
-                "sekatan peruntukan",
-                "perbelanjaan mengurus",
-                "oe"
-            ],
-
-            documents: [
-                "sekatan peruntukan",
-                "perbelanjaan mengurus",
-                "oe"
-            ]
-        },
-
-        {
-            queries: [
-                "kadar hadiah",
-                "hadiah"
-            ],
-
-            documents: [
-                "kadar hadiah",
-                "hadiah"
-            ]
-        },
-
-        {
-            queries: [
-                "ap11",
-                "api11"
-            ],
-
-            documents: [
-                "ap11",
-                "api11"
-            ]
-        }
-
-    ];
-
-
-    topicRules.forEach(
-        rule => {
-
-            const queryMatch =
-                rule.queries.some(
-                    keyword =>
-                        query.includes(
-                            keyword
-                        )
-                );
-
-
-            if (!queryMatch) {
-                return;
-            }
-
-
-            const documentMatch =
-                rule.documents.some(
-                    keyword =>
-                        name.includes(
-                            keyword
-                        )
-                );
-
-
-            if (documentMatch) {
-
-                score += 80;
-            }
-
-        }
-    );
-
-
-    // ========================================
-    // YEAR
-    // ========================================
-
-    const yearMatch =
-        query.match(
-            /\b20\d{2}\b/
-        );
-
-
-    if (
-        yearMatch &&
-        Number(document?.year) ===
-            Number(yearMatch[0])
-    ) {
-
-        score += 30;
-    }
-
-
-    return score;
-}
-
-
-// =========================================================
-// SELECT TOP AKD DOCUMENTS
-// =========================================================
-
-function selectAkdDocuments(
-    documents = [],
-    message = "",
-    maxDocuments = 3
-) {
-
-    if (
-        !Array.isArray(documents) ||
-        documents.length === 0
-    ) {
-
-        return [];
-    }
-
-
-    const scored =
-        documents
-            .map(
-                document => ({
-
-                    document:
-
-                        document,
-
-                    score:
-
-                        scoreAkdDocument(
-                            document,
-                            message
-                        )
-
-                })
+                    .filter(
+                        term =>
+                            term.length >= 4 &&
+                            !stopWords.has(
+                                term
+                            )
+                    )
             )
+        ];
 
-            .sort(
-                (a, b) => {
+
+    let bestScore = 0;
+
+
+    documents.forEach(
+        document => {
+
+            const topics =
+                Array.isArray(
+                    document.topics
+                )
+                    ? document.topics
+                    : [];
+
+
+            const keywords =
+                Array.isArray(
+                    document.keywords
+                )
+                    ? document.keywords
+                    : [];
+
+
+            const searchText =
+                normalizeAkdText(
+                    [
+
+                        document.name,
+                        document.title,
+                        document.summary,
+
+                        ...topics,
+                        ...keywords
+
+                    ]
+                        .filter(Boolean)
+                        .join(" ")
+                );
+
+
+            let score = 0;
+
+            let matchedTerms = 0;
+
+
+            terms.forEach(
+                term => {
 
                     if (
-                        b.score !==
-                        a.score
+                        searchText.includes(
+                            term
+                        )
                     ) {
 
-                        return (
-                            b.score -
-                            a.score
-                        );
+                        matchedTerms++;
+
+                        score +=
+                            term.length >= 8
+                                ? 3
+                                : 2;
                     }
-
-
-                    return (
-                        new Date(
-                            b.document
-                                ?.updatedAt ||
-                            0
-                        )
-                        -
-                        new Date(
-                            a.document
-                                ?.updatedAt ||
-                            0
-                        )
-                    );
 
                 }
             );
 
 
-    const matched =
-        scored.filter(
-            item =>
-                item.score > 0
+            // Topic / keyword phrase match
+            [
+                ...topics,
+                ...keywords
+            ]
+                .map(
+                    item =>
+                        normalizeAkdText(
+                            item
+                        )
+                )
+                .filter(
+                    item =>
+                        item.length >= 5
+                )
+                .forEach(
+                    phrase => {
+
+                        if (
+                            query.includes(
+                                phrase
+                            )
+                        ) {
+
+                            score += 5;
+                        }
+
+                    }
+                );
+
+
+            if (
+                matchedTerms >= 2
+            ) {
+
+                score += 3;
+            }
+
+
+            bestScore =
+                Math.max(
+                    bestScore,
+                    score
+                );
+
+        }
+    );
+
+
+    return {
+
+        // Threshold sengaja konservatif.
+        // AI Selector akan buat keputusan akhir.
+        relevant:
+            bestScore >= 5,
+
+        bestScore:
+            bestScore
+
+    };
+
+}
+
+
+// =========================================================
+// CALL AI DOCUMENT SELECTOR
+// /api/akd-selector yang kita sudah test
+// =========================================================
+
+async function selectAkdDocumentsWithAi(
+    req,
+    query
+) {
+
+    const forwardedProtocol =
+        String(
+            req.headers?.[
+                "x-forwarded-proto"
+            ] || "https"
+        )
+            .split(",")[0]
+            .trim();
+
+
+    const host =
+        String(
+            req.headers?.host ||
+            process.env.VERCEL_URL ||
+            ""
+        )
+            .trim();
+
+
+    if (!host) {
+
+        console.error(
+            "Unable to resolve AKD selector host."
+        );
+
+        return [];
+    }
+
+
+    const baseUrl =
+        host.startsWith("http")
+            ? host
+            : `${forwardedProtocol}://${host}`;
+
+
+    const controller =
+        new AbortController();
+
+
+    const timeout =
+        setTimeout(
+            () =>
+                controller.abort(),
+            20000
         );
 
 
-    // Ada match yang jelas
-    if (
-        matched.length > 0
-    ) {
+    try {
 
-        return matched
-            .slice(
-                0,
-                maxDocuments
-            )
-            .map(
-                item =>
-                    item.document
+        const response =
+            await fetch(
+                `${baseUrl}/api/akd-selector`,
+                {
+                    method:
+                        "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+                            query:
+                                query
+                        }),
+
+                    signal:
+                        controller.signal
+                }
             );
-    }
 
 
-    // ========================================
-    // FALLBACK
-    // ========================================
-    // Koleksi masih kecil:
-    // baca semua untuk elak terlepas fakta.
-    // Apabila koleksi besar nanti,
-    // limit kepada dokumen terbaru.
-
-    if (
-        documents.length <= 5
-    ) {
-
-        return documents;
-    }
+        const data =
+            await response.json();
 
 
-    return documents
-        .slice(
-            0,
-            maxDocuments
+        if (
+            !response.ok ||
+            !data.success ||
+            !Array.isArray(
+                data.documents
+            )
+        ) {
+
+            console.error(
+                "AKD AI Selector failed:",
+                data
+            );
+
+            return [];
+        }
+
+
+        console.log(
+            "I4U_AKD_AI_SELECTOR",
+            {
+                query:
+                    query,
+
+                selected:
+                    data.documents
+                        .map(
+                            document =>
+                                document.name
+                        ),
+
+                reason:
+                    data.reason
+            }
         );
+
+
+        return data.documents;
+
+
+    } catch (error) {
+
+        console.error(
+            "AKD AI Selector error:",
+            error?.message ||
+            error
+        );
+
+
+        return [];
+
+
+    } finally {
+
+        clearTimeout(
+            timeout
+        );
+
+    }
+
 }
 
 
@@ -5685,11 +5786,50 @@ mahu ia dilabel sebagai cadangan.
                 clientPayload.contents
             );
 
-        const akdMode =
-            akd_mode === true ||
-            isAkdQuery(
-            latestUserMessage
-            );
+// ========================================
+// AKD AUTO INTENT DETECTION
+// ========================================
+
+const akdIndexDocuments =
+    await getAkdIndexDocuments();
+
+
+const explicitAkdMode =
+    akd_mode === true ||
+    isAkdQuery(
+        latestUserMessage
+    );
+
+
+const akdRelevance =
+    getAkdAutomaticRelevance(
+        latestUserMessage,
+        akdIndexDocuments
+    );
+
+
+const akdMode =
+    explicitAkdMode ||
+    akdRelevance.relevant;
+
+
+if (akdMode) {
+
+    console.log(
+        "I4U_AKD_MODE",
+        {
+            explicit:
+                explicitAkdMode,
+
+            autoDetected:
+                akdRelevance.relevant,
+
+            relevanceScore:
+                akdRelevance.bestScore
+        }
+    );
+
+}
 
         const governmentTopic =
             detectGovernmentTopic(
@@ -5806,21 +5946,56 @@ if (akdMode) {
 // SMART AKD SELECTION
 // ========================================
 
-const selectedAkdDocuments =
+// ========================================
+// AI DOCUMENT SELECTOR
+// ========================================
 
-    isAkdCatalogRequest(
+let selectedAkdDocuments =
+    [];
+
+
+if (
+    !isAkdCatalogRequest(
         latestUserMessage
     )
+) {
 
-        // Kalau cuma minta senarai,
-        // tak perlu download PDF.
-        ? []
-
-        : selectAkdDocuments(
-            akdDocuments,
-            latestUserMessage,
-            3
+    const aiSelection =
+        await selectAkdDocumentsWithAi(
+            req,
+            latestUserMessage
         );
+
+
+    const selectedIds =
+        new Set(
+            aiSelection.map(
+                document =>
+                    String(
+                        document.id
+                    )
+            )
+        );
+
+
+    // Gunakan metadata live daripada Drive
+    // supaya mimeType, size dan URL sentiasa betul.
+    selectedAkdDocuments =
+        akdDocuments
+            .filter(
+                document =>
+                    selectedIds.has(
+                        String(
+                            document.id
+                        )
+                    )
+            )
+            .slice(
+                0,
+                3
+            );
+
+}
 
 
 console.log(
@@ -5831,52 +6006,56 @@ console.log(
     )
 );
 
-
 const akdPdfs =
     await loadAkdPdfs(
         selectedAkdDocuments
     );
 
 
-        if (
-            akdPdfs.length > 0
-        ) {
+       if (
+    akdPdfs.length > 0
+) {
 
-            akdDocumentsUsed =
-                akdPdfs.map(
-                    pdf => ({
-                        id:
-                            pdf.id,
+    akdDocumentsUsed =
+        akdPdfs.map(
+            pdf => ({
 
-                        name:
-                            pdf.name,
+                id:
+                    pdf.id,
 
-                        url:
-                            pdf.url,
+                name:
+                    pdf.name,
 
-                        year:
-                            pdf.year
-                    })
-                );
+                url:
+                    pdf.url,
 
+                year:
+                    pdf.year
 
-            payload =
-                appendAkdDocumentsToPayload(
-                    payload,
-                    akdPdfs
-                );
+            })
+        );
 
 
-            payload =
-                appendSystemInstruction(
-                    payload,
-                    getAkdInstruction(
-                    akdDocuments,
-                    akdDocumentsUsed
-                )
-            );
+    payload =
+        appendAkdDocumentsToPayload(
+            payload,
+            akdPdfs
+        );
 
-        }
+}
+
+
+// Instruction AKD tetap dimasukkan,
+// termasuk untuk permintaan senarai dokumen.
+
+payload =
+    appendSystemInstruction(
+        payload,
+        getAkdInstruction(
+            akdDocuments,
+            akdDocumentsUsed
+        )
+    );
 
     }
 

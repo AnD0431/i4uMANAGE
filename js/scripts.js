@@ -108,12 +108,15 @@ if (
 // Rujuk fail api/gemini.js untuk kod proxy tersebut.
 const API_URL = "/api/gemini";
 const DOCUMENT_SEARCH_API = "/api/search-document";
+const AKD_INDEX_API = "/api/akd-index";
 
 // =========================================================
 // SARAH AKD MODE
 // =========================================================
 
-function isAkdQuery(message = "") {
+function isAkdQuery(
+    message = ""
+) {
 
     const text =
         String(message || "")
@@ -121,26 +124,153 @@ function isAkdQuery(message = "") {
             .trim();
 
 
-    const keywords = [
+    // Frontend hanya detect apabila pengguna
+    // memang menyebut sumber AKD.
+    //
+    // Topik dokumen TIDAK lagi hardcode di sini.
+    // Backend akan detect secara automatik
+    // melalui Auto AKD Index.
 
-        "arahan kawalan dalaman",
-        "akd",
-
-        // Dokumen AKD semasa
-        "gp belanjawan",
-        "cenderahati",
-        "sekatan peruntukan",
-        "perbelanjaan mengurus",
-        "kadar hadiah",
-        "ap11"
-
-    ];
-
-
-    return keywords.some(
-        keyword =>
-            text.includes(keyword)
+    return (
+        text.includes(
+            "arahan kawalan dalaman"
+        ) ||
+        /\bakd\b/i.test(text)
     );
+
+}
+
+// =========================================================
+// AKD AUTO INDEX SYNC
+// =========================================================
+
+async function syncAkdIndexSilently() {
+
+    const storageKey =
+        "i4umanage_akd_sync";
+
+
+    try {
+
+        const previous =
+            Number(
+                sessionStorage.getItem(
+                    storageKey
+                ) || 0
+            );
+
+
+        const now =
+            Date.now();
+
+
+        // Jangan sync terlalu kerap dalam
+        // browser session yang sama.
+        const TEN_MINUTES =
+            10 * 60 * 1000;
+
+
+        if (
+            previous &&
+            now - previous <
+                TEN_MINUTES
+        ) {
+
+            return;
+        }
+
+
+        const response =
+            await fetch(
+                AKD_INDEX_API,
+                {
+                    method:
+                        "POST",
+
+                    cache:
+                        "no-store"
+                }
+            );
+
+
+        if (!response.ok) {
+
+            console.warn(
+                "AKD background sync failed:",
+                response.status
+            );
+
+            return;
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if (!data.success) {
+
+            console.warn(
+                "AKD background sync:",
+                data
+            );
+
+            return;
+        }
+
+
+        sessionStorage.setItem(
+            storageKey,
+            String(now)
+        );
+
+
+        console.log(
+            "AKD Auto Index:",
+            {
+                total:
+                    data.totalDocuments,
+
+                indexedNow:
+                    data.indexedNow
+            }
+        );
+
+
+    } catch (error) {
+
+        console.warn(
+            "AKD Auto Index unavailable:",
+            error
+        );
+
+    }
+
+}
+
+
+// Jalankan selepas page siap.
+// Tidak block UI Sarah.
+
+if (
+    document.readyState ===
+    "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        () => {
+            syncAkdIndexSilently();
+        },
+        {
+            once: true
+        }
+    );
+
+} else {
+
+    syncAkdIndexSilently();
+
 }
 
 const userData = {
