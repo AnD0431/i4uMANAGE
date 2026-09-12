@@ -2128,6 +2128,494 @@ Rujukan AKD:
 }
 
 // =========================================================
+// CHECK AKD NO-ANSWER
+// =========================================================
+
+function isAkdNoAnswerData(
+    data
+) {
+
+    const text =
+        getVisibleFinalResponseText(
+            data
+        )
+            .toLowerCase();
+
+
+    if (!text) {
+        return false;
+    }
+
+
+    return (
+        text.includes(
+            "tidak ditemui"
+        ) ||
+        text.includes(
+            "tidak terdapat"
+        ) ||
+        text.includes(
+            "tiada maklumat"
+        ) ||
+        text.includes(
+            "tidak dinyatakan"
+        )
+    );
+
+}
+
+
+// =========================================================
+// REMOVE INTERNAL FALLBACK MARKER
+// Jangan paparkan marker kepada user
+// =========================================================
+
+function removeAkdFallbackMarker(
+    data
+) {
+
+    const parts =
+        data?.candidates?.[0]
+            ?.content
+            ?.parts;
+
+
+    if (!Array.isArray(parts)) {
+        return data;
+    }
+
+
+    parts.forEach(
+        part => {
+
+            if (
+                typeof part?.text ===
+                    "string" &&
+                part.thought !== true
+            ) {
+
+                part.text =
+                    part.text
+                        .replace(
+                            /\[\[AKD_FALLBACK_FOUND\]\]/gi,
+                            ""
+                        )
+                        .replace(
+                            /\[\[AKD_FALLBACK_NO_MATCH\]\]/gi,
+                            ""
+                        )
+                        .trim();
+
+            }
+
+        }
+    );
+
+
+    return data;
+}
+
+
+// =========================================================
+// AKD FULL-CORPUS FALLBACK
+//
+// Digunakan HANYA apabila dokumen pilihan awal
+// tidak menemui jawapan.
+//
+// Semua dokumen AKD yang belum dibaca akan
+// diperiksa secara batch.
+// =========================================================
+
+async function runAkdFullCorpusFallback(
+    googleUrl,
+    basePayload,
+    originalData,
+    availableDocuments = [],
+    alreadyUsedDocuments = []
+) {
+
+    if (
+        !isAkdNoAnswerData(
+            originalData
+        )
+    ) {
+
+        return {
+            found:
+                false,
+
+            data:
+                originalData,
+
+            payload:
+                basePayload,
+
+            documents:
+                alreadyUsedDocuments,
+
+            checkedDocuments:
+                0
+        };
+    }
+
+
+    const usedIds =
+        new Set(
+            alreadyUsedDocuments.map(
+                document =>
+                    String(
+                        document.id
+                    )
+            )
+        );
+
+
+    const remainingDocuments =
+        availableDocuments.filter(
+            document => {
+
+                const id =
+                    String(
+                        document?.id || ""
+                    );
+
+
+                return (
+                    id &&
+                    !usedIds.has(id)
+                );
+
+            }
+        );
+
+
+    if (
+        remainingDocuments.length ===
+        0
+    ) {
+
+        console.log(
+            "I4U_AKD_FULL_CORPUS_NO_REMAINING"
+        );
+
+
+        return {
+            found:
+                false,
+
+            data:
+                originalData,
+
+            payload:
+                basePayload,
+
+            documents:
+                alreadyUsedDocuments,
+
+            checkedDocuments:
+                0
+        };
+    }
+
+
+    // Jangan attach terlalu banyak PDF
+    // dalam satu Gemini request.
+    //
+    // Tetapi SEMUA dokumen tetap akan
+    // diperiksa secara batch.
+    const BATCH_SIZE =
+        4;
+
+
+    let checkedDocuments =
+        0;
+
+
+    for (
+        let index = 0;
+        index <
+            remainingDocuments.length;
+        index += BATCH_SIZE
+    ) {
+
+        const batchDocuments =
+            remainingDocuments.slice(
+                index,
+                index +
+                    BATCH_SIZE
+            );
+
+
+        const batchPdfs =
+            await loadAkdPdfs(
+                batchDocuments
+            );
+
+
+        if (
+            batchPdfs.length ===
+            0
+        ) {
+
+            continue;
+        }
+
+
+        checkedDocuments +=
+            batchPdfs.length;
+
+
+        const batchMetadata =
+            batchPdfs.map(
+                pdf => ({
+
+                    id:
+                        pdf.id,
+
+                    name:
+                        pdf.name,
+
+                    url:
+                        pdf.url,
+
+                    year:
+                        pdf.year
+
+                })
+            );
+
+
+        let fallbackPayload =
+            appendAkdDocumentsToPayload(
+                basePayload,
+                batchPdfs
+            );
+
+
+        fallbackPayload =
+            appendSystemInstruction(
+                fallbackPayload,
+                `
+AKD FULL-CORPUS FALLBACK.
+
+Jawapan awal menyatakan bahawa maklumat pengguna
+tidak ditemui dalam dokumen AKD yang dipilih.
+
+Sekarang beberapa dokumen AKD TAMBAHAN telah
+dilampirkan.
+
+TUGAS WAJIB:
+
+1. Baca semua PDF tambahan yang dilampirkan.
+
+2. Semak semula soalan asal pengguna.
+
+3. Tentukan sama ada mana-mana PDF tambahan
+   mengandungi maklumat yang boleh menjawab
+   soalan tersebut.
+
+4. Jangan gunakan Google Search.
+
+5. Jangan gunakan pengetahuan umum atau
+   memori model sebagai sumber fakta.
+
+6. Jangan mereka:
+   - kadar;
+   - amaun;
+   - tarikh;
+   - nombor pekeliling;
+   - had;
+   - syarat;
+   - kelulusan;
+   - pengecualian;
+   - atau fakta operasi.
+
+7. Jika jawapan ADA dalam PDF yang dibaca:
+
+   Mulakan jawapan dengan marker:
+
+   [[AKD_FALLBACK_FOUND]]
+
+   Kemudian berikan jawapan lengkap berdasarkan
+   PDF sebenar.
+
+   Akhiri dengan:
+
+   Rujukan AKD:
+   - Nama dokumen sebenar yang digunakan
+
+8. Jangan senaraikan dokumen sebagai rujukan
+   jika kandungannya tidak digunakan.
+
+9. Jika SEMUA PDF dalam batch ini tidak
+   mengandungi jawapan, jawab TEPAT:
+
+   [[AKD_FALLBACK_NO_MATCH]]
+
+10. Jangan beri cadangan pekeliling atau sumber
+    luar apabila jawapan tidak ditemui.
+                `.trim()
+            );
+
+
+        try {
+
+            const fallbackResult =
+                await callGemini(
+                    googleUrl,
+                    fallbackPayload,
+                    60000
+                );
+
+
+            if (
+                !fallbackResult
+                    .response
+                    .ok ||
+                !hasUsableFinalResponse(
+                    fallbackResult.data
+                )
+            ) {
+
+                console.warn(
+                    "I4U_AKD_FULL_CORPUS_BATCH_FAILED",
+                    {
+                        batch:
+                            index /
+                            BATCH_SIZE
+                    }
+                );
+
+
+                continue;
+            }
+
+
+            const fallbackText =
+                getVisibleFinalResponseText(
+                    fallbackResult.data
+                );
+
+
+            const found =
+                fallbackText.includes(
+                    "[[AKD_FALLBACK_FOUND]]"
+                );
+
+
+            if (found) {
+
+                const combinedDocuments =
+                    [
+                        ...alreadyUsedDocuments,
+                        ...batchMetadata
+                    ]
+                        .filter(
+                            (
+                                document,
+                                currentIndex,
+                                array
+                            ) =>
+                                array.findIndex(
+                                    item =>
+                                        String(
+                                            item.id
+                                        ) ===
+                                        String(
+                                            document.id
+                                        )
+                                ) ===
+                                currentIndex
+                        );
+
+
+                const cleanData =
+                    removeAkdFallbackMarker(
+                        fallbackResult.data
+                    );
+
+
+                console.log(
+                    "I4U_AKD_FULL_CORPUS_FOUND",
+                    {
+                        checkedDocuments,
+                        documents:
+                            batchMetadata.map(
+                                document =>
+                                    document.name
+                            )
+                    }
+                );
+
+
+                return {
+                    found:
+                        true,
+
+                    data:
+                        cleanData,
+
+                    payload:
+                        fallbackPayload,
+
+                    documents:
+                        combinedDocuments,
+
+                    checkedDocuments
+                };
+
+            }
+
+
+        } catch (error) {
+
+            console.error(
+                "I4U_AKD_FULL_CORPUS_BATCH_ERROR",
+                {
+                    message:
+                        error?.message ||
+                        String(error),
+
+                    batch:
+                        index /
+                        BATCH_SIZE
+                }
+            );
+
+        }
+
+    }
+
+
+    console.log(
+        "I4U_AKD_FULL_CORPUS_NO_MATCH",
+        {
+            checkedDocuments,
+            totalRemaining:
+                remainingDocuments.length
+        }
+    );
+
+
+    return {
+        found:
+            false,
+
+        data:
+            originalData,
+
+        payload:
+            basePayload,
+
+        documents:
+            alreadyUsedDocuments,
+
+        checkedDocuments
+    };
+
+}
+
+// =========================================================
 // READ GOVERNMENT CURRENT-STATUS MARKER
 // =========================================================
 
@@ -6507,38 +6995,119 @@ if (!governmentMode) {
     // ========================================
 
     let akdAudit =
-        null;
+    null;
 
+
+let akdFullCorpus =
+    null;
+
+
+if (
+    akdMode &&
+    Array.isArray(
+        akdDocumentsUsed
+    ) &&
+    akdDocumentsUsed.length > 0
+) {
+
+    // ========================================
+    // 1. AUDIT JAWAPAN AWAL
+    // ========================================
+
+    akdAudit =
+        await auditAkdResponse(
+            GOOGLE_URL,
+            payload,
+            data,
+            akdDocumentsUsed
+        );
+
+
+    data =
+        akdAudit.data;
+
+
+    // ========================================
+    // 2. FULL-CORPUS FALLBACK
+    //
+    // Hanya berjalan jika jawapan selepas audit
+    // masih mengatakan maklumat tidak ditemui.
+    // ========================================
 
     if (
-        akdMode &&
-        Array.isArray(
-            akdDocumentsUsed
-        ) &&
-        akdDocumentsUsed.length > 0
+        isAkdNoAnswerData(
+            data
+        )
     ) {
 
-        akdAudit =
-            await auditAkdResponse(
+        akdFullCorpus =
+            await runAkdFullCorpusFallback(
                 GOOGLE_URL,
                 payload,
                 data,
+                akdDocuments,
                 akdDocumentsUsed
             );
 
 
-        // Gunakan jawapan yang telah diaudit.
-        // Jika audit gagal, function audit akan
-        // pulangkan jawapan asal secara selamat.
-        data =
-            akdAudit.data;
+        if (
+            akdFullCorpus.found
+        ) {
 
-        data =
-            enforceAkdNoAnswerSafety(
-        data
-    );
+            // Gunakan jawapan daripada dokumen
+            // tambahan yang berjaya ditemui.
+            data =
+                akdFullCorpus.data;
+
+
+            // Update senarai dokumen supaya
+            // reference/link frontend guna
+            // dokumen yang betul.
+            akdDocumentsUsed =
+                akdFullCorpus.documents;
+
+
+            // =================================
+            // 3. AUDIT JAWAPAN FALLBACK
+            //
+            // Claim Audit tetap digunakan pada
+            // jawapan akhir yang ditemui.
+            // =================================
+
+            const fallbackAudit =
+                await auditAkdResponse(
+                    GOOGLE_URL,
+                    akdFullCorpus.payload,
+                    data,
+                    akdDocumentsUsed
+                );
+
+
+            data =
+                fallbackAudit.data;
+
+
+            akdAudit =
+                fallbackAudit;
+
+        }
 
     }
+
+
+    // ========================================
+    // 4. NO-ANSWER HARD GUARD
+    //
+    // MESTI PALING AKHIR.
+    // Hanya selepas seluruh koleksi diperiksa.
+    // ========================================
+
+    data =
+        enforceAkdNoAnswerSafety(
+            data
+        );
+
+}
 
 
     // ========================================
@@ -6565,6 +7134,23 @@ if (!governmentMode) {
                     akdDocumentsUsed,
 
                 claimAudit: {
+
+                fullCorpusFallback: {
+
+                triggered:
+                    akdFullCorpus !==
+                    null,
+
+                found:
+                    akdFullCorpus?.found ===
+                    true,
+
+                checkedDocuments:
+                    akdFullCorpus
+                    ?.checkedDocuments ||
+                    0
+
+                },
 
                     required:
                         true,
