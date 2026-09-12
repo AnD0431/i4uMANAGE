@@ -5958,24 +5958,6 @@ if (akdMode) {
 } else {
 
 // ========================================
-// SMART AKD SELECTION
-// ========================================
-
-// ========================================
-// AI DOCUMENT SELECTOR
-// ========================================
-
-let selectedAkdDocuments =
-    [];
-
-
-if (
-    !isAkdCatalogRequest(
-        latestUserMessage
-    )
-) {
-
-    // ========================================
 // USE DOCUMENT IDs FROM AI SELECTOR
 // ========================================
 
@@ -5995,46 +5977,6 @@ if (
         );
 
 
-    selectedAkdDocuments =
-        akdDocuments
-            .filter(
-                document =>
-                    selectedIds.has(
-                        String(
-                            document.id
-                        )
-                    )
-            )
-            .slice(
-                0,
-                3
-            );
-
-}
-
-
-console.log(
-    "I4U_AKD_SELECTED",
-    selectedAkdDocuments.map(
-        document =>
-            document.name
-    )
-);
-
-
-    const selectedIds =
-        new Set(
-            aiSelection.map(
-                document =>
-                    String(
-                        document.id
-                    )
-            )
-        );
-
-
-    // Gunakan metadata live daripada Drive
-    // supaya mimeType, size dan URL sentiasa betul.
     selectedAkdDocuments =
         akdDocuments
             .filter(
