@@ -301,16 +301,49 @@ document.addEventListener(
 // START
 // =========================================================
 
-document.addEventListener(
-    "DOMContentLoaded",
-    async () => {
+async function initI4uMetrics() {
 
-        await registerI4uVisitor();
+    console.log(
+        "i4uManage Metrics: starting..."
+    );
 
-        await loadI4uMetrics();
 
-    }
-);
+    // 1. Paparkan data semasa dahulu
+    await loadI4uMetrics();
+
+
+    // 2. Daftar browser sebagai pengguna
+    await registerI4uVisitor();
+
+
+    // 3. Refresh supaya nilai pengguna terus berubah
+    await loadI4uMetrics();
+
+
+    console.log(
+        "i4uManage Metrics: ready."
+    );
+
+}
+
+
+if (
+    document.readyState === "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        initI4uMetrics,
+        {
+            once: true
+        }
+    );
+
+} else {
+
+    initI4uMetrics();
+
+}
 
 
 // =========================================================
