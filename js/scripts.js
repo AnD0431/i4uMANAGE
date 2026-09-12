@@ -2701,6 +2701,13 @@ const akdSelection =
     })
 }
 
+// ========================================
+// MAIN SARAH REQUEST CONTROLLER
+// ========================================
+
+const controller =
+    new AbortController();
+
 const requestTimeout =
     setTimeout(
         () =>
