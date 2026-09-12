@@ -103,6 +103,8 @@ document.addEventListener(
                     documents
                 );
 
+                focusAkdDocumentFromUrl();
+
 
             } catch (error) {
 
@@ -383,6 +385,9 @@ document.addEventListener(
             return `
                 <article
                     class="akd-document-card"
+                    data-document-id="${escapeAttribute(
+                    document.id || ""
+                    )}"
                 >
 
                     <div
@@ -868,3 +873,78 @@ document.addEventListener(
 
     }
 );
+
+// =========================================================
+// FOCUS DOCUMENT FROM SARAH
+// =========================================================
+
+function focusAkdDocumentFromUrl() {
+
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+
+    const requestedId =
+        params.get(
+            "doc"
+        );
+
+
+    if (!requestedId) {
+        return;
+    }
+
+
+    const cards =
+        document.querySelectorAll(
+            "[data-document-id]"
+        );
+
+
+    const targetCard =
+        Array.from(cards)
+            .find(
+                card =>
+                    String(
+                        card.dataset.documentId
+                    ) ===
+                    String(
+                        requestedId
+                    )
+            );
+
+
+    if (!targetCard) {
+
+        console.warn(
+            "AKD document from URL not found:",
+            requestedId
+        );
+
+        return;
+    }
+
+
+    targetCard.classList.add(
+        "akd-document-target"
+    );
+
+
+    setTimeout(
+        () => {
+
+            targetCard.scrollIntoView({
+                behavior:
+                    "smooth",
+
+                block:
+                    "center"
+            });
+
+        },
+        200
+    );
+
+}

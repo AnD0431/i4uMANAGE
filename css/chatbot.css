@@ -4671,3 +4671,40 @@ button:not(#send-message) {
     }
 
 }
+
+/* =========================================================
+   SARAH AKD REFERENCE LINK
+========================================================= */
+
+.sarah-akd-reference {
+    color: #2563eb;
+    font-weight: 600;
+    text-decoration: none;
+
+    border-bottom:
+        1px solid
+        rgba(37, 99, 235, 0.3);
+
+    transition:
+        color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+
+.sarah-akd-reference:hover {
+    color: #123b72;
+    border-bottom-color:
+        currentColor;
+}
+
+
+.sarah-akd-reference:focus-visible {
+    outline:
+        2px solid #2563eb;
+
+    outline-offset:
+        3px;
+
+    border-radius:
+        3px;
+}

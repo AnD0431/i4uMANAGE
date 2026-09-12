@@ -2871,6 +2871,15 @@ if (!apiResponseText) {
         messageElement.innerHTML = markdownToChatHtml(displayText);
 
 // ========================================
+// LINK RUJUKAN AKD
+// ========================================
+
+linkSarahAkdReferences(
+    messageElement,
+    data.i4uVerification
+);
+
+// ========================================
 // VERIFIED GOVERNMENT STATUS
 // ========================================
 
@@ -3518,6 +3527,126 @@ if (
         icon: "auto_awesome",
         text: "Sarah sedang berfikir..."
     };
+
+}
+
+// =========================================================
+// SARAH → AKD DOCUMENT LINKS
+// =========================================================
+
+function linkSarahAkdReferences(
+    messageElement,
+    verification
+) {
+
+    if (
+        !messageElement ||
+        verification?.mode !== "akd"
+    ) {
+        return;
+    }
+
+
+    const documents =
+        Array.isArray(
+            verification.sourceDocuments
+        )
+            ? verification.sourceDocuments
+            : [];
+
+
+    if (documents.length === 0) {
+        return;
+    }
+
+
+    const listItems =
+        messageElement.querySelectorAll(
+            "li"
+        );
+
+
+    listItems.forEach(
+        item => {
+
+            const itemText =
+                String(
+                    item.textContent || ""
+                )
+                    .trim()
+                    .toLowerCase();
+
+
+            if (!itemText) {
+                return;
+            }
+
+
+            const matchedDocument =
+                documents.find(
+                    document => {
+
+                        const documentName =
+                            String(
+                                document.name || ""
+                            )
+                                .trim()
+                                .toLowerCase();
+
+
+                        return (
+                            documentName ===
+                            itemText
+                        );
+
+                    }
+                );
+
+
+            if (
+                !matchedDocument ||
+                !matchedDocument.id
+            ) {
+                return;
+            }
+
+
+            const link =
+                document.createElement(
+                    "a"
+                );
+
+
+            link.href =
+                `AKD.html?doc=${encodeURIComponent(
+                    matchedDocument.id
+                )}`;
+
+
+            link.className =
+                "sarah-akd-reference";
+
+
+            link.textContent =
+                matchedDocument.name;
+
+
+            link.title =
+                "Buka dokumen dalam Arahan Kawalan Dalaman";
+
+
+            link.setAttribute(
+                "data-track-document-open",
+                ""
+            );
+
+
+            item.replaceChildren(
+                link
+            );
+
+        }
+    );
 
 }
 
