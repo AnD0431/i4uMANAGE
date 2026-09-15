@@ -101,7 +101,7 @@ const translations = {
     },
     en: {
         // Shared / common
-        main_title_sub: "DOCUMENT & TRAINING MANAGEMENT SYSTEM",
+        main_title_sub: "DIGITAL INFORMATION GATEWAY",
         bahagian_pengurusan: "Management Division",
         footer_tagline: "Together Building Better Health",
         chatbot_greeting: "Hi, I'm Sarah <br /> How can I help you?",
