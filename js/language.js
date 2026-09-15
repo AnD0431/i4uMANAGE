@@ -36,7 +36,7 @@ const translations = {
 
         // index.html
         hero_title_1: "Selamat Datang ke",
-        hero_desc: "Platform sehenti untuk mengakses dokumen, bahan kursus dan kertas kerja dengan mudah, teratur dan selamat.",
+        hero_desc: "Sistem berpusat yang memberikan capaian maklumat organisasi secara selamat, pantas, dan berstruktur Mengintegrasikan pekeliling rasmi, bahan rujukan, serta Pembantu Maya AI (Sarah).",
         building_tag: "JABATAN KESIHATAN NEGERI TERENGGANU",
         card1_title: "PUNCA KUASA",
         card1_desc: "Dokumen berkaitan punca kuasa, pekeliling, arahan dan peraturan yang berkaitan.",
@@ -131,7 +131,7 @@ const translations = {
 
         // index.html
         hero_title_1: "Welcome to",
-        hero_desc: "A one-stop platform to access documents, course materials and working papers easily, systematically and securely.",
+        hero_desc: "A centralised system providing secure, fast, and structured access to organisational information. Integrating official circulars, reference materials, and an AI Virtual Assistant (Sarah).",
         building_tag: "TERENGGANU STATE HEALTH DEPARTMENT",
         card1_title: "SOURCE OF AUTHORITY",
         card1_desc: "Documents related to sources of authority, circulars, directives and related regulations.",
