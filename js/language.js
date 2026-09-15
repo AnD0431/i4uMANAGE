@@ -48,6 +48,10 @@ const translations = {
         card3_title: "KERTAS KERJA",
         card3_desc: "Kertas kerja program, latihan dan dokumen sokongan yang berkaitan.",
         card3_btn: "Lihat Kertas Kerja",
+        feature1: "Maklumat Rasmi",
+        feature2: "Akses Selamat",
+        feature3: "Cepat & Efisien",
+        hero_eyebrow: "Portal Digital Unit Latihan",
 
         // kerja.html
         kerja_page_title: "KERTAS KERJA",
@@ -144,6 +148,10 @@ const translations = {
         card3_title: "WORKING PAPERS",
         card3_desc: "Program working papers, training and related supporting documents.",
         card3_btn: "View Working Papers",
+        feature1: "Official Information",
+        feature2: "Secure Access",
+        feature3: "Fast & Efficient",
+        hero_eyebrow: "training Unit Digital Portal",
 
         // kerja.html
         kerja_page_title: "WORKING PAPERS",
