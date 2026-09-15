@@ -6,7 +6,7 @@
 const translations = {
     ms: {
         // Shared / common
-        main_title_sub: "SISTEM PENGURUSAN DOKUMEN & LATIHAN",
+        main_title_sub: "GERBANG DIGITAL MAKLUMAT",
         bahagian_pengurusan: "Bahagian Pengurusan",
         footer_tagline: "Bersama Membangun Kesihatan Yang Lebih Baik",
         chatbot_greeting: "Hi, Saya Sarah <br /> Apa saya boleh bantu anda?",
@@ -131,7 +131,7 @@ const translations = {
 
         // index.html
         hero_title_1: "Welcome to",
-        hero_desc: "A centralised system providing secure, fast, and structured access to organisational information. Integrating official circulars, reference materials, and an AI Virtual Assistant (Sarah).",
+        hero_desc: "`A centralised system providing secure, fast, and structured access to organisational information. Integrating official circulars, reference materials, and an AI Virtual Assistant (Sarah).",
         building_tag: "TERENGGANU STATE HEALTH DEPARTMENT",
         card1_title: "SOURCE OF AUTHORITY",
         card1_desc: "Documents related to sources of authority, circulars, directives and related regulations.",
