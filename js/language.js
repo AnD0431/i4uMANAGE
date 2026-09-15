@@ -55,6 +55,10 @@ const translations = {
         text1: "KEMENTERIAN KESIHATAN MALAYSIA",
         text2: "JABATAN KESIHATAN NEGERI TERENGGANU",
         text3: "UNIT LATIHAN",
+        services_intro_label: "AKSES UTAMA",
+        services_intro_title: "Perkhidmatan i4uManage",
+        services_intro_desc: "Akses dokumen rasmi, bahan kursus dan kertas kerja melalui kategori yang disediakan.",
+        services_count: "3 Kategori",
 
         // kerja.html
         kerja_page_title: "KERTAS KERJA",
@@ -158,6 +162,10 @@ const translations = {
         text1: "MINISTRY OF HEALTH MALAYSIA",
         text2: "TERENGGANU STATE HEALTH DEPARTMENT",
         text3: "TRAINING UNIT",
+        services_intro_label: "MAIN ACCESS",
+        services_intro_title: "i4umanage Services",
+        services_intro_desc: "Access official documents, course materials and working papers through the provided categories.",
+        services_count: "3 categories",
 
         // kerja.html
         kerja_page_title: "WORKING PAPERS",
