@@ -151,7 +151,7 @@ const translations = {
         feature1: "Official Information",
         feature2: "Secure Access",
         feature3: "Fast & Efficient",
-        hero_eyebrow: "training Unit Digital Portal",
+        hero_eyebrow: "Training Unit Digital Portal",
 
         // kerja.html
         kerja_page_title: "WORKING PAPERS",
