@@ -1212,7 +1212,7 @@ html {
         block !important;
 
     margin-top:
-        5px !important;
+        10px !important;
 
     font-size:
         0.72em;
@@ -1224,7 +1224,7 @@ html {
 .hero-description {
 
     max-width:
-        550px !important;
+        500px !important;
 
     margin:
         18px 0 0 !important;
