@@ -52,6 +52,9 @@ const translations = {
         feature2: "Akses Selamat",
         feature3: "Cepat & Efisien",
         hero_eyebrow: "Portal Digital Unit Latihan",
+        text1: "KEMENTERIAN KESIHATAN MALAYSIA",
+        text2: "JABATAN KESIHATAN NEGERI TERENGGANU",
+        text3: "UNIT LATIHAN",
 
         // kerja.html
         kerja_page_title: "KERTAS KERJA",
@@ -152,6 +155,9 @@ const translations = {
         feature2: "Secure Access",
         feature3: "Fast & Efficient",
         hero_eyebrow: "Training Unit Digital Portal",
+        text1: "MINISTRY OF HEALTH MALAYSIA",
+        text2: "TERENGGANU STATE HEALTH DEPARTMENT",
+        text3: "TRAINING UNIT",
 
         // kerja.html
         kerja_page_title: "WORKING PAPERS",
