@@ -3327,3 +3327,382 @@ body {
     }
 
 }
+
+/* =========================================================
+   I4UMANAGE HOME — LIQUID GLASS
+   Homepage only
+   ========================================================= */
+
+/* 1. SOFT BLUE BACKGROUND */
+
+body.home-liquid-glass {
+    background:
+        radial-gradient(
+            ellipse at 12% 48%,
+            rgba(147, 197, 253, 0.28),
+            transparent 42%
+        ),
+        radial-gradient(
+            ellipse at 88% 70%,
+            rgba(191, 219, 254, 0.35),
+            transparent 42%
+        ),
+        linear-gradient(
+            150deg,
+            #f8fbff 0%,
+            #edf4ff 55%,
+            #f7faff 100%
+        );
+}
+
+
+/* 2. HERO — KEKALKAN WARNA RASMI BIRU */
+
+body.home-liquid-glass .hero-section {
+    background:
+        radial-gradient(
+            ellipse at 80% 18%,
+            rgba(96, 165, 250, 0.22),
+            transparent 43%
+        ),
+        radial-gradient(
+            ellipse at 8% 85%,
+            rgba(56, 189, 248, 0.12),
+            transparent 45%
+        ),
+        linear-gradient(
+            130deg,
+            #04152e 0%,
+            #092c5b 55%,
+            #0b3970 100%
+        );
+}
+
+
+/* 3. GLASS NAVBAR */
+
+body.home-liquid-glass .navbar {
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.14),
+            rgba(255, 255, 255, 0.055)
+        );
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.24);
+
+    border-radius: 20px;
+
+    box-shadow:
+        inset 0 1px 0
+        rgba(255, 255, 255, 0.30),
+
+        0 12px 35px
+        rgba(0, 9, 30, 0.12);
+
+    -webkit-backdrop-filter:
+        blur(18px) saturate(150%);
+
+    backdrop-filter:
+        blur(18px) saturate(150%);
+}
+
+
+/* 4. HERO LABEL */
+
+body.home-liquid-glass .hero-eyebrow {
+    background:
+        linear-gradient(
+            125deg,
+            rgba(255, 255, 255, 0.19),
+            rgba(255, 255, 255, 0.06)
+        );
+
+    border-color:
+        rgba(255, 255, 255, 0.35);
+
+    box-shadow:
+        inset 0 1px 0
+        rgba(255, 255, 255, 0.27),
+
+        0 5px 18px
+        rgba(0, 0, 0, 0.08);
+
+    -webkit-backdrop-filter:
+        blur(16px) saturate(150%);
+
+    backdrop-filter:
+        blur(16px) saturate(150%);
+}
+
+
+/* 5. BUILDING PREVIEW — GLASS FRAME */
+
+body.home-liquid-glass .building-preview {
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.48);
+
+    box-shadow:
+        inset 0 1px 0
+        rgba(255, 255, 255, 0.25),
+
+        0 22px 55px
+        rgba(0, 10, 40, 0.24),
+
+        0 0 30px
+        rgba(147, 197, 253, 0.09);
+}
+
+
+/* 6. SERVICES COUNTER */
+
+body.home-liquid-glass .services-count {
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.86),
+            rgba(235, 245, 255, 0.62)
+        );
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.95);
+
+    color: #23466c;
+
+    box-shadow:
+        inset 0 1px 0 #ffffff,
+        0 5px 18px rgba(30, 64, 120, 0.07);
+
+    -webkit-backdrop-filter:
+        blur(14px);
+
+    backdrop-filter:
+        blur(14px);
+}
+
+
+/* =========================================================
+   7. LIQUID GLASS SERVICE CARDS
+   ========================================================= */
+
+body.home-liquid-glass
+.cards-container .card {
+
+    position: relative;
+
+    isolation: isolate;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.88) 0%,
+            rgba(255, 255, 255, 0.65) 48%,
+            rgba(224, 239, 255, 0.56) 100%
+        );
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.92);
+
+    border-radius: 22px;
+
+    box-shadow:
+        inset 0 1px 0
+        rgba(255, 255, 255, 1),
+
+        inset 0 -1px 0
+        rgba(255, 255, 255, 0.32),
+
+        0 12px 34px
+        rgba(22, 54, 100, 0.10),
+
+        0 2px 8px
+        rgba(22, 54, 100, 0.035);
+
+    -webkit-backdrop-filter:
+        blur(20px) saturate(155%);
+
+    backdrop-filter:
+        blur(20px) saturate(155%);
+
+    transition:
+        transform 0.28s ease,
+        border-color 0.28s ease,
+        box-shadow 0.28s ease;
+}
+
+
+/* Refleksi cahaya pada permukaan kad */
+
+body.home-liquid-glass
+.cards-container .card::before {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 0;
+
+    border-radius: inherit;
+
+    background:
+        linear-gradient(
+            120deg,
+            rgba(255, 255, 255, 0.43) 0%,
+            rgba(255, 255, 255, 0.06) 36%,
+            transparent 63%
+        );
+
+    pointer-events: none;
+}
+
+
+/* Pastikan gambar, teks dan butang berada
+   di atas lapisan refleksi kaca */
+
+body.home-liquid-glass
+.cards-container .card-image,
+
+body.home-liquid-glass
+.cards-container .card-body {
+
+    position: relative;
+
+    z-index: 1;
+}
+
+
+/* 8. HOVER — KAD NAMPAK TERANG DAN TERANGKAT */
+
+@media (hover: hover) {
+
+    body.home-liquid-glass
+    .cards-container .card:hover {
+
+        transform:
+            translateY(-6px);
+
+        border-color:
+            rgba(147, 197, 253, 0.85);
+
+        box-shadow:
+            inset 0 1px 0
+            rgba(255, 255, 255, 1),
+
+            0 20px 48px
+            rgba(22, 54, 100, 0.16),
+
+            0 0 28px
+            rgba(96, 165, 250, 0.10);
+    }
+
+}
+
+
+/* 9. GLASS BUTTON — MASIH KEKAL KONTRAS TINGGI */
+
+body.home-liquid-glass
+.cards-container .card-body .btn {
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(10, 49, 92, 0.96),
+            rgba(19, 76, 137, 0.94)
+        );
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.18);
+
+    box-shadow:
+        inset 0 1px 0
+        rgba(255, 255, 255, 0.19),
+
+        0 7px 18px
+        rgba(10, 49, 92, 0.16);
+
+    color: #ffffff;
+
+    -webkit-backdrop-filter:
+        blur(10px);
+
+    backdrop-filter:
+        blur(10px);
+}
+
+
+/* 10. MOBILE — RINGANKAN EFEK */
+
+@media (max-width: 600px) {
+
+    body.home-liquid-glass
+    .navbar {
+
+        border-radius: 15px;
+
+        -webkit-backdrop-filter:
+            blur(10px);
+
+        backdrop-filter:
+            blur(10px);
+    }
+
+
+    body.home-liquid-glass
+    .cards-container .card {
+
+        border-radius: 18px;
+
+        -webkit-backdrop-filter:
+            blur(12px);
+
+        backdrop-filter:
+            blur(12px);
+    }
+
+}
+
+
+/* 11. FALLBACK UNTUK BROWSER TANPA GLASS BLUR */
+
+@supports not (
+    (backdrop-filter: blur(1px)) or
+    (-webkit-backdrop-filter: blur(1px))
+) {
+
+    body.home-liquid-glass
+    .cards-container .card {
+
+        background:
+            rgba(248, 251, 255, 0.97);
+    }
+
+
+    body.home-liquid-glass
+    .navbar {
+
+        background:
+            rgba(12, 42, 82, 0.96);
+    }
+
+}
+
+
+/* 12. ACCESSIBILITY */
+
+@media (prefers-reduced-motion: reduce) {
+
+    body.home-liquid-glass
+    .cards-container .card {
+
+        transition: none;
+    }
+
+}
