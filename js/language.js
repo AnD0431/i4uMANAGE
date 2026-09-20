@@ -109,7 +109,16 @@ const translations = {
         punca3_title: "Surat Pekeliling KKM",
         punca3_desc: "Senarai dan carian surat pekeliling Kementerian Kesihatan Malaysia mengikut tajuk dan tarikh.",
         punca4_title: "Akta KKM",
-        punca4_desc: "Akta, dasar, polisi & garis panduan Kementerian Kesihatan Malaysia untuk rujukan perundangan."
+        punca4_desc: "Akta, dasar, polisi & garis panduan Kementerian Kesihatan Malaysia untuk rujukan perundangan.",
+        brand_title: "KEMENTERIAN KESIHATAN MALAYSIA",
+        brand_subtitle: "JABATAN KESIHATAN NEGERI TERENGGANU",
+        unit_latihan: "UNIT LATIHAN",
+        back_btn_text: "Halaman Utama",
+        source_text: "RUJUKAN RASMI",
+        gov_source_text: "Sumber Rasmi Kerajaan",
+        akd_card: "ARAHAN KAWALAN DALAMAN (AKD)",
+        akd_desc: "Himpunan Arahan Kawalan Dalaman rasmi untuk rujukan dan pelaksanaan Jabatan Kesihatan Negeri Terengganu.",
+        visit_site_btn: "Layari Laman"
     },
     en: {
         // Shared / common
@@ -216,7 +225,16 @@ const translations = {
         punca3_title: "MOH Circular Letters",
         punca3_desc: "List and search of Ministry of Health Malaysia circular letters by title and date.",
         punca4_title: "MOH Act",
-        punca4_desc: "Acts, policies and guidelines of the Ministry of Health Malaysia for legal reference."
+        punca4_desc: "Acts, policies and guidelines of the Ministry of Health Malaysia for legal reference.",
+        brand_title: "MINISTRY OF HEALTH MALAYSIA",
+        brand_subtitle: "JABATAN KESIHATAN NEGERI TERENGGANU",
+        unit_latihan: "TRAINING UNIT",
+        back_btn_text: "Home Page",
+        source_text: "OFFICIAL REFERENCE",
+        gov_source_text: "Official Government Source",
+        akd_card: "INTERNAL CONTROL DIRECTIVES (ICD)",
+        akd_desc: "A collection of official Internal Control Directives for reference and implementation by the Terengganu State Health Department.",
+        visit_site_btn: "Visit Site"
     }
 };
 
