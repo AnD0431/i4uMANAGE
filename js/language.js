@@ -227,7 +227,7 @@ const translations = {
         punca4_title: "MOH Act",
         punca4_desc: "Acts, policies and guidelines of the Ministry of Health Malaysia for legal reference.",
         brand_title: "MINISTRY OF HEALTH MALAYSIA",
-        brand_subtitle: "JABATAN KESIHATAN NEGERI TERENGGANU",
+        brand_subtitle: "TERENGGANU STATE HEALTH DEPARTMENT",
         unit_latihan: "TRAINING UNIT",
         back_btn_text: "Home Page",
         source_text: "OFFICIAL REFERENCE",
