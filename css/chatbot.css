@@ -4708,3 +4708,162 @@ button:not(#send-message) {
     border-radius:
         3px;
 }
+
+/* Sarah glass theme — shared across every page with the chatbot. */
+.chatbot-popup {
+    --sarah-radius: 24px;
+    --sarah-glass-border: rgba(255, 255, 255, 0.68);
+    box-sizing: border-box;
+    border: 1px solid var(--sarah-glass-border);
+    border-radius: var(--sarah-radius);
+    background:
+        radial-gradient(ellipse at 0% 0%, rgba(147, 197, 253, 0.32), transparent 55%),
+        linear-gradient(145deg, rgba(239, 246, 255, 0.84), rgba(241, 247, 255, 0.72));
+    -webkit-backdrop-filter: blur(24px) saturate(145%);
+    backdrop-filter: blur(24px) saturate(145%);
+    box-shadow: 0 24px 70px rgba(6, 27, 57, 0.26),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.chatbot-popup .chat-header {
+    border-radius: calc(var(--sarah-radius) - 1px) calc(var(--sarah-radius) - 1px) 0 0;
+    background: linear-gradient(135deg, rgba(24, 48, 82, 0.95), rgba(51, 91, 145, 0.88));
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.chatbot-popup .sarah-subtitle {
+    color: rgba(255, 255, 255, 0.86);
+}
+
+.chatbot-popup #close-chatbot {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    margin-right: 0;
+}
+
+/* Blur the page once at the shell; keep the scrolling message area light. */
+.chatbot-popup .chat-body {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    color: #0f2542;
+}
+
+.chatbot-popup .chat-body .message-text {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+.chatbot-popup .bot-message .message-text {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(245, 249, 255, 0.8));
+    color: #0f2542;
+    border: 1px solid var(--sarah-glass-border);
+    box-shadow: 0 6px 18px rgba(24, 57, 100, 0.07),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.chatbot-popup .user-message .message-text {
+    background: linear-gradient(135deg, rgba(23, 66, 119, 0.97), rgba(36, 85, 151, 0.94));
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.32);
+    box-shadow: 0 6px 18px rgba(24, 57, 100, 0.16),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.chatbot-popup .quick-replies-bar,
+.chatbot-popup .chat-footer {
+    background: rgba(240, 247, 255, 0.38);
+    border-top: 1px solid rgba(255, 255, 255, 0.55);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
+}
+
+.chatbot-popup .chat-footer {
+    border-radius: 0 0 calc(var(--sarah-radius) - 1px) calc(var(--sarah-radius) - 1px);
+}
+
+.chatbot-popup .quick-reply-btn {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.82), rgba(224, 238, 255, 0.62));
+    color: #174277;
+    border-color: rgba(84, 128, 183, 0.28);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85), 0 3px 10px rgba(24, 57, 100, 0.05);
+}
+
+.chatbot-popup .chat-footer .chat-form {
+    background: rgba(255, 255, 255, 0.74);
+    border-color: rgba(84, 128, 183, 0.32);
+    box-shadow: inset 0 1px 0 #fff, 0 5px 18px rgba(24, 57, 100, 0.07);
+}
+
+.chatbot-popup .chat-footer .chat-form:focus-within {
+    background: rgba(255, 255, 255, 0.93);
+    border-color: #3c71b5;
+    box-shadow: 0 0 0 3px rgba(60, 113, 181, 0.15);
+}
+
+.chatbot-popup .message-input::placeholder,
+.chatbot-popup .chat-disclaimer {
+    color: #52647b;
+}
+
+.chatbot-popup .sarah-empty-state p {
+    color: #344963;
+}
+
+.chatbot-popup button:focus-visible,
+#chatbot-toggle:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 3px;
+}
+
+.chatbot-popup .chat-header button:focus-visible {
+    outline-color: #fbbf24;
+}
+
+@media (hover: hover) {
+    .chatbot-popup #close-chatbot:hover {
+        background: rgba(255, 255, 255, 0.24);
+    }
+
+    .chatbot-popup .quick-reply-btn:hover {
+        color: #123b72;
+        background: rgba(255, 255, 255, 0.97);
+        border-color: rgba(60, 113, 181, 0.55);
+    }
+}
+
+@media (max-width: 600px) {
+    .chatbot-popup {
+        --sarah-radius: 1px;
+        border: 0;
+        border-radius: 0;
+        -webkit-backdrop-filter: blur(16px) saturate(130%);
+        backdrop-filter: blur(16px) saturate(130%);
+    }
+}
+
+/* Maintain a readable surface when blur is unavailable or unwanted. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .chatbot-popup {
+        background: #edf4ff;
+    }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+    .chatbot-popup {
+        background: #edf4ff;
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .chatbot-popup {
+        transition: none;
+    }
+}
