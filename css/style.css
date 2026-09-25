@@ -3429,7 +3429,80 @@ body {
     -webkit-backdrop-filter: blur(16px);
     backdrop-filter: blur(16px);
 
-    padding-inline: 12px;
+    /* Keep the language control beside the brand at every breakpoint. */
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 20px;
+    min-height: 0;
+    padding: 16px 20px;
+}
+
+.home-glass .navbar .brand-container {
+    min-width: 0;
+    gap: 12px;
+}
+
+/* The outer wrapper must match the crest, not the old 78px image size. */
+.home-glass .navbar .brand-container > .malaysia-logo {
+    width: auto;
+    height: auto;
+    flex: 0 0 auto;
+}
+
+.home-glass .navbar .logo-text span {
+    white-space: normal;
+}
+
+.home-glass .navbar .lang-switcher {
+    order: 0;
+    justify-self: end;
+    gap: 2px;
+    margin: 0;
+}
+
+.home-glass .navbar .lang-btn {
+    min-width: 36px;
+    min-height: 36px;
+}
+
+.home-glass .navbar .lang-btn:focus-visible {
+    outline: 2px solid #fbbf24;
+    outline-offset: 2px;
+}
+
+@media (max-width: 760px) {
+    .home-glass .navbar {
+        gap: 12px;
+        padding: 12px;
+    }
+
+    .home-glass .navbar .logo-text,
+    .home-glass .navbar .divider {
+        display: none;
+    }
+
+    .home-glass .navbar .brand-container {
+        flex: initial;
+        gap: 10px;
+    }
+
+    .home-glass .navbar .logo-box {
+        width: 44px;
+        height: 44px;
+    }
+
+    .home-glass .navbar .main-title h1 {
+        font-size: clamp(1.1rem, 3.8vw, 1.55rem);
+    }
+
+    .home-glass .navbar .main-title p {
+        max-width: 100%;
+        white-space: normal;
+        font-size: 0.48rem;
+        letter-spacing: 0.8px;
+        line-height: 1.4;
+    }
 }
 
 
@@ -3586,7 +3659,8 @@ body {
 @media (max-width: 600px) {
 
     .home-glass .navbar {
-        padding-inline: 6px;
+        padding: 10px;
+        gap: 8px;
         border-radius: 13px;
     }
 
