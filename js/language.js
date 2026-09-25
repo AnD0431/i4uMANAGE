@@ -5,6 +5,28 @@
 
 const translations = {
     ms: {
+        // Homepage FAQ
+        faq_jump: "Ada soalan? Lihat FAQ",
+        faq_label: "PANDUAN PENGGUNA",
+        faq_title: "Soalan lazim",
+        faq_intro: "Kenali i4uManage dan cari panduan ringkas untuk menggunakan perkhidmatan yang tersedia.",
+        faq_hint: "Pilih soalan untuk membaca jawapan.",
+        faq_services: "Lihat perkhidmatan",
+        faq_q1: "Apakah i4uManage?",
+        faq_a1: "i4uManage ialah gerbang digital maklumat Unit Latihan, Jabatan Kesihatan Negeri Terengganu. Portal ini menghimpunkan akses kepada dokumen punca kuasa, slaid kursus, kertas kerja dan pembantu digital Sarah.",
+        faq_q2: "Di mana saya boleh mencari pekeliling dan dokumen punca kuasa?",
+        faq_a2: "Buka <a href=\"puncakuasa.html\">Punca Kuasa</a> di bahagian perkhidmatan, kemudian pilih kategori rujukan yang berkaitan. Gunakan dokumen asal sebagai rujukan untuk menyemak kandungan dan tarikh kuat kuasanya.",
+        faq_q3: "Bagaimana saya mendapatkan slaid kursus?",
+        faq_a3: "Pilih <a href=\"slaid.html\">Slaid Kursus</a>, kemudian pilih bahagian yang berkaitan untuk melihat bahan latihan yang tersedia.",
+        faq_q4: "Di mana saya boleh mendapatkan rujukan kertas kerja?",
+        faq_a4: "Buka <a href=\"kerja.html\">Kertas Kerja</a> dan pilih bahagian yang berkaitan. Bahan yang tersedia boleh digunakan sebagai rujukan untuk penyediaan kertas kerja program atau latihan.",
+        faq_q5: "Bagaimana saya menggunakan pembantu digital Sarah?",
+        faq_a5: "Tekan ikon Sarah di penjuru kanan bawah halaman, taip soalan dalam ruang mesej dan tekan butang hantar. Nyatakan tajuk dokumen atau tujuan anda dengan jelas. Semak jawapan Sarah dengan dokumen asal atau sumber rasmi yang berkaitan.",
+        faq_q6: "Bolehkah saya menukar bahasa portal?",
+        faq_a6: "Ya. Gunakan suis BM atau EN pada navbar untuk menukar bahasa paparan portal, termasuk bahagian FAQ ini. Kandungan dokumen asal kekal dalam bahasa dokumen tersebut.",
+        faq_q7: "Apakah yang boleh saya lakukan jika dokumen tidak dapat dibuka?",
+        faq_a7: "Semak sambungan internet, muat semula halaman dan cuba buka dokumen sekali lagi. Jika dokumen dibuka dalam tab baharu, semak tab tersebut. Jika masalah berterusan, catat tajuk dokumen dan mesej ralat untuk dirujuk kepada pentadbir portal.",
+
         // Shared / common
         main_title_sub: "GERBANG DIGITAL MAKLUMAT",
         bahagian_pengurusan: "Bahagian Pengurusan",
@@ -121,6 +143,28 @@ const translations = {
         visit_site_btn: "Layari Laman"
     },
     en: {
+        // Homepage FAQ
+        faq_jump: "Have a question? View FAQs",
+        faq_label: "USER GUIDE",
+        faq_title: "Frequently asked questions",
+        faq_intro: "Get to know i4uManage and find quick guidance on using its available services.",
+        faq_hint: "Select a question to read the answer.",
+        faq_services: "Explore services",
+        faq_q1: "What is i4uManage?",
+        faq_a1: "i4uManage is the digital information gateway for the Training Unit of the Terengganu State Health Department. It brings together access to authority documents, course slides, working papers and the Sarah digital assistant.",
+        faq_q2: "Where can I find circulars and authority documents?",
+        faq_a2: "Open <a href=\"puncakuasa.html\">Authority Documents</a> in the services section, then select the relevant reference category. Check the original document for its content and effective date.",
+        faq_q3: "How do I access course slides?",
+        faq_a3: "Select <a href=\"slaid.html\">Course Slides</a>, then choose the relevant division to view the available training materials.",
+        faq_q4: "Where can I find working paper references?",
+        faq_a4: "Open <a href=\"kerja.html\">Working Papers</a> and select the relevant division. Available materials can be used as references when preparing programme or training working papers.",
+        faq_q5: "How do I use the Sarah digital assistant?",
+        faq_a5: "Select the Sarah icon at the bottom right of the page, type your question in the message field and press send. Clearly describe the document title or what you need. Check Sarah’s answers against the original documents or relevant official sources.",
+        faq_q6: "Can I change the portal language?",
+        faq_a6: "Yes. Use the BM or EN switch in the navbar to change the portal’s display language, including this FAQ section. Original documents remain in their existing language.",
+        faq_q7: "What can I do if a document will not open?",
+        faq_a7: "Check your internet connection, refresh the page and try opening the document again. If it opens in a new tab, check that tab. If the problem continues, note the document title and error message to share with the portal administrator.",
+
         // Shared / common
         main_title_sub: "DIGITAL INFORMATION GATEWAY",
         bahagian_pengurusan: "Management Division",
