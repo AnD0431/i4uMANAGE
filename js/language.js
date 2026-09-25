@@ -216,7 +216,7 @@ const translations = {
         text2: "TERENGGANU STATE HEALTH DEPARTMENT",
         text3: "TRAINING UNIT",
         services_intro_label: "MAIN ACCESS",
-        services_intro_title: "i4umanage Services",
+        services_intro_title: "i4uManage Services",
         services_intro_desc: "Access official documents, course materials and working papers through the provided categories.",
         services_count: "3 categories",
 
