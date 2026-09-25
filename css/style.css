@@ -3334,6 +3334,7 @@ body {
    ========================================================= */
 
 .home-glass {
+    --home-navbar-height: 92px;
     --glass-border: rgba(255, 255, 255, 0.72);
     --glass-shadow: 0 14px 42px rgba(24, 57, 100, 0.10);
 
@@ -3362,6 +3363,9 @@ body {
    ========================================================= */
 
 .home-glass .hero-section {
+    /* Reserve the fixed navbar's original space and keep it above the cards. */
+    padding-top: calc(20px + var(--home-navbar-height));
+    z-index: 2;
     isolation: isolate;
 
     background:
@@ -3410,6 +3414,15 @@ body {
    ========================================================= */
 
 .home-glass .navbar {
+    position: fixed;
+    top: 20px;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    width: calc(90% - 48px);
+    height: var(--home-navbar-height);
+    margin-inline: auto;
+
     border:
         1px solid rgba(255, 255, 255, 0.18);
 
@@ -3418,8 +3431,8 @@ body {
     background:
         linear-gradient(
             135deg,
-            rgba(255, 255, 255, 0.11),
-            rgba(255, 255, 255, 0.035)
+            rgba(24, 48, 82, 0.92),
+            rgba(51, 91, 145, 0.82)
         );
 
     box-shadow:
@@ -3471,7 +3484,28 @@ body {
     outline-offset: 2px;
 }
 
+/* Match the original navbar gutters and height across screen sizes. */
+@media (min-width: 1100px) {
+    .home-glass .navbar {
+        width: 90%;
+    }
+}
+
+@media (max-width: 900px) {
+    .home-glass {
+        --home-navbar-height: 84px;
+    }
+
+    .home-glass .navbar {
+        width: calc(90% - 40px);
+    }
+}
+
 @media (max-width: 760px) {
+    .home-glass {
+        --home-navbar-height: 70px;
+    }
+
     .home-glass .navbar {
         gap: 12px;
         padding: 12px;
@@ -3658,7 +3692,12 @@ body {
 
 @media (max-width: 600px) {
 
+    .home-glass {
+        --home-navbar-height: 66px;
+    }
+
     .home-glass .navbar {
+        width: calc(90% - 32px);
         padding: 10px;
         gap: 8px;
         border-radius: 13px;
