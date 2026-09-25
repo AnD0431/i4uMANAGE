@@ -8,7 +8,7 @@ const translations = {
         // Homepage FAQ
         faq_jump: "Ada soalan? Lihat FAQ",
         faq_label: "PANDUAN PENGGUNA",
-        faq_title: "Soalan lazim",
+        faq_title: "i4uManage FAQ",
         faq_intro: "Kenali i4uManage dan cari panduan ringkas untuk menggunakan perkhidmatan yang tersedia.",
         faq_hint: "Pilih soalan untuk membaca jawapan.",
         faq_services: "Lihat perkhidmatan",
@@ -146,7 +146,7 @@ const translations = {
         // Homepage FAQ
         faq_jump: "Have a question? View FAQs",
         faq_label: "USER GUIDE",
-        faq_title: "Frequently asked questions",
+        faq_title: "i4uManage FAQ",
         faq_intro: "Get to know i4uManage and find quick guidance on using its available services.",
         faq_hint: "Select a question to read the answer.",
         faq_services: "Explore services",
