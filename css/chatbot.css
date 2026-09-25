@@ -21,10 +21,6 @@ body {
     background: transparent; /* Biru Korporat Utama */
     padding: 0;
     transition: all 0.2s ease;
-    /* FIXED: no z-index meant this defaulted to z-index: auto and could be
-       outranked by any other element on the page that sets a z-index
-       (e.g. .cards-container-sub's z-index: 5), causing card badge
-       numbers to render on top of it. */
     z-index: 1000;
 }
 
@@ -63,10 +59,6 @@ body {
     box-shadow: 0 0 128px rgba(0, 0, 0, 0.1),
     0 32px 64px -48px rgba(0, 0, 0, 0.5);
     transition: all 0.1s ease;
-    /* FIXED: same stacking-order bug as #chatbot-toggle — without a
-       z-index, elements like .cards-container-sub (z-index: 5) could
-       render on top of the open chat popup. Set higher than the toggle
-       so the popup still wins if they ever overlap. */
     z-index: 1001;
 }
 
