@@ -62,7 +62,7 @@ const translations = {
         faq_label: "PANDUAN PENGGUNA",
         faq_title: "i4uManage FAQs",
         faq_intro: "Kenali i4uManage dan cari panduan ringkas untuk menggunakan perkhidmatan yang tersedia.",
-        faq_hint: "Pilih soalan untuk membaca jawapan.",
+        faq_hint: "Pilih bahagian dan soalan. Skrol dalam panel untuk melihat soalan seterusnya.",
         faq_services: "Lihat perkhidmatan",
 
         // Shared / common
@@ -238,7 +238,7 @@ const translations = {
         faq_label: "USER GUIDE",
         faq_title: "i4uManage FAQs",
         faq_intro: "Get to know i4uManage and find quick guidance on using its available services.",
-        faq_hint: "Select a question to read the answer.",
+        faq_hint: "Choose a section and question. Scroll within the panel to see more questions.",
         faq_services: "Explore services",
 
         // Shared / common
