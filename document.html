@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="js/home-startup.js"></script>
+    <script src="js/page-navbar.js" defer></script>
     <title>i4U Manage - Kertas Kerja Bahagian Pengurusan</title>
     <meta name="description" content="Senarai dokumen dalam sistem i4uManage.">
     <meta name="robots" content="noindex, nofollow">
@@ -16,103 +18,39 @@
     <link rel="stylesheet" href="css/lang-switcher.css">
     <link rel="stylesheet" href="css/document.css">
     <link rel="icon" type="image/jpeg" href="image/logoi4uMANAGE.jpeg">
+    <link rel="stylesheet" href="css/page-features.css">
 </head>
-<body>
+<body class="i4u-page">
 
     <!-- APP TOP BAR -->
-    <header class="main-header kerja-header document-header">
-
-    <div class="header-inner">
-
-        <div class="header-brand-group">
-
-            <div class="national-crest">
-                <img
-                    src="image/jata.png"
-                    alt="Malaysia Logo"
-                >
+    <nav class="site-navbar" aria-label="i4uManage">
+        <div class="site-navbar-inner">
+            <div class="site-navbar-brand">
+                <img class="site-navbar-crest" src="image/jata.png" alt="Jata Negara" width="56" height="56">
+                <div class="site-navbar-government">
+                    <span data-i18n="brand_title">KEMENTERIAN KESIHATAN MALAYSIA</span>
+                    <span data-i18n="brand_subtitle">JABATAN KESIHATAN NEGERI TERENGGANU</span>
+                    <span class="site-navbar-unit" data-i18n="unit_latihan">UNIT LATIHAN</span>
+                </div>
+                <div class="site-navbar-title">
+                    <h1>i4uManage</h1>
+                    <p data-i18n="main_title_sub">GERBANG DIGITAL MAKLUMAT</p>
+                </div>
             </div>
-
-            <div class="logo-labels">
-
-                <span class="lbl-gov">
-                    KEMENTERIAN KESIHATAN MALAYSIA
-                </span>
-
-                <span class="lbl-state">
-                    JABATAN KESIHATAN NEGERI TERENGGANU
-                </span>
-
-                <span class="lbl-unit">
-                    UNIT LATIHAN
-                </span>
-
+            <div class="site-navbar-actions">
+                <a class="site-navbar-home" href="index.html">
+                    <span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>
+                    <span class="site-navbar-home-label" data-i18n="back_btn_text">Halaman Utama</span>
+                </a>
+                <a class="site-navbar-faq" href="#faq">FAQs</a>
+                <div class="lang-switcher" id="lang-switcher">
+                    <button type="button" class="lang-btn active" data-lang="ms">BM</button>
+                    <button type="button" class="lang-btn" data-lang="en">EN</button>
+                </div>
             </div>
-
-            <div class="header-divider"></div>
-
-            <div class="app-brand">
-
-                <h1>
-                    i4uManage
-                </h1>
-
-                <p data-i18n="main_title_sub">
-                    SISTEM PENGURUSAN DOKUMEN & LATIHAN
-                </p>
-
-            </div>
-
         </div>
-
-
-        <div class="header-actions">
-
-            <a
-                href="index.html"
-                class="home-back-btn"
-                aria-label="Kembali ke halaman utama"
-            >
-                <span class="material-symbols-rounded">
-                    arrow_back
-                </span>
-
-                <span>
-                    Halaman Utama
-                </span>
-            </a>
-
-
-            <div
-                class="lang-switcher"
-                id="lang-switcher"
-            >
-
-                <button
-                    type="button"
-                    class="lang-btn active"
-                    data-lang="ms"
-                >
-                    BM
-                </button>
-
-                <span class="lang-sep">|</span>
-
-                <button
-                    type="button"
-                    class="lang-btn"
-                    data-lang="en"
-                >
-                    EN
-                </button>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</header>
+    </nav>
+    <div class="site-navbar-spacer" aria-hidden="true"></div>
 
 
 <section class="hero-section document-hero">
@@ -237,7 +175,7 @@
 
     <!-- KERTAS KERJA CARDS GRID -->
     <!-- DOCUMENT BROWSER -->
-<main class="document-browser">
+<main id="page-content" class="document-browser">
 
 
     <!-- ================================
@@ -313,6 +251,203 @@
 </main>
 
     <!-- CORPORATE VALUES FOOTER -->
+    <section class="faq-section" id="faq" aria-labelledby="faq-title">
+        <div class="faq-intro">
+            <span class="faq-eyebrow" data-i18n="faq_label">PANDUAN PENGGUNA</span>
+            <h2 id="faq-title" data-i18n="faq_title">i4uManage FAQs</h2>
+            <p data-i18n="faq_intro">Kenali i4uManage dan cari panduan ringkas untuk menggunakan perkhidmatan yang tersedia.</p>
+            <nav class="faq-navigation" aria-labelledby="faq-title">
+                <a href="#faq-a" data-i18n="faq_group_a">A. Maklumat Umum</a>
+                <a href="#faq-b" data-i18n="faq_group_b">B. Pengurusan dan Carian Dokumen</a>
+                <a href="#faq-c" data-i18n="faq_group_c">C. Pembantu Digital Sarah</a>
+                <a href="#faq-d" data-i18n="faq_group_d">D. Bantuan Teknikal</a>
+            </nav>
+            <a class="faq-services-link" href="#page-content" data-i18n="faq_services">Lihat perkhidmatan</a>
+        </div>
+        <div class="faq-content">
+            <p class="faq-hint" data-i18n="faq_hint">Pilih bahagian dan soalan. Skrol dalam panel untuk melihat soalan seterusnya.</p>
+            <section class="faq-group" id="faq-a" aria-labelledby="faq-a-title">
+                <div class="faq-group-heading">
+                    <h3 id="faq-a-title" data-i18n="faq_group_a">A. Maklumat Umum</h3>
+                    <span class="faq-group-count" data-i18n="faq_count_a">4 soalan</span>
+                </div>
+                <div class="faq-list">
+                    <details class="faq-item" name="i4u-faq-a">
+                        <summary>
+                            <span data-i18n="faq_a_q1">Apakah i4uManage?</span>
+                            <span class="faq-icon" aria-hidden="true"></span>
+                        </summary>
+                        <div class="faq-answer"><p data-i18n="faq_a_a1">i4uManage ialah gerbang digital maklumat Unit Latihan, Jabatan Kesihatan Negeri Terengganu. Portal ini menghimpunkan akses kepada dokumen punca kuasa, slaid kursus, kertas kerja dan pembantu digital Sarah.</p></div>
+                    </details>
+                    <details class="faq-item" name="i4u-faq-a">
+                        <summary>
+                            <span data-i18n="faq_a_q2">Apakah tujuan utama portal ini?</span>
+                            <span class="faq-icon" aria-hidden="true"></span>
+                        </summary>
+                        <div class="faq-answer"><p data-i18n="faq_a_a2">Portal ini memudahkan pengguna mencari bahan rujukan dan latihan melalui kategori yang tersusun, serta mendapatkan bantuan Sarah untuk urusan dokumen dan tugas pentadbiran.</p></div>
+                    </details>
+                    <details class="faq-item" name="i4u-faq-a">
+                        <summary>
+                            <span data-i18n="faq_a_q3">Siapakah pengguna sasaran i4uManage?</span>
+                            <span class="faq-icon" aria-hidden="true"></span>
+                        </summary>
+                        <div class="faq-answer"><p data-i18n="faq_a_a3">Portal ini menyokong keperluan rujukan dan latihan warga Jabatan Kesihatan Negeri Terengganu, khususnya bagi urusan pentadbiran, dokumen rasmi dan pembangunan kompetensi.</p></div>
+                    </details>
+                    <details class="faq-item" name="i4u-faq-a">
+                        <summary>
+                            <span data-i18n="faq_a_q4">Bolehkah saya menukar bahasa portal?</span>
+                            <span class="faq-icon" aria-hidden="true"></span>
+                        </summary>
+                        <div class="faq-answer"><p data-i18n="faq_a_a4">Ya. Gunakan suis BM atau EN pada navbar untuk menukar bahasa paparan portal, termasuk FAQ ini. Dokumen asal kekal dalam bahasa dokumen tersebut.</p></div>
+                    </details>
+                </div>
+            </section>
+            <section class="faq-group" id="faq-b" aria-labelledby="faq-b-title">
+                <div class="faq-group-heading">
+                    <h3 id="faq-b-title" data-i18n="faq_group_b">B. Pengurusan dan Carian Dokumen</h3>
+                    <span class="faq-group-count" data-i18n="faq_count_b">7 soalan</span>
+                </div>
+                <div class="faq-list">
+                    <details class="faq-item" name="i4u-faq-b">
+                        <summary>
+                            <span data-i18n="faq_b_q1">Di mana saya boleh mencari pekeliling dan dokumen punca kuasa?</span>
+                            <span class="faq-icon" aria-hidden="true"></span>
+                        </summary>
+                        <div class="faq-answer"><p data-i18n="faq_b_a1">Buka <a href="puncakuasa.html">Punca Kuasa</a> dan pilih kategori rujukan yang berkaitan untuk mengakses dokumen yang tersedia.</p></div>
+                    </details>
+                    <details class="faq-item" name="i4u-faq-b">
+                        <summary>
+                            <span data-i18n="faq_b_q2">Bagaimana saya mendapatkan slaid kursus?</span>
+                            <span class="faq-icon" aria-hidden="true"></span>
+                        </summary>
+                        <div class="faq-answer"><p data-i18n="faq_b_a2">Pilih <a href="slaid.html">Slaid Kursus</a>, kemudian pilih bahagian yang berkaitan untuk melihat bahan latihan yang tersedia.</p></div>
+                    </details>
+                    <details class="faq-item" name="i4u-faq-b">
+                        <summary>
+                            <span data-i18n="faq_b_q3">Di mana saya boleh mendapatkan rujukan kertas kerja?</span>
+                            <span class="faq-icon" aria-hidden="true"></span>
+                        </summary>
+                        <div class="faq-answer"><p data-i18n="faq_b_a3">Buka <a href="kerja.html">Kertas Kerja</a> dan pilih bahagian yang berkaitan. Gunakan bahan yang tersedia sebagai rujukan untuk penyediaan kertas kerja program atau latihan.</p></div>
+                    </details>
+                    <details class="faq-item" name="i4u-faq-b">
+                        <summary>
+                            <span data-i18n="faq_b_q4">Bagaimana saya mencari dokumen tertentu?</span>
+                            <span class="faq-icon" aria-hidden="true"></span>
+                        </summary>
+                        <div class="faq-answer"><p data-i18n="faq_b_a4">Pilih kategori yang berkaitan dan gunakan ruangan carian pada senarai dokumen. Cuba kata kunci daripada tajuk, topik atau nombor rujukan. Anda juga boleh meminta Sarah membantu mencari dokumen dengan memberikan butiran tersebut.</p></div>
+                    </details>
+                    <details class="faq-item" name="i4u-faq-b">
+                        <summary>
+                            <span data-i18n="faq_b_q5">Bagaimana saya menyimpan atau memuat turun dokumen?</span>
+                            <span class="faq-icon" aria-hidden="true"></span>
+                        </summary>
+                        <div class="faq-answer"><p data-i18n="faq_b_a5">Buka dokumen yang dikehendaki dan gunakan pilihan muat turun yang disediakan oleh paparan dokumen atau pelayar. Ketersediaan muat turun bergantung pada pautan dan tetapan akses dokumen tersebut.</p></div>
+                    </details>
+                    <details class="faq-item" name="i4u-faq-b">
+                        <summary>
+                            <span data-i18n="faq_b_q6">Apakah yang perlu saya lakukan jika carian tidak menemui dokumen?</span>
+                            <span class="faq-icon" aria-hidden="true"></span>
+                        </summary>
+                        <div class="faq-answer"><p data-i18n="faq_b_a6">Cuba kata kunci yang lebih ringkas, semak ejaan dan pastikan kategori yang dipilih sesuai. Jika masih tiada hasil, catat tajuk atau nombor rujukan yang dicari untuk dirujuk kepada pentadbir portal.</p></div>
+                    </details>
+                    <details class="faq-item" name="i4u-faq-b">
+                        <summary>
+                            <span data-i18n="faq_b_q7">Bagaimana saya memastikan dokumen yang dirujuk masih terpakai?</span>
+                            <span class="faq-icon" aria-hidden="true"></span>
+                        </summary>
+                        <div class="faq-answer"><p data-i18n="faq_b_a7">Semak tarikh, nombor rujukan dan sebarang catatan pindaan atau pembatalan pada dokumen asal. Jika statusnya tidak jelas, semak dengan sumber rasmi penerbit dokumen sebelum menggunakannya untuk urusan rasmi.</p></div>
+                    </details>
+                </div>
+            </section>
+            <section class="faq-group" id="faq-c" aria-labelledby="faq-c-title">
+                <div class="faq-group-heading">
+                    <h3 id="faq-c-title" data-i18n="faq_group_c">C. Pembantu Digital Sarah</h3>
+                    <span class="faq-group-count" data-i18n="faq_count_c">7 soalan</span>
+                </div>
+                <div class="faq-list">
+                    <details class="faq-item" name="i4u-faq-c">
+                        <summary>
+                            <span data-i18n="faq_c_q1">Siapakah Sarah dan apakah yang boleh dibantunya?</span>
+                            <span class="faq-icon" aria-hidden="true"></span>
+                        </summary>
+                        <div class="faq-answer"><p data-i18n="faq_c_a1">Sarah ialah pembantu digital berasaskan AI dalam i4uManage. Sarah boleh membantu dengan carian dokumen, pertanyaan berkaitan portal dan penyediaan draf dokumen pentadbiran seperti kertas kerja, surat atau memo.</p></div>
+                    </details>
+                    <details class="faq-item" name="i4u-faq-c">
+                        <summary>
+                            <span data-i18n="faq_c_q2">Bagaimana saya memulakan perbualan dengan Sarah?</span>
+                            <span class="faq-icon" aria-hidden="true"></span>
+                        </summary>
+                        <div class="faq-answer"><p data-i18n="faq_c_a2">Tekan ikon Sarah di penjuru kanan bawah halaman. Taip soalan dalam ruang mesej dan tekan butang hantar, atau pilih salah satu cadangan soalan yang dipaparkan.</p></div>
+                    </details>
+                    <details class="faq-item" name="i4u-faq-c">
+                        <summary>
+                            <span data-i18n="faq_c_q3">Bagaimana saya mendapatkan jawapan yang lebih tepat?</span>
+                            <span class="faq-icon" aria-hidden="true"></span>
+                        </summary>
+                        <div class="faq-answer"><p data-i18n="faq_c_a3">Nyatakan tujuan, topik dan maklumat yang berkaitan dengan jelas. Untuk carian dokumen, sertakan tajuk atau nombor rujukan jika diketahui. Untuk draf, jelaskan jenis dokumen, penerima dan butiran program atau urusan.</p></div>
+                    </details>
+                    <details class="faq-item" name="i4u-faq-c">
+                        <summary>
+                            <span data-i18n="faq_c_q4">Bolehkah Sarah membantu menyediakan kertas kerja?</span>
+                            <span class="faq-icon" aria-hidden="true"></span>
+                        </summary>
+                        <div class="faq-answer"><p data-i18n="faq_c_a4">Ya. Minta Sarah menyediakan draf kertas kerja dan berikan maklumat seperti nama program, objektif, tarikh, tempat, peserta dan anggaran perbelanjaan. Semak serta sesuaikan draf sebelum digunakan untuk urusan rasmi.</p></div>
+                    </details>
+                    <details class="faq-item" name="i4u-faq-c">
+                        <summary>
+                            <span data-i18n="faq_c_q5">Bolehkah saya melampirkan fail kepada Sarah?</span>
+                            <span class="faq-icon" aria-hidden="true"></span>
+                        </summary>
+                        <div class="faq-answer"><p data-i18n="faq_c_a5">Ya. Gunakan butang lampiran untuk memilih PDF atau imej. Had saiz PDF ialah 3 MB dan imej asal ialah 15 MB. Sertakan arahan tentang perkara yang perlu disemak dalam lampiran tersebut.</p></div>
+                    </details>
+                    <details class="faq-item" name="i4u-faq-c">
+                        <summary>
+                            <span data-i18n="faq_c_q6">Bolehkah hasil dokumen Sarah dimuat turun?</span>
+                            <span class="faq-icon" aria-hidden="true"></span>
+                        </summary>
+                        <div class="faq-answer"><p data-i18n="faq_c_a6">Apabila butang DOCX atau PDF tersedia pada hasil dokumen yang dijana, pilih format yang dikehendaki untuk memuat turun. Semak kandungan dan susun atur fail sebelum menggunakannya.</p></div>
+                    </details>
+                    <details class="faq-item" name="i4u-faq-c">
+                        <summary>
+                            <span data-i18n="faq_c_q7">Adakah jawapan Sarah boleh dianggap sebagai pengesahan rasmi?</span>
+                            <span class="faq-icon" aria-hidden="true"></span>
+                        </summary>
+                        <div class="faq-answer"><p data-i18n="faq_c_a7">Tidak. Sarah ialah pembantu AI dan jawapannya boleh mengandungi kesilapan. Semak fakta, nombor rujukan, tarikh dan cadangan dengan dokumen asal atau sumber rasmi sebelum membuat keputusan atau tindakan rasmi.</p></div>
+                    </details>
+                </div>
+            </section>
+            <section class="faq-group" id="faq-d" aria-labelledby="faq-d-title">
+                <div class="faq-group-heading">
+                    <h3 id="faq-d-title" data-i18n="faq_group_d">D. Bantuan Teknikal</h3>
+                    <span class="faq-group-count" data-i18n="faq_count_d">3 soalan</span>
+                </div>
+                <div class="faq-list">
+                    <details class="faq-item" name="i4u-faq-d">
+                        <summary>
+                            <span data-i18n="faq_d_q1">Apakah yang boleh saya lakukan jika dokumen tidak dapat dibuka?</span>
+                            <span class="faq-icon" aria-hidden="true"></span>
+                        </summary>
+                        <div class="faq-answer"><p data-i18n="faq_d_a1">Semak sambungan internet, muat semula halaman dan cuba buka dokumen sekali lagi. Semak tab baharu jika dokumen dibuka di situ. Jika masalah berterusan, catat tajuk dokumen dan mesej ralat untuk dirujuk kepada pentadbir portal.</p></div>
+                    </details>
+                    <details class="faq-item" name="i4u-faq-d">
+                        <summary>
+                            <span data-i18n="faq_d_q2">Apakah yang perlu saya lakukan jika Sarah tidak memberikan respons?</span>
+                            <span class="faq-icon" aria-hidden="true"></span>
+                        </summary>
+                        <div class="faq-answer"><p data-i18n="faq_d_a2">Pastikan sambungan internet aktif dan tunggu sehingga pemprosesan selesai. Jika mesej ralat dipaparkan, baca arahan tersebut dan cuba hantar semula soalan. Jika masih gagal, salin maklumat penting sebelum memuat semula halaman dan catat mesej ralat untuk rujukan pentadbir.</p></div>
+                    </details>
+                    <details class="faq-item" name="i4u-faq-d">
+                        <summary>
+                            <span data-i18n="faq_d_q3">Bolehkah i4uManage digunakan pada telefon atau tablet?</span>
+                            <span class="faq-icon" aria-hidden="true"></span>
+                        </summary>
+                        <div class="faq-answer"><p data-i18n="faq_d_a3">Ya. Susun atur portal menyesuaikan diri dengan saiz skrin, dan Sarah dibuka dalam paparan penuh pada telefon. Jika paparan tidak kemas, cuba orientasi skrin yang berbeza, gunakan zum biasa dan kemas kini pelayar.</p></div>
+                    </details>
+                </div>
+            </section>
+        </div>
+    </section>
+
     <footer class="app-footer">
         <div class="values-flex">
             <div class="value-card">
@@ -574,6 +709,7 @@
 <!-- link custom script -->
 <script src="js/scripts.js"></script>
 <script src="js/language.js"></script>
+<script src="js/faq.js"></script>
 <script src="js/documents.js?v=2"></script>
 <script src="js/metrics.js"></script>
 
