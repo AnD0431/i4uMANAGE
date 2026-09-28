@@ -5,6 +5,22 @@
 
 const translations = {
     ms: {
+        // Homepage footer
+        home_footer_description: "Gerbang digital maklumat Jabatan Kesihatan Negeri Terengganu untuk dokumen rasmi, bahan latihan dan bantuan digital.",
+        home_footer_services: "Perkhidmatan",
+        home_footer_authority: "Punca Kuasa",
+        home_footer_slides: "Slaid Kursus",
+        home_footer_papers: "Kertas Kerja",
+        home_footer_akd: "Arahan Kawalan Dalaman",
+        home_footer_help: "Panduan & Bantuan",
+        home_footer_general: "Maklumat Umum",
+        home_footer_documents: "Carian Dokumen",
+        home_footer_sarah: "Pembantu Digital Sarah",
+        home_footer_technical: "Bantuan Teknikal",
+        home_footer_contact: "Hubungi Kami",
+        home_footer_copyright: "© 2026 i4uManage. Hak cipta terpelihara.",
+        home_footer_faq: "Soalan Lazim",
+        home_footer_top: "Kembali ke atas",
         akd_loading_title: "Memuatkan dokumen",
         akd_loading_hint: "Sila tunggu sebentar...",
         // FAQ sections A–D
@@ -183,6 +199,22 @@ const translations = {
         visit_site_btn: "Layari Laman"
     },
     en: {
+        // Homepage footer
+        home_footer_description: "The digital information gateway of the Terengganu State Health Department for official documents, training materials and digital assistance.",
+        home_footer_services: "Services",
+        home_footer_authority: "Authority Documents",
+        home_footer_slides: "Course Slides",
+        home_footer_papers: "Working Papers",
+        home_footer_akd: "Internal Control Directives",
+        home_footer_help: "Guidance & Support",
+        home_footer_general: "General Information",
+        home_footer_documents: "Document Search",
+        home_footer_sarah: "Sarah Digital Assistant",
+        home_footer_technical: "Technical Support",
+        home_footer_contact: "Contact Us",
+        home_footer_copyright: "© 2026 i4uManage. All rights reserved.",
+        home_footer_faq: "FAQs",
+        home_footer_top: "Back to top",
         akd_loading_title: "Loading documents",
         akd_loading_hint: "Please wait a moment...",
         // FAQ sections A–D
