@@ -5,6 +5,8 @@
 
 const translations = {
     ms: {
+        akd_loading_title: "Memuatkan dokumen",
+        akd_loading_hint: "Sila tunggu sebentar...",
         // FAQ sections A–D
         faq_group_a: "A. Maklumat Umum",
         faq_count_a: "4 soalan",
@@ -181,6 +183,8 @@ const translations = {
         visit_site_btn: "Layari Laman"
     },
     en: {
+        akd_loading_title: "Loading documents",
+        akd_loading_hint: "Please wait a moment...",
         // FAQ sections A–D
         faq_group_a: "A. General Information",
         faq_count_a: "4 questions",

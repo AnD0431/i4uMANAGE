@@ -42,6 +42,8 @@ document.addEventListener(
         // ========================================
 
         let documents = [];
+        let isLoading = false;
+        const filters = [searchInput, yearFilter, typeFilter].filter(Boolean);
 
 
         // ========================================
@@ -49,6 +51,9 @@ document.addEventListener(
         // ========================================
 
         async function loadDocuments() {
+            isLoading = true;
+            documentList.setAttribute('aria-busy', 'true');
+            filters.forEach(control => { control.disabled = true; });
 
             try {
 
@@ -99,9 +104,8 @@ document.addEventListener(
 
                 buildYearFilter();
 
-                renderDocuments(
-                    documents
-                );
+                isLoading = false;
+                filterDocuments();
 
                 focusAkdDocumentFromUrl();
 
@@ -116,6 +120,10 @@ document.addEventListener(
 
                 showError();
 
+            } finally {
+                isLoading = false;
+                documentList.setAttribute('aria-busy', 'false');
+                filters.forEach(control => { control.disabled = false; });
             }
 
         }
@@ -198,6 +206,7 @@ document.addEventListener(
         // ========================================
 
         function filterDocuments() {
+            if (isLoading) return;
 
             const query =
                 (
@@ -745,27 +754,15 @@ document.addEventListener(
         // ========================================
 
         function showLoading() {
-
+            const lang = document.documentElement.lang || 'ms';
+            const labels = typeof translations !== 'undefined' ? translations[lang] : null;
             documentList.innerHTML = `
-                <div class="akd-loading-state">
-
-                    <span
-                        class="material-symbols-rounded"
-                    >
-                        progress_activity
-                    </span>
-
-                    <strong>
-                        Memuatkan dokumen
-                    </strong>
-
-                    <p>
-                        Sila tunggu sebentar...
-                    </p>
-
+                <div class="akd-loading-state akd-is-loading">
+                    <span class="akd-loading-spinner" aria-hidden="true"></span>
+                    <strong data-i18n="akd_loading_title">${escapeHtml(labels?.akd_loading_title || 'Memuatkan dokumen')}</strong>
+                    <p data-i18n="akd_loading_hint">${escapeHtml(labels?.akd_loading_hint || 'Sila tunggu sebentar...')}</p>
                 </div>
             `;
-
         }
 
 
@@ -931,6 +928,8 @@ function focusAkdDocumentFromUrl() {
         "akd-document-target"
     );
 
+
+    if (performance.getEntriesByType('navigation')[0]?.type === 'reload') return;
 
     setTimeout(
         () => {
