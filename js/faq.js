@@ -62,7 +62,17 @@
 
     faq.classList.add('is-tabbed');
     const hashIndex = () => panels.findIndex(panel => `#${panel.id}` === window.location.hash);
-    activateTab(Math.max(0, hashIndex()));
+    // Startup sentiasa bermula pada bahagian A.
+    activateTab(0);
+    window.addEventListener('pageshow', event => {
+        if (event.persisted) return;
+        activateTab(0);
+        panels.forEach(panel => {
+            panel.querySelectorAll('details').forEach(question => {
+                question.open = false;
+            });
+        });
+    });
     window.addEventListener('hashchange', () => {
         const index = hashIndex();
         if (index >= 0) activateTab(index);
