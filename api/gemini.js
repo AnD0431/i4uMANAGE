@@ -79,7 +79,19 @@ const GOVERNMENT_KEYWORDS = [
 "jam berkursus",
 "lapor diri",
 "tarikh lapor diri",
-"keperluan latihan"
+"keperluan latihan",
+
+    // Teknologi / digital
+    "jabatan digital negara",
+    "jdn",
+    "digital malaysia",
+    "mydigital",
+    "Garis Panduan Permohonan Kelulusan Technical & Costing Projek ICT JDN",
+    "Garis Panduan Permohonan Kelulusan Projek ICT JDN",
+    "Garis Panduan Permohonan Kelulusan Projek ICT JDN (Technical & Costing)",
+    "Template Kertas Kerja Projek ICT untuk Kelulusan Kelayak",
+    "Spesifikasi Standard Perolehan Hardware & Software Sektor Awam JDN",
+    "Standard Keselamatan & Kelangsungan Perkhidmatan Pusat Data JDN,"
 ];
 
 
@@ -112,6 +124,9 @@ const OFFICIAL_SOURCE_HINTS = [
     "jabatan peguam negara",
 
     "parlimen.gov.my",
+
+    "jdn.gov.my",
+    "jabatan digital negara",
 
     "kehakiman.gov.my"
 ];
