@@ -12,125 +12,9 @@
 const MODEL = "gemini-3.7-flash";
 
 
-// =========================================================
-// GOVERNMENT QUERY KEYWORDS
-// =========================================================
-
-const GOVERNMENT_KEYWORDS = [
-
-    // Perkhidmatan awam
-    "penjawat awam",
-    "perkhidmatan awam",
-    "pegawai awam",
-    "kakitangan kerajaan",
-    "pegawai kerajaan",
-
-    // Agensi / sumber
-    "jpa",
-    "myppsm",
-    "pekeliling",
-    "ceraian",
-    "surat edaran",
-    "perintah am",
-
-    // Sumber manusia
-    "cuti",
-    "tatatertib",
-    "kenaikan pangkat",
-    "pemangkuan",
-    "gred",
-    "skim perkhidmatan",
-    "waktu bekerja",
-    "kerja lebih masa",
-    "lebih masa",
-
-    // Kewangan
-    "elaun",
-    "tuntutan",
-    "tuntutan perjalanan",
-    "lojing",
-    "hotel",
-    "perolehan",
-    "perbendaharaan",
-    "kementerian kewangan",
-    "mof",
-    "peruntukan",
-    "pegawai pengawal",
-    "waran",
-
-    // KKM
-    "kkm",
-    "kementerian kesihatan",
-    "moh",
-    "jknt",
-
-    // Pentadbiran
-    "ketua jabatan",
-    "dasar kerajaan",
-    "prosedur kerajaan",
-    "arahan perbendaharaan",
-
-   // Latihan / pembangunan kompetensi
-"ldp",
-"latihan dalam perkhidmatan",
-"kursus",
-"jam kursus",
-"jam latihan",
-"jam berkursus",
-"lapor diri",
-"tarikh lapor diri",
-"keperluan latihan",
-
-    // Teknologi / digital
-    "jabatan digital negara",
-    "jdn",
-    "digital malaysia",
-    "mydigital",
-    "Garis Panduan Permohonan Kelulusan Technical & Costing Projek ICT JDN",
-    "Garis Panduan Permohonan Kelulusan Projek ICT JDN",
-    "Garis Panduan Permohonan Kelulusan Projek ICT JDN (Technical & Costing)",
-    "Template Kertas Kerja Projek ICT untuk Kelulusan Kelayak",
-    "Spesifikasi Standard Perolehan Hardware & Software Sektor Awam JDN",
-    "Standard Keselamatan & Kelangsungan Perkhidmatan Pusat Data JDN,"
-];
-
-
-// =========================================================
-// OFFICIAL GOVERNMENT SOURCE HINTS
-// =========================================================
-
-const OFFICIAL_SOURCE_HINTS = [
-
-    ".gov.my",
-
-    "jpa.gov.my",
-    "docs.jpa.gov.my",
-    "myppsm",
-
-    "mof.gov.my",
-    "treasury.gov.my",
-    "perbendaharaan",
-
-    "moh.gov.my",
-    "kkm",
-
-    "anm.gov.my",
-    "jabatan akauntan negara",
-
-    "spa.gov.my",
-    "suruhanjaya perkhidmatan awam",
-
-    "agc.gov.my",
-    "jabatan peguam negara",
-
-    "parlimen.gov.my",
-
-    "jdn.gov.my",
-    "jabatan digital negara",
-
-    "kehakiman.gov.my"
-];
-
+// Satu katalog untuk browser dan server; tiada senarai keyword berasingan.
+import "../js/government-sources.js";
+const governmentSources = globalThis.SarahGovernmentSources;
 
 // =========================================================
 // GET LATEST USER MESSAGE
@@ -185,17 +69,7 @@ function getLatestUserMessage(contents = []) {
 // =========================================================
 
 function isGovernmentQuery(message = "") {
-
-    const text =
-        String(message)
-            .toLowerCase()
-            .trim();
-
-
-    return GOVERNMENT_KEYWORDS.some(
-        keyword =>
-            text.includes(keyword)
-    );
+    return governmentSources.isGovernmentQuery(message);
 }
 
 
@@ -1463,7 +1337,12 @@ Aplikasi akan memaparkan sumber grounding.
 // TOPIC-SPECIFIC GOVERNMENT SEARCH INSTRUCTION
 // =========================================================
 
-function getGovernmentTopicInstruction(topic) {
+function getGovernmentTopicInstruction(topic, message = "") {
+    return getGovernmentTopicBaseInstruction(topic) +
+        governmentSources.getSearchInstruction(message);
+}
+
+function getGovernmentTopicBaseInstruction(topic) {
 
     switch (topic) {
 
@@ -6955,7 +6834,8 @@ if (governmentMode) {
         appendSystemInstruction(
             payload,
             getGovernmentTopicInstruction(
-                governmentTopic
+                governmentTopic,
+                latestUserMessage
             )
         );
 }
@@ -7354,7 +7234,8 @@ const currentSourcePayload = {
             {
                 text:
                     getGovernmentTopicInstruction(
-                        governmentTopic
+                        governmentTopic,
+                latestUserMessage
                     )
             },
 

@@ -2559,68 +2559,7 @@ function addDownloadButtons(messageDiv, text, formats) {
 // ========================================
 
 function isGovernmentQuery(message) {
-
-    const text =
-        (message || "")
-            .toLowerCase()
-            .trim();
-
-    const keywords = [
-        "penjawat awam",
-        "perkhidmatan awam",
-        "pegawai awam",
-        "kakitangan kerajaan",
-        "pegawai kerajaan",
-
-        "jpa",
-        "myppsm",
-        "pekeliling",
-        "ceraian",
-        "surat edaran",
-        "perintah am",
-
-        "cuti",
-        "tatatertib",
-        "kenaikan pangkat",
-        "pemangkuan",
-        "gred",
-        "skim perkhidmatan",
-        "waktu bekerja",
-        "kerja lebih masa",
-        "lebih masa",
-
-        "elaun",
-        "tuntutan",
-        "tuntutan perjalanan",
-        "lojing",
-        "hotel",
-
-        "perolehan",
-        "perbendaharaan",
-        "kementerian kewangan",
-        "mof",
-
-        "peruntukan",
-        "pegawai pengawal",
-
-        "kkm",
-        "kementerian kesihatan",
-        "moh",
-        "jknt",
-
-        "ketua jabatan",
-        "dasar kerajaan",
-        "prosedur kerajaan",
-        "arahan perbendaharaan",
-
-        "ldp",
-        "latihan dalam perkhidmatan"
-    ];
-
-    return keywords.some(
-        keyword =>
-            text.includes(keyword)
-    );
+    return globalThis.SarahGovernmentSources?.isGovernmentQuery(message) ?? false;
 }
 
 // Generate bot response using the API
@@ -2650,7 +2589,8 @@ const akdSelection =
         : await getAkdSelectionForSarah(
             userData.message
         );
-    government_mode: false,
+    government_mode:
+        isGovernmentQuery(userData.message),
 
     // add user message chat history
    chatHistory.push({
