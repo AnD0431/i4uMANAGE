@@ -867,6 +867,22 @@ async function indexDocument(
 // SYNC INDEX
 // =========================================================
 
+// Public visitors may request sync together. Share one job per warm instance.
+// This is not a distributed lock; use an admin/scheduled job for large deployments.
+let indexSyncInFlight = null;
+let lastIndexSync = null;
+let indexSyncExpires = 0;
+function coalescedIndexSync() {
+    if (lastIndexSync && Date.now() < indexSyncExpires) return Promise.resolve(lastIndexSync);
+    if (indexSyncInFlight) return indexSyncInFlight;
+    indexSyncInFlight = syncAkdIndex().then(result => {
+        lastIndexSync = result;
+        indexSyncExpires = Date.now() + 60000;
+        return result;
+    }).finally(() => { indexSyncInFlight = null; });
+    return indexSyncInFlight;
+}
+
 async function syncAkdIndex() {
 
     const [
@@ -1059,7 +1075,7 @@ export default async function handler(
         // ========================================
 
         const result =
-            await syncAkdIndex();
+            await coalescedIndexSync();
 
 
         return res

@@ -9,6 +9,8 @@
 // 5. Semak grounding + sumber rasmi.
 // 6. Fail closed jika maklumat tidak dapat disahkan.
 
+import { withSarahRequest, callGeminiReliably, requestFetch, sendSarahError, remainingMs, SarahError } from "../lib/sarah-resilience.js";
+
 const MODEL = "gemini-3.7-flash";
 
 
@@ -145,7 +147,7 @@ const timeout =
 try {
 
     const response =
-        await fetch(
+        await requestFetch(
             originalUri,
             {
                 method: "GET",
@@ -1624,71 +1626,8 @@ function addGoogleSearchTool(payload) {
 // CALL GEMINI
 // =========================================================
 
-async function callGemini(
-    googleUrl,
-    payload,
-    timeOutMs = 25000
-) {
-
-    const controller =
-        new AbortController();
-
-    const timeout =
-        setTimeout(
-            () => controller.abort(),
-            timeOutMs
-        );
-
-    try {
-
-        const response =
-            await fetch(
-                googleUrl,
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body:
-                        JSON.stringify(
-                            payload
-                        ),
-
-                    signal:
-                        controller.signal
-                }
-            );
-
-        const data =
-            await response.json();
-
-        return {
-            response,
-            data
-        };
-
-    } catch (error) {
-
-        if (
-            error?.name === "AbortError"
-        ) {
-
-            throw new Error(
-                "Gemini request timeout"
-            );
-        }
-
-        throw error;
-
-    } finally {
-
-        clearTimeout(
-            timeout
-        );
-    }
+async function callGemini(googleUrl, payload, timeOutMs = 25000) {
+    return callGeminiReliably(googleUrl, payload, timeOutMs);
 }
 
 // =========================================================
@@ -3707,7 +3646,7 @@ async function verifyUnsupportedClaimsWithFetchedOfficialPdfs(
             try {
 
                 const response =
-                    await fetch(
+                    await requestFetch(
                         uri,
                         {
                             method: "GET",
@@ -5046,7 +4985,7 @@ async function getAkdIndexDocuments() {
     try {
 
         const response =
-            await fetch(
+            await requestFetch(
                 gasUrl,
                 {
                     method:
@@ -5375,7 +5314,7 @@ async function selectAkdDocumentsWithAi(
     try {
 
         const response =
-            await fetch(
+            await requestFetch(
                 `${baseUrl}/api/akd-selector`,
                 {
                     method:
@@ -5495,7 +5434,7 @@ async function getAkdDocuments() {
     try {
 
         const response =
-            await fetch(
+            await requestFetch(
                 gasUrl,
                 {
                     method:
@@ -5616,7 +5555,7 @@ async function fetchAkdPdf(
     try {
 
         const response =
-            await fetch(
+            await requestFetch(
                 downloadUrl,
                 {
                     method:
@@ -5992,10 +5931,11 @@ Rujukan AKD:
 // MAIN HANDLER
 // =========================================================
 
-export default async function handler(
-    req,
-    res
-) {
+export default function handler(req, res) {
+    return withSarahRequest(req, res, handleSarahRequest);
+}
+
+async function handleSarahRequest(req, res) {
 
 // =========================================================
 // KERTAS KERJA SMART COLLECTION
@@ -6421,14 +6361,8 @@ mahu ia dilabel sebagai cadangan.
         );
 
 
-        return res
-            .status(500)
-            .json({
-                error: {
-                    message:
-                        "AI service configuration incomplete."
-                }
-            });
+        return sendSarahError(res, new SarahError("CONFIGURATION", 503,
+            "Perkhidmatan AI belum dikonfigurasi. Sila maklumkan kepada pentadbir."));
     }
 
 
@@ -7136,11 +7070,8 @@ if (
         );
 
 
-    const retryResult =
-        await callGemini(
-            GOOGLE_URL,
-            retryPayload
-        );
+    const retryResult = await callGemini(GOOGLE_URL, retryPayload)
+        .catch(() => ({ response: { ok: false }, data: null }));
 
 
     if (
@@ -7198,7 +7129,9 @@ if (
 
 if (
     verification.searched &&
-    verification.officialSourceCount > 0
+    verification.officialSourceCount > 0 &&
+    (!verification.verified || !hasUsableFinalResponse(data)) &&
+    remainingMs() > 12000
 ) {
 
 const currentSourcePayload = {
@@ -7254,11 +7187,8 @@ const currentSourcePayload = {
 };
 
 
-    const currentSourceResult =
-        await callGemini(
-            GOOGLE_URL,
-            currentSourcePayload
-        );
+    const currentSourceResult = await callGemini(GOOGLE_URL, currentSourcePayload)
+        .catch(() => ({ response: { ok: false }, data: null }));
 
 
     if (currentSourceResult.response.ok) {
@@ -7594,21 +7524,6 @@ data.i4uVerification = {
 
 
     } catch (error) {
-
-        console.error(
-            "Gemini API error:",
-            error
-        );
-
-
-        return res
-            .status(500)
-            .json({
-                error: {
-                    message:
-                        "Server error: " +
-                        error.message
-                }
-            });
+        return sendSarahError(res, error);
     }
 }

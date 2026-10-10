@@ -2566,20 +2566,32 @@ function isGovernmentQuery(message) {
 const generateBotResponse = async (incomingMessageDiv) => {
     const messageElement =  incomingMessageDiv.querySelector(".message-text");
 
+    const sentMessage = userData.message;
+    const sentFile = { ...userData.file };
+    const historyStart = chatHistory.length;
+    const controller = new AbortController();
+    // 20s selector + 55s server budget + network margin; server ends before browser.
+    const requestTimeout = setTimeout(() => controller.abort(), 90000);
+    const progressTimer = setInterval(() => {
+        const label = incomingMessageDiv.querySelector(".thinking-text");
+        if (label) label.textContent = "Sarah masih menyemak. Sila tunggu; tidak perlu hantar mesej yang sama.";
+    }, 15000);
+    try {
+    if (navigator.onLine === false) throw Object.assign(new Error("Offline"), { code: "OFFLINE" });
     // Simpan prompt asal sebelum apa-apa berubah — untuk detect format docx/pdf
-    const requestedFormats = detectRequestedFormats(userData.message);
+    const requestedFormats = detectRequestedFormats(sentMessage);
 // ========================================
 // AKD SELECTION
 // ========================================
 
 const akdSelection =
 
-    userData.file?.data
+    sentFile?.data
 
         ? {
             mode:
                 isAkdQuery(
-                    userData.message
+                    sentMessage
                 ),
 
             selectedIds:
@@ -2587,10 +2599,8 @@ const akdSelection =
         }
 
         : await getAkdSelectionForSarah(
-            userData.message
+            sentMessage
         );
-    government_mode:
-        isGovernmentQuery(userData.message),
 
     // add user message chat history
    chatHistory.push({
@@ -2602,21 +2612,21 @@ const akdSelection =
 
         {
             text:
-                userData.message
+                sentMessage
         },
 
         ...(
-            userData.file?.data
+            sentFile?.data
 
                 ? [
                     {
                         inline_data: {
 
                             data:
-                                userData.file.data,
+                                sentFile.data,
 
                             mime_type:
-                                userData.file.mime_type
+                                sentFile.mime_type
                         }
                     }
                 ]
@@ -2635,7 +2645,7 @@ const akdSelection =
     body: JSON.stringify({
 
     government_mode:
-        false,
+        isGovernmentQuery(sentMessage),
 
     akd_mode:
     akdSelection.mode,
@@ -2656,20 +2666,9 @@ const akdSelection =
 // MAIN SARAH REQUEST CONTROLLER
 // ========================================
 
-const controller =
-    new AbortController();
-
-const requestTimeout =
-    setTimeout(
-        () =>
-            controller.abort(),
-
-        akdSelection.mode
-            ? 65000
-            : 35000
-    );
-
-    try {
+        if (new Blob([requestOptions.body]).size > 4300000) {
+            throw Object.assign(new Error("Perbualan atau lampiran terlalu besar. Kurangkan saiz lampiran atau mulakan perbualan baharu."), { code: "PAYLOAD_TOO_LARGE" });
+        }
         // Fetch bot response from API
         const response =
     await fetch(
@@ -2698,34 +2697,19 @@ try {
         );
 
 } catch {
-
-    throw new Error(
-        response.ok
-            ? "Sarah menerima respons server yang tidak sah."
-            : (
-                rawResponse
-                    .trim()
-                    .slice(
-                        0,
-                        200
-                    ) ||
-                `Server error ${response.status}`
-            )
-    );
-
+    throw Object.assign(new Error("Respons server tidak lengkap."), {
+        code: response.status === 504 ? "TIMEOUT" : "UNAVAILABLE",
+        status: response.status,
+        retryAfter: Number(response.headers.get("Retry-After")) || 3
+    });
 }
-
-
 if (!response.ok) {
-
-    throw new Error(
-
-        data?.error?.message ||
-        data?.error ||
-        `Server error ${response.status}`
-
-    );
-
+    throw Object.assign(new Error(data?.error?.message || "Sarah belum dapat dihubungi."), {
+        code: data?.error?.code || (response.status === 429 ? "BUSY" : "UNAVAILABLE"),
+        status: response.status,
+        retryAfter: Number(data?.error?.retryAfter || response.headers.get("Retry-After")) || 0,
+        requestId: data?.error?.requestId || response.headers.get("X-Request-ID")
+    });
 }
 
 // ========================================
@@ -3308,47 +3292,54 @@ addSarahCopyButton(
 
     addDownloadButtons(incomingMessageDiv, documentBody !== null ? documentBody : apiResponseText, formatsToShow);
     } catch (error) {
-
-    console.error(
-        "Sarah request error:",
-        error
-    );
-
-
-    if (
-        error?.name === "AbortError"
-    ) {
-
-        messageElement.innerText =
-            "Maaf, Sarah mengambil masa terlalu lama untuk menjawab. Sila cuba lagi.";
-
-    } else if (
-        error?.message &&
-        error.message
-            .toLowerCase()
-            .includes("quota")
-    ) {
-
-        messageElement.innerText =
-            "Maaf, terlalu ramai menghantar mesej sekarang. Sila cuba lagi sebentar.";
-
-    } else {
-
-        messageElement.innerText =
-            "Maaf, ralat berlaku. Sila cuba lagi.";
-    }
-
-
-    messageElement.style.color =
-        "#ff0000";
-    }   finally {
-    clearTimeout(requestTimeout);
-    userData.file = { data: null, mime_type: null };
-    incomingMessageDiv.classList.remove("thinking");
-    chatBody.scrollTo({ top: chatBody.scrollHeight, behavior: "smooth" });
-    messageInput.disabled = false;
-    sendMessageButton.disabled = false;
-    messageInput.focus();
+        // Failed turns must not accumulate or duplicate when the user retries.
+        chatHistory.splice(historyStart);
+        const code = error?.name === "AbortError" ? "TIMEOUT" : error?.code;
+        const messages = {
+            OFFLINE: "Sambungan internet terputus. Mesej anda disimpan; sambung semula internet untuk mencuba lagi.",
+            TIMEOUT: "Semakan mengambil masa lebih lama daripada biasa. Mesej anda disimpan untuk dicuba semula.",
+            BUSY: "Sarah sedang menerima banyak permintaan. Mesej anda disimpan; cuba semula sebentar lagi."
+        };
+        const trustedCode = ["QUOTA", "CONFIGURATION", "PAYLOAD_TOO_LARGE", "INVALID_REQUEST"].includes(code);
+        messageElement.textContent = messages[code] || (trustedCode ? error.message : "Sarah belum dapat dihubungi. Mesej anda disimpan; sila cuba semula.");
+        messageElement.style.removeProperty("color");
+        if (error.requestId) {
+            const reference = document.createElement("small");
+            reference.textContent = ` Rujukan: ${error.requestId}`;
+            messageElement.appendChild(reference);
+        }
+        if (!["QUOTA", "CONFIGURATION", "PAYLOAD_TOO_LARGE"].includes(code)) {
+            const retry = document.createElement("button");
+            retry.type = "button";
+            retry.className = "download-btn sarah-retry";
+            const seconds = Math.min(300, Math.max(0, Number(error.retryAfter) || 0));
+            retry.disabled = seconds > 0;
+            retry.textContent = seconds ? `Cuba semula selepas ${seconds}s` : "Cuba semula";
+            if (seconds) setTimeout(() => {
+                retry.disabled = false;
+                retry.textContent = "Cuba semula";
+            }, seconds * 1000);
+            retry.addEventListener("click", () => {
+                if (messageInput.disabled || navigator.onLine === false || retry.disabled) return;
+                userData.message = sentMessage;
+                userData.file = { ...sentFile };
+                messageInput.disabled = true;
+                sendMessageButton.disabled = true;
+                incomingMessageDiv.classList.add("thinking");
+                messageElement.textContent = "Sarah sedang mencuba semula...";
+                generateBotResponse(incomingMessageDiv);
+            });
+            messageElement.appendChild(retry);
+        }
+    } finally {
+        clearTimeout(requestTimeout);
+        clearInterval(progressTimer);
+        userData.file = { data: null, mime_type: null };
+        incomingMessageDiv.classList.remove("thinking");
+        chatBody.scrollTo({ top: chatBody.scrollHeight, behavior: "smooth" });
+        messageInput.disabled = false;
+        sendMessageButton.disabled = false;
+        messageInput.focus();
     }
 }
 

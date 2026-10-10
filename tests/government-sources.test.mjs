@@ -6,7 +6,8 @@ import { fileURLToPath } from 'node:url';
 const dir=path.dirname(fileURLToPath(import.meta.url));
 const root=process.argv[2] || path.resolve(dir,'..');
 const read=p=>fs.readFileSync(path.join(root,p),'utf8');
-const ctx=vm.createContext({URL,console,process,setTimeout,clearTimeout,AbortController,Intl});
+const resilience = await import(path.join(root, 'lib/sarah-resilience.js'));
+const ctx=vm.createContext({...resilience, URL,console,process,setTimeout,clearTimeout,AbortController,Intl});
 vm.runInContext(read('js/government-sources.js'),ctx);
 const catalog=ctx.SarahGovernmentSources;
 let checks=0;
@@ -46,7 +47,7 @@ for(const q of ['',null,'siapa awak','mohon bantuan','spaghetti','emotional','to
 ok(catalog.getSearchInstruction('JPN').includes('tanya sama ada'),'ambiguous JPN clarification');
 // Execute real backend helpers and frontend wrapper with the same classic-script catalog.
 const server=read('api/gemini.js');
-vm.runInContext(server.replace(/^import "\.\.\/js\/government-sources.js";\r?\n/m,'').replace('export default async function handler','async function handler'),ctx);
+vm.runInContext(server.replace(/^import \{[^\n]+sarah-resilience.js\";\r?\n/m,'').replace(/^import "\.\.\/js\/government-sources.js";\r?\n/m,'').replace('export default function handler','function handler'),ctx);
 const helpers=vm.runInContext('({isGovernmentQuery, getGovernmentTopicInstruction, isAuthoritativeGovernmentHostname, detectGovernmentTopic})',ctx);
 for(const q of ['JDN','JPN Kedah','MITI','MOHE','mohon bantuan']){
  ok(helpers.isGovernmentQuery(q)===catalog.isGovernmentQuery(q),'server shares matcher: '+q);
@@ -65,7 +66,7 @@ vm.runInContext(wrapper,ctx);
 for(const q of ['JDN','JPN Kedah','MITI','MOHE','mohon bantuan']){
  ok(vm.runInContext(`isGovernmentQuery(${JSON.stringify(q)})`,ctx)===catalog.isGovernmentQuery(q),'client shares matcher: '+q);
 }
-ok(/government_mode:\s*isGovernmentQuery\(userData.message\)/.test(client),'request flag connected');
+ok(/government_mode:\s*isGovernmentQuery\(sentMessage\)/.test(client),'request flag connected');
 for(const page of ['index','puncakuasa','slaid','kerja','document','akd']){
  const html=read(page+'.html');
  const catalogScript=html.indexOf('src="js/government-sources.js"');
@@ -79,7 +80,7 @@ const originalFetch=globalThis.fetch;
 globalThis.fetch=async(url,options)=>{
  assert.ok(String(url).startsWith('https://generativelanguage.googleapis.com/'),'unexpected external call');
  payloads.push(JSON.parse(options.body));
- return {ok:false,status:503,json:async()=>({error:{message:'Mock model unavailable'}})};
+ return {ok:false,status:403,json:async()=>({error:{message:'Mock invalid credentials'}})};
 };
 const savedError=console.error;console.error=()=>{};
 try{
