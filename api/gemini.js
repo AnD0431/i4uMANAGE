@@ -291,6 +291,7 @@ if (
     text.includes("cuti") ||
     text.includes("tatatertib") ||
     text.includes("kenaikan pangkat") ||
+    governmentSources.findSources(text).some(source => ["jpa", "jpa-docs"].includes(source.id)) ||
     text.includes("pemangkuan") ||
     text.includes("skim perkhidmatan") ||
     text.includes("gred") ||
@@ -1629,6 +1630,33 @@ function addGoogleSearchTool(payload) {
 async function callGemini(googleUrl, payload, timeOutMs = 25000) {
     return callGeminiReliably(googleUrl, payload, timeOutMs);
 }
+
+// HTTP 200 does not guarantee a visible answer (e.g. thoughts/tool calls only).
+function requireVisibleAnswer(data) {
+    if (hasUsableFinalResponse(data)) return data;
+    const finishReason = data?.candidates?.[0]?.finishReason || "MISSING";
+    const blocked = Boolean(data?.promptFeedback?.blockReason) ||
+        ["SAFETY", "BLOCKLIST", "PROHIBITED_CONTENT", "SPII", "RECITATION", "IMAGE_SAFETY"].includes(finishReason);
+    // Diagnostics contain no prompt, attachment, thought text or provider credentials.
+    console.warn("SARAH_NO_VISIBLE_ANSWER", { finishReason, blocked });
+    throw new SarahError(blocked ? "RESPONSE_BLOCKED" : "EMPTY_RESPONSE", 502,
+        blocked
+            ? "Sarah tidak dapat menghasilkan jawapan untuk permintaan ini. Cuba nyatakan semula soalan dengan lebih khusus."
+            : "AI tidak mengembalikan teks jawapan. Mesej anda disimpan; sila cuba semula.");
+}
+
+async function recoverEmptyAnswer(googleUrl, payload, data) {
+    try { return requireVisibleAnswer(data); }
+    catch (error) {
+        // Never retry a safety block or extend the overall request deadline.
+        if (error.code !== "EMPTY_RESPONSE" || remainingMs() < 12000) throw error;
+    }
+    const retryPayload = appendSystemInstruction(payload,
+        "Respons sebelumnya tidak mengandungi teks jawapan akhir. Berikan jawapan akhir dalam teks biasa untuk soalan pengguna. Kekalkan semua peraturan sumber dan keselamatan; jangan dedahkan proses pemikiran. Jika maklumat tidak dapat disahkan, nyatakan batasan itu dengan jelas.");
+    const retry = await callGemini(googleUrl, retryPayload, Math.min(20000, remainingMs() - 1000));
+    return requireVisibleAnswer(retry.data);
+}
+
 
 // =========================================================
 // AKD CLAIM AUDIT
@@ -6817,6 +6845,8 @@ if (governmentMode) {
 
 if (!governmentMode) {
 
+    data = await recoverEmptyAnswer(GOOGLE_URL, payload, data);
+
     // ========================================
     // AKD CLAIM AUDIT
     // Semak jawapan sekali lagi terhadap
@@ -7004,6 +7034,8 @@ if (
 
     };
 
+
+    requireVisibleAnswer(data);
 
     return res
         .status(200)

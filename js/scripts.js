@@ -2569,6 +2569,9 @@ const generateBotResponse = async (incomingMessageDiv) => {
     const sentMessage = userData.message;
     const sentFile = { ...userData.file };
     const historyStart = chatHistory.length;
+    let responseRequestId = null;
+    let responsePhase = "prepare";
+    let acceptedAnswer = null;
     const controller = new AbortController();
     // 20s selector + 55s server budget + network margin; server ends before browser.
     const requestTimeout = setTimeout(() => controller.abort(), 90000);
@@ -2669,6 +2672,7 @@ const akdSelection =
         if (new Blob([requestOptions.body]).size > 4300000) {
             throw Object.assign(new Error("Perbualan atau lampiran terlalu besar. Kurangkan saiz lampiran atau mulakan perbualan baharu."), { code: "PAYLOAD_TOO_LARGE" });
         }
+        responsePhase = "request";
         // Fetch bot response from API
         const response =
     await fetch(
@@ -2681,6 +2685,9 @@ const akdSelection =
         }
     );
 
+
+responseRequestId = response.headers.get("X-Request-ID");
+responsePhase = "decode";
 
 const rawResponse =
     await response.text();
@@ -2700,7 +2707,8 @@ try {
     throw Object.assign(new Error("Respons server tidak lengkap."), {
         code: response.status === 504 ? "TIMEOUT" : "UNAVAILABLE",
         status: response.status,
-        retryAfter: Number(response.headers.get("Retry-After")) || 3
+        retryAfter: Number(response.headers.get("Retry-After")) || 3,
+        requestId: responseRequestId
     });
 }
 if (!response.ok) {
@@ -2761,30 +2769,18 @@ const apiResponseText =
 // ========================================
 
 if (!apiResponseText) {
-
-    console.error(
-        "SARAH_EMPTY_RESPONSE",
-        {
-            candidate:
-                data?.candidates?.[0],
-
-            finishReason:
-                data?.candidates?.[0]
-                    ?.finishReason,
-
-            promptFeedback:
-                data?.promptFeedback,
-
-            responseParts:
-                responseParts
-        }
-    );
-
-    throw new Error(
-        "Sarah tidak menerima teks jawapan daripada AI."
-    );
+    const blocked = Boolean(data?.promptFeedback?.blockReason) ||
+        ["SAFETY", "BLOCKLIST", "PROHIBITED_CONTENT", "SPII", "RECITATION", "IMAGE_SAFETY"]
+            .includes(data?.candidates?.[0]?.finishReason);
+    throw Object.assign(new Error("Tiada teks jawapan akhir."), {
+        code: blocked ? "RESPONSE_BLOCKED" : "EMPTY_RESPONSE",
+        requestId: responseRequestId,
+        finishReason: data?.candidates?.[0]?.finishReason || "MISSING"
+    });
 }
 
+        acceptedAnswer = apiResponseText;
+        responsePhase = "render";
         // Asingkan kandungan dokumen (dalam marker) dari penerangan bot.
         // Chat hanya papar ayat bot di LUAR marker — kandungan sebenar disimpan untuk fail download sahaja.
         const documentBody = extractDocumentBody(apiResponseText);
@@ -3292,10 +3288,26 @@ addSarahCopyButton(
 
     addDownloadButtons(incomingMessageDiv, documentBody !== null ? documentBody : apiResponseText, formatsToShow);
     } catch (error) {
+        console.error("SARAH_RESPONSE_ERROR", {
+            phase: responsePhase,
+            code: error?.code || (error?.name === "AbortError" ? "TIMEOUT" : "UNAVAILABLE"),
+            requestId: error?.requestId || responseRequestId,
+            finishReason: error?.finishReason
+        });
+        // A formatting/source-card failure must not discard a successful AI answer.
+        if (acceptedAnswer !== null && responsePhase === "render") {
+            messageElement.textContent = acceptedAnswer
+                .replace(/===MULA_DOKUMEN===|===TAMAT_DOKUMEN===/g, "").trim();
+            chatHistory.splice(historyStart + 1);
+            chatHistory.push({ role: "model", parts: [{ text: acceptedAnswer }] });
+            return;
+        }
         // Failed turns must not accumulate or duplicate when the user retries.
         chatHistory.splice(historyStart);
         const code = error?.name === "AbortError" ? "TIMEOUT" : error?.code;
         const messages = {
+            EMPTY_RESPONSE: "AI tidak mengembalikan teks jawapan. Mesej anda disimpan; sila cuba semula.",
+            RESPONSE_BLOCKED: "Sarah tidak dapat menghasilkan jawapan untuk permintaan ini. Cuba nyatakan semula soalan dengan lebih khusus.",
             OFFLINE: "Sambungan internet terputus. Mesej anda disimpan; sambung semula internet untuk mencuba lagi.",
             TIMEOUT: "Semakan mengambil masa lebih lama daripada biasa. Mesej anda disimpan untuk dicuba semula.",
             BUSY: "Sarah sedang menerima banyak permintaan. Mesej anda disimpan; cuba semula sebentar lagi."
@@ -3303,12 +3315,13 @@ addSarahCopyButton(
         const trustedCode = ["QUOTA", "CONFIGURATION", "PAYLOAD_TOO_LARGE", "INVALID_REQUEST"].includes(code);
         messageElement.textContent = messages[code] || (trustedCode ? error.message : "Sarah belum dapat dihubungi. Mesej anda disimpan; sila cuba semula.");
         messageElement.style.removeProperty("color");
-        if (error.requestId) {
+        const requestId = error.requestId || responseRequestId;
+        if (requestId) {
             const reference = document.createElement("small");
-            reference.textContent = ` Rujukan: ${error.requestId}`;
+            reference.textContent = ` Rujukan: ${requestId}`;
             messageElement.appendChild(reference);
         }
-        if (!["QUOTA", "CONFIGURATION", "PAYLOAD_TOO_LARGE"].includes(code)) {
+        if (!["QUOTA", "CONFIGURATION", "PAYLOAD_TOO_LARGE", "RESPONSE_BLOCKED"].includes(code)) {
             const retry = document.createElement("button");
             retry.type = "button";
             retry.className = "download-btn sarah-retry";

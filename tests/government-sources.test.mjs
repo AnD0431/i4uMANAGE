@@ -24,6 +24,8 @@ for(const s of catalog.sources){
  }
 }
 for(const [query,expected] of [
+ ['apa dokumen yang perlu untuk naik pangkat time based berasas kecemerlangan untuk pembantu tadbir',['jpa','jpa-docs']],
+ ['TBK1 dan TBK2',['jpa','jpa-docs']], ['TBBK',['jpa','jpa-docs']], ['time-based',['jpa','jpa-docs']],
  ['Garis Panduan Kelulusan Projek ICT JDN',['jdn','jdn-policy']],
  ['technical & costing',['jdn']],['MyGovUC',['jdn']],
  ['perolehan ICT KKM',['treasury','jdn','moh']],
@@ -52,6 +54,7 @@ const helpers=vm.runInContext('({isGovernmentQuery, getGovernmentTopicInstructio
 for(const q of ['JDN','JPN Kedah','MITI','MOHE','mohon bantuan']){
  ok(helpers.isGovernmentQuery(q)===catalog.isGovernmentQuery(q),'server shares matcher: '+q);
 }
+ok(helpers.detectGovernmentTopic('naik pangkat time based pembantu tadbir')==='public-service','promotion routes to public service');
 const combined=helpers.getGovernmentTopicInstruction('finance','perolehan ICT JDN');
 ok(combined.includes('ppp.treasury.gov.my')&&combined.includes('https://www.jdn.gov.my/'),'finance retains MOF and adds JDN');
 for(const bad of ['moh.gov.my.example.com','evilgov.my','gov.my.attacker.test','example.com']){
@@ -84,7 +87,7 @@ globalThis.fetch=async(url,options)=>{
 };
 const savedError=console.error;console.error=()=>{};
 try{
- for(const [message,expectedDomain] of [['JDN','jdn.gov.my'],['JPN Terengganu','jpnterengganu.moe.gov.my'],['MITI','miti.gov.my']]){
+ for(const [message,expectedDomain] of [['naik pangkat time based pembantu tadbir','docs.jpa.gov.my'],['JDN','jdn.gov.my'],['JPN Terengganu','jpnterengganu.moe.gov.my'],['MITI','miti.gov.my']]){
   payloads=[];
   const res={status(code){this.code=code;return this},json(data){this.data=data;return this}};
   await handler({method:'POST',body:{government_mode:false,contents:[{role:'user',parts:[{text:message}]}]}},res);
