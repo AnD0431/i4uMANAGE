@@ -11,7 +11,7 @@
 
 import { withSarahRequest, callGeminiReliably, requestFetch, sendSarahError, remainingMs, SarahError } from "../lib/sarah-resilience.js";
 
-const MODEL = "gemini-3.7-flash";
+const MODEL = "gemini-3.8-flash";
 
 
 // Satu katalog untuk browser dan server; tiada senarai keyword berasingan.
