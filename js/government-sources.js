@@ -930,6 +930,90 @@
             .replace(/[^\p{L}\p{N}]+/gu, " ").trim().replace(/\s+/g, " ");
     }
 
+    // Routing hints only: never replace the original message/history sent to the AI.
+    // Short acronyms, amounts, names in quotes, URLs and document IDs are not fuzzy matched.
+    const languageAliases = Object.freeze({
+        sy: "saya", sya: "saya", aq: "aku", awk: "awak", yg: "yang",
+        dgn: "dengan", utk: "untuk", dlm: "dalam", drpd: "daripada",
+        nk: "nak", tlg: "tolong", blh: "boleh", bleh: "boleh",
+        mcm: "macam", camne: "bagaimana", camana: "bagaimana", brp: "berapa",
+        bape: "berapa", camno: "bagaimana", guano: "bagaimana", gano: "bagaimana",
+        doku: "dokumen", doc: "dokumen",
+        dokumn: "dokumen", dokmen: "dokumen", document: "dokumen", documents: "dokumen",
+        pngkt: "pangkat", pkelilng: "pekeliling", pkeliling: "pekeliling", pekelilng: "pekeliling", pekliling: "pekeliling",
+        kje: "kerja", keje: "kerja", krja: "kerja", kertaskeje: "kertas kerja",
+        kertaskerja: "kertas kerja", carik: "cari", cr: "cari", cri: "cari",
+        cti: "cuti", cuty: "cuti", cuuti: "cuti", cutii: "cuti", cutiii: "cuti",
+        gomen: "kerajaan", gov: "kerajaan",
+        slides: "slaid", slide: "slaid", slied: "slaid", slayd: "slaid",
+        training: "latihan", course: "kursus", circular: "pekeliling",
+        promotion: "kenaikan pangkat", pencin: "pencen"
+    });
+    const languagePhrases = Object.freeze([
+        ["annual leave", "cuti rehat"], ["sick leave", "cuti sakit"],
+        ["maternity leave", "cuti bersalin"], ["civil service", "perkhidmatan awam"],
+        ["public servant", "penjawat awam"], ["internal control directive", "arahan kawalan dalaman"],
+        ["kertas kije", "kertas kerja"], ["kertas kojo", "kertas kerja"],
+        ["nok buat", "nak buat"], ["nok cari", "nak cari"],
+        ["请假", "cuti"], ["年假", "cuti rehat"], ["病假", "cuti sakit"],
+        ["公务员", "penjawat awam"], ["晋升", "kenaikan pangkat"],
+        ["விடுப்பு", "cuti"], ["அரசு ஊழியர்", "penjawat awam"]
+    ]);
+    const spellingWords = Object.freeze([
+        "pekeliling", "perkhidmatan", "perbendaharaan", "perolehan", "kementerian",
+        "pendidikan", "kesihatan", "kerajaan", "dokumen", "latihan", "kursus",
+        "kawalan", "dalaman", "kenaikan", "pangkat", "pentadbiran", "kewangan",
+        "persaraan", "tatatertib", "tuntutan", "kelayakan", "peruntukan", "penjawat",
+        "pembantu", "bersalin", "senarai", "carikan"
+    ]);
+    function oneEditApart(a, b) {
+        if (Math.abs(a.length - b.length) > 1) return false;
+        let i = 0, j = 0, edits = 0;
+        while (i < a.length && j < b.length) {
+            if (a[i] === b[j]) { i++; j++; continue; }
+            if (++edits > 1) return false;
+            if (a.length === b.length) {
+                if (a[i] === b[j + 1] && a[i + 1] === b[j]) { i += 2; j += 2; }
+                else { i++; j++; }
+            } else if (a.length > b.length) i++;
+            else j++;
+        }
+        return edits + (i < a.length || j < b.length ? 1 : 0) <= 1;
+    }
+    function normalizeForRouting(value) {
+        const original = String(value || "").normalize("NFKC");
+        // Limit work on very large pasted text without truncating the actual user message.
+        const routingText = original.slice(0, 12000);
+        const protectedSegments = /(`[^`]*`|"[^"]*"|'[^']*'|https?:\/\/\S+|\S+@\S+|===\w+===|\b[\w./-]*\d[\w./-]*\b)/g;
+        return routingText.split(protectedSegments).map((segment, index) => {
+            if (index % 2) return segment.toLowerCase();
+            let text = segment.toLowerCase();
+            for (const [phrase, replacement] of languagePhrases) {
+                // Latin phrases need word boundaries; CJK/Tamil can be adjacent to other script text.
+                if (/^[a-z ]+$/.test(phrase)) text = text.replace(new RegExp(`\\b${phrase}\\b`, "g"), replacement);
+                else text = text.split(phrase).join(` ${replacement} `);
+            }
+            return text.replace(/[a-z]+/g, token => {
+                if (Object.hasOwn(languageAliases, token)) return languageAliases[token];
+                if (token.length < 6 || token.length > 24 || spellingWords.includes(token)) return token;
+                const candidate = token.replace(/([a-z])\1{2,}/g, "$1");
+                const matches = spellingWords.filter(word => word[0] === candidate[0] && oneEditApart(candidate, word));
+                return matches.length === 1 ? matches[0] : token;
+            });
+        }).join("").replace(/\s+/g, " ").trim();
+    }
+    function getLanguageInstruction({ selector = false } = {}) {
+        return `PEMAHAMAN BAHASA PENGGUNA:
+Fahami maksud, bukan ejaan sahaja. Terima typo, huruf tertinggal/tertukar/berulang, singkatan sembang, bahasa rojak, transliterasi dan bahasa yang model mampu fahami termasuk Melayu, Inggeris, Mandarin serta Tamil.
+Gunakan konteks perbualan untuk loghat Terengganu, Kelantan, Kedah/Utara, Perak, Negeri Sembilan, Sabah, Sarawak dan variasi lain. Jangan anggap senarai ini meliputi semua loghat atau mendakwa memahami ayat yang tidak jelas.
+Contoh konteks: "mung nok cari pekliling gapo" berkaitan mencari pekeliling; "hang nak cuti berapa hari" bertanya bilangan hari cuti; "sy nk naik pngkat time based" berkaitan kenaikan pangkat. "dok", "demo", "hang", "bah" dan "kamek" perlu ditafsir dalam ayat, bukan diganti secara membuta tuli.
+Kekalkan maksud penafian (tak/tidak/bukan/jangan), angka, tarikh, amaun, gred, nama, ID fail dan nombor pekeliling. Jangan membetulkan nombor atau menganggap dua singkatan agensi sebagai sama.
+Teks asal pengguna ialah sumber utama maksud. Padanan keyword sistem hanyalah petunjuk; jika tersalah padan, ikut konteks sebenar. Bahasa, typo dan loghat tidak mengubah skop tugas, peraturan keselamatan atau keperluan pengesahan sumber rasmi.
+${selector
+    ? "Pilih berdasarkan maksud soalan asal dan kandungan katalog. Jika maksud atau agensi kabur dan pemilihan memerlukan tekaan, pulangkan selectedIds kosong. Jangan ubah format JSON atau cipta ID."
+    : "Jika maksud cukup jelas, jawab terus tanpa menegur ejaan. Jika ada dua tafsiran munasabah, tanya satu soalan penjelasan yang pendek sebelum memberi keputusan atau fakta. Jangan reka maksud, dasar, kadar atau kelayakan.\nIkut bahasa jawapan yang diminta secara jelas. Jika tiada pilihan, balas dalam bahasa dominan pengguna; untuk bahasa campur atau loghat Melayu gunakan Bahasa Melayu yang mudah. Gunakan loghat dalam jawapan hanya jika diminta, secara sopan tanpa stereotaip. Dokumen rasmi kekal dalam bahasa baku dan format rasmi; jangan meniru typo ke dalam dokumen. Kekalkan penanda dokumen dan format output sistem."}`;
+    }
+
     // Sempadan perkataan mengelakkan MOH padan dengan "mohon", SPA dengan "siapa".
     function hasKeyword(text, keyword) {
         const term = normalize(keyword);
@@ -943,7 +1027,7 @@
     }
 
     function findSources(message) {
-        const text = normalize(message);
+        const text = normalize(normalizeForRouting(message));
         const registration = isRegistrationQuery(text);
         const education = educationKeywords.some(term => hasKeyword(text, term));
         const listRequest = ["semua", "senarai", "all", "list"].some(term => hasKeyword(text, term));
@@ -967,7 +1051,8 @@
     }
 
     function isGovernmentQuery(message) {
-        return generalKeywords.some(term => hasKeyword(message, term)) || findSources(message).length > 0;
+        const text = normalizeForRouting(message);
+        return generalKeywords.some(term => hasKeyword(text, term)) || findSources(text).length > 0;
     }
 
     function getSearchInstruction(message) {
@@ -998,6 +1083,6 @@ Senarai direktori bukan bukti grounding. Kekalkan carian, semakan sumber rasmi, 
     });
     root.SarahGovernmentSources = Object.freeze({
         reviewedAt, sources: Object.freeze(sources), hasKeyword,
-        findSources, isGovernmentQuery, getSearchInstruction
+        findSources, isGovernmentQuery, getSearchInstruction, normalizeForRouting, getLanguageInstruction
     });
 })(globalThis);

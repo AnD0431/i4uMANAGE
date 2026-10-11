@@ -1,3 +1,5 @@
+import "../js/government-sources.js";
+
 // =========================================================
 // i4uManage
 // AKD AI DOCUMENT SELECTOR
@@ -326,6 +328,7 @@ OUTPUT JSON SAHAJA:
                 body:
                     JSON.stringify({
 
+                        system_instruction: { parts: [{ text: globalThis.SarahGovernmentSources.getLanguageInstruction({ selector: true }) }] },
                         contents: [
                             {
                                 role:

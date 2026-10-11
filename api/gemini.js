@@ -266,9 +266,7 @@ try {
 function detectGovernmentTopic(message = "") {
 
     const text =
-        String(message)
-            .toLowerCase()
-            .trim();
+        governmentSources.normalizeForRouting(message);
 
 
     // KEWANGAN / TUNTUTAN / PEROLEHAN
@@ -2650,11 +2648,7 @@ function isKertasKerjaAnalysisRequest(
 ) {
 
     const text =
-        String(
-            message || ""
-        )
-            .toLowerCase()
-            .trim();
+        governmentSources.normalizeForRouting(message);
 
 
     const triggers = [
@@ -2895,7 +2889,8 @@ function isKertasKerjaConversation(
         )
         .map(part =>
             typeof part?.text === "string"
-                ? part.text
+                ? part.text.split(/(===tamat_dokumen===)/i)
+                    .map(segment => governmentSources.normalizeForRouting(segment)).join("\n")
                 : ""
         )
         .join("\n")
@@ -2948,9 +2943,7 @@ function requiresStrictGovernmentVerification(
 ) {
 
     const text =
-        String(message || "")
-            .toLowerCase()
-            .trim();
+        governmentSources.normalizeForRouting(message);
 
 
     const strictKeywords = [
@@ -4972,9 +4965,7 @@ function isAkdQuery(
 ) {
 
     const text =
-        String(message || "")
-            .toLowerCase()
-            .trim();
+        governmentSources.normalizeForRouting(message);
 
 
     return (
@@ -6569,9 +6560,7 @@ const governmentMode =
         // BUILD PAYLOAD
         // ===============================
 
-let payload = {
-    ...clientPayload
-};
+let payload = appendSystemInstruction({ ...clientPayload }, governmentSources.getLanguageInstruction());
 
 // ========================================
 // LOAD ARAHAN KAWALAN DALAMAN

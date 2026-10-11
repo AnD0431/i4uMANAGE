@@ -115,14 +115,18 @@ const AKD_SELECTOR_API = "/api/akd-selector";
 // SARAH AKD MODE
 // =========================================================
 
+// Routing uses a separate interpretation; the original message stays in the chat/API.
+function normalizeSarahQuery(message) {
+    return globalThis.SarahGovernmentSources?.normalizeForRouting(message)
+        ?? String(message || "").toLowerCase().trim();
+}
+
 function isAkdQuery(
     message = ""
 ) {
 
     const text =
-        String(message || "")
-            .toLowerCase()
-            .trim();
+        normalizeSarahQuery(message);
 
 
     // Frontend hanya detect apabila pengguna
@@ -473,9 +477,7 @@ const initialInputHeight = messageInput.scrollHeight;
 // Detect sama ada pengguna memang nak cari dokumen i4uManage
 function isDocumentSearchIntent(message) {
 
-    const text = (message || "")
-        .toLowerCase()
-        .trim();
+    const text = normalizeSarahQuery(message);
 
     const searchWords = [
         "cari",
@@ -516,9 +518,7 @@ function isDocumentSearchIntent(message) {
 function parseDocumentSearchRequest(message) {
 
     let text =
-        (message || "")
-            .toLowerCase()
-            .trim();
+        normalizeSarahQuery(message);
 
 
     let type = null;
@@ -3365,9 +3365,7 @@ addSarahCopyButton(
 function getSarahThinkingState(message = "") {
 
     const text =
-        String(message || "")
-            .toLowerCase()
-            .trim();
+        normalizeSarahQuery(message);
 
 
     // ========================================
