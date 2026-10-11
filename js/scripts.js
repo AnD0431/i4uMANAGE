@@ -100,6 +100,97 @@ if (
 
 }
 
+// Progressive display uses the verified response already returned by the API.
+// It does not start another AI request or rewrite formatted HTML on every word.
+if (chatBody) chatBody.style.overflowAnchor = "none";
+
+function trackSarahReading() {
+    let userMoved = false;
+    let positioned = false;
+    const markUserMove = () => { userMoved = true; };
+    const markKeyMove = event => {
+        if (["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "].includes(event.key)) markUserMove();
+    };
+    for (const event of ["wheel", "touchstart", "pointerdown"]) chatBody.addEventListener(event, markUserMove, { passive: true });
+    chatBody.addEventListener("keydown", markKeyMove);
+    scrollToBottomButton?.addEventListener("click", markUserMove);
+    return {
+        showStart(message) {
+            if (positioned || userMoved) return;
+            positioned = true;
+            const top = chatBody.scrollTop + message.getBoundingClientRect().top
+                - chatBody.getBoundingClientRect().top - chatBody.clientTop - 12;
+            chatBody.scrollTo({ top: Math.max(0, top), behavior: "instant" });
+        },
+        dispose() {
+            for (const event of ["wheel", "touchstart", "pointerdown"]) chatBody.removeEventListener(event, markUserMove);
+            chatBody.removeEventListener("keydown", markKeyMove);
+            scrollToBottomButton?.removeEventListener("click", markUserMove);
+            updateScrollToBottomButton();
+        }
+    };
+}
+
+function sarahWordChunks(text) {
+    if (typeof Intl.Segmenter !== "function") return text.match(/\S+\s*|\s+/gu) || [];
+    const segments = new Intl.Segmenter(undefined, { granularity: "word" }).segment(text);
+    const chunks = [];
+    let prefix = "";
+    for (const segment of segments) {
+        if (segment.isWordLike) { chunks.push(prefix + segment.segment); prefix = ""; }
+        else if (chunks.length) chunks[chunks.length - 1] += segment.segment;
+        else prefix += segment.segment;
+    }
+    if (prefix) chunks.push(prefix);
+    return chunks;
+}
+
+async function revealSarahAnswer(element, message, reading) {
+    message.classList.remove("thinking");
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+    const entries = [];
+    let node;
+    while ((node = walker.nextNode())) {
+        // Verification notices remain visible throughout; don't animate control labels.
+        if (!node.data.trim() || node.parentElement?.closest(
+            "button, .government-verification, .message-sources, .material-symbols-rounded, script, style"
+        )) continue;
+        entries.push({ node, text: node.data, chunks: sarahWordChunks(node.data) });
+    }
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches || document.hidden) {
+        reading.showStart(message);
+        return;
+    }
+    const oldMinHeight = element.style.minHeight;
+    const oldBusy = element.getAttribute("aria-busy");
+    const style = window.getComputedStyle(element);
+    const extras = style.boxSizing === "border-box" ? 0 :
+        [style.paddingTop, style.paddingBottom, style.borderTopWidth, style.borderBottomWidth]
+            .reduce((sum, value) => sum + (parseFloat(value) || 0), 0);
+    // Reserve the final height so the start can be positioned immediately and never chased.
+    element.style.minHeight = `${Math.max(0, element.getBoundingClientRect().height - extras)}px`;
+    element.setAttribute("aria-busy", "true");
+    for (const entry of entries) entry.node.data = "";
+    reading.showStart(message);
+    updateScrollToBottomButton();
+    try {
+        for (const entry of entries) {
+            for (const chunk of entry.chunks) {
+                if (document.hidden || element.isConnected === false) return;
+                entry.node.appendData(chunk);
+                await new Promise(resolve => setTimeout(resolve, 28));
+            }
+        }
+    } finally {
+        // Restore exact text, including whitespace, even if the view was closed/removed.
+        for (const entry of entries) entry.node.data = entry.text;
+        element.style.minHeight = oldMinHeight;
+        if (oldBusy === null) element.removeAttribute("aria-busy");
+        else element.setAttribute("aria-busy", oldBusy);
+        updateScrollToBottomButton();
+    }
+}
+
 // API setup
 // FIXED: API_KEY dan panggilan terus ke Google DIBUANG dari sini — key tak
 // boleh duduk dalam kod client-side sebab sesiapa boleh nampak dalam DevTools.
@@ -1125,6 +1216,7 @@ async function searchDocumentsForSarah(
             ".message-text"
         );
 
+    const reading = trackSarahReading();
     try {
 
        const searchRequest =
@@ -1210,6 +1302,8 @@ const response =
             data
         );
 
+        await revealSarahAnswer(messageElement, incomingMessageDiv, reading);
+
         addSarahCopyButton(
             incomingMessageDiv
         );
@@ -1284,16 +1378,14 @@ const response =
         );
 
 
-        chatBody.scrollTo({
-            top: chatBody.scrollHeight,
-            behavior: "smooth"
-        });
+        reading.showStart(incomingMessageDiv);
+        reading.dispose();
 
 
         messageInput.disabled = false;
         sendMessageButton.disabled = false;
 
-        messageInput.focus();
+
     }
 }
 
@@ -1677,6 +1769,10 @@ Ada sebarang dokumen atau tugasan yang ingin saya bantu sediakan sekarang? Sila 
 const sendStaticReply = (userText, replyHtml) => {
     if (messageInput.disabled) return;
 
+    messageInput.disabled = true;
+    sendMessageButton.disabled = true;
+    const reading = trackSarahReading();
+
     // Papar mesej user macam biasa
     const outgoingMessageDiv = createMessageElement(`<div class="message-text"></div>`, "user-message");
     outgoingMessageDiv.querySelector(".message-text").textContent = userText;
@@ -1684,20 +1780,30 @@ const sendStaticReply = (userText, replyHtml) => {
     chatBody.scrollTo({ top: chatBody.scrollHeight, behavior: "smooth" });
 
     // Lepas delay singkat (rasa lebih natural), papar jawapan bot terus — tiada "thinking dots"
-    setTimeout(() => {
+    setTimeout(async () => {
+        let incomingMessageDiv;
+        try {
         const botMessageContent = `<div class="chatbot-avatar">
                 <img src="image/sarah.png" alt="Chatbot-logo" class="Chatbot-logo">
             </div>
             <div class="message-text">${replyHtml}</div>`;
-        const incomingMessageDiv = createMessageElement(botMessageContent, "bot-message");
+        incomingMessageDiv = createMessageElement(botMessageContent, "bot-message");
         chatBody.appendChild(incomingMessageDiv);
+        await revealSarahAnswer(incomingMessageDiv.querySelector(".message-text"), incomingMessageDiv, reading);
         addSarahCopyButton(incomingMessageDiv);
-        chatBody.scrollTo({ top: chatBody.scrollHeight, behavior: "smooth" });
 
         // Simpan dalam chatHistory (versi teks tanpa tag HTML) supaya Sarah "ingat"
         // konteks ni kalau user sambung bertanya lepas ni
         chatHistory.push({ role: "user", parts: [{ text: userText }] });
         chatHistory.push({ role: "model", parts: [{ text: replyHtml.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() }] });
+        } catch (error) {
+            console.error("SARAH_DISPLAY_ERROR", { phase: "static-reply" });
+            if (incomingMessageDiv) incomingMessageDiv.querySelector(".message-text").innerHTML = replyHtml;
+        } finally {
+            reading.dispose();
+            messageInput.disabled = false;
+            sendMessageButton.disabled = false;
+        }
     }, 400);
 }
 
@@ -2566,6 +2672,7 @@ function isGovernmentQuery(message) {
 const generateBotResponse = async (incomingMessageDiv) => {
     const messageElement =  incomingMessageDiv.querySelector(".message-text");
 
+    const reading = trackSarahReading();
     const sentMessage = userData.message;
     const sentFile = { ...userData.file };
     const historyStart = chatHistory.length;
@@ -2781,6 +2888,8 @@ if (!apiResponseText) {
 
         acceptedAnswer = apiResponseText;
         responsePhase = "render";
+        clearTimeout(requestTimeout);
+        clearInterval(progressTimer);
         // Asingkan kandungan dokumen (dalam marker) dari penerangan bot.
         // Chat hanya papar ayat bot di LUAR marker — kandungan sebenar disimpan untuk fail download sahaja.
         const documentBody = extractDocumentBody(apiResponseText);
@@ -3266,6 +3375,8 @@ else {
 
 }
 
+        await revealSarahAnswer(messageElement, incomingMessageDiv, reading);
+
         // add bot chat history
         chatHistory.push({
     role: "model",
@@ -3349,10 +3460,11 @@ addSarahCopyButton(
         clearInterval(progressTimer);
         userData.file = { data: null, mime_type: null };
         incomingMessageDiv.classList.remove("thinking");
-        chatBody.scrollTo({ top: chatBody.scrollHeight, behavior: "smooth" });
+        reading.showStart(incomingMessageDiv);
+        reading.dispose();
         messageInput.disabled = false;
         sendMessageButton.disabled = false;
-        messageInput.focus();
+
     }
 }
 
