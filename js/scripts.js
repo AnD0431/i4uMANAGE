@@ -2684,7 +2684,7 @@ const generateBotResponse = async (incomingMessageDiv) => {
     const requestTimeout = setTimeout(() => controller.abort(), 90000);
     const progressTimer = setInterval(() => {
         const label = incomingMessageDiv.querySelector(".thinking-text");
-        if (label) label.textContent = "Sarah masih menyemak. Sila tunggu; tidak perlu hantar mesej yang sama.";
+        if (label) label.textContent = "Sarah masih menyemak. Sila tunggu, tidak perlu hantar mesej yang sama.";
     }, 15000);
     try {
     if (navigator.onLine === false) throw Object.assign(new Error("Offline"), { code: "OFFLINE" });
