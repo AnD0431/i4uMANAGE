@@ -153,7 +153,7 @@ async function revealSarahAnswer(element, message, reading) {
     while ((node = walker.nextNode())) {
         // Verification notices remain visible throughout; don't animate control labels.
         if (!node.data.trim() || node.parentElement?.closest(
-            "button, .government-verification, .message-sources, .material-symbols-rounded, script, style"
+            "button, .government-verification, .message-sources, .sarah-rag-sources, .material-symbols-rounded, script, style"
         )) continue;
         entries.push({ node, text: node.data, chunks: sarahWordChunks(node.data) });
     }
@@ -189,6 +189,41 @@ async function revealSarahAnswer(element, message, reading) {
         else element.setAttribute("aria-busy", oldBusy);
         updateScrollToBottomButton();
     }
+}
+
+// References are server-selected metadata, never links invented by the model.
+function appendSarahRagSources(element, rag) {
+    if (!rag || rag.status === 'disabled') return;
+    const box = document.createElement('details');
+    box.className = 'sarah-sources sarah-rag-sources';
+    const summary = document.createElement('summary');
+    const sources = Array.isArray(rag.sources) ? rag.sources.slice(0, 8) : [];
+    summary.textContent = sources.length
+        ? `Rujukan dokumen i4uManage (${sources.length})`
+        : rag.status === 'unavailable' ? 'Carian koleksi dokumen tidak tersedia'
+        : rag.retrievedCount ? 'Petikan ditemui, tetapi tiada rujukan dipetik dalam jawapan'
+        : 'Tiada petikan sepadan dalam indeks dokumen';
+    box.appendChild(summary);
+    for (const source of sources) {
+        let url;
+        try { url = new URL(source.url); } catch { continue; }
+        if (url.protocol !== 'https:' || url.username || url.password) continue;
+        if (!/^R[1-8]$/.test(source.citation)) continue;
+        const link = document.createElement('a');
+        const unit = {page: 'halaman', slide: 'slaid', section: 'bahagian'}[source.unit] || 'bahagian';
+        const location = Number.isInteger(source.start) ? ` — ${unit} ${source.start}` : '';
+        if (source.unit === 'page' && Number.isInteger(source.start)) url.hash = `page=${source.start}`;
+        link.href = url.href;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = `[${source.citation}] ${source.title}${location}`;
+        link.style.display = 'block';
+        box.appendChild(link);
+    }
+    const note = document.createElement('p');
+    note.textContent = 'Rujukan petikan dokumen. Status kuat kuasa semasa perlu disemak dengan sumber rasmi.';
+    box.appendChild(note);
+    element.appendChild(box);
 }
 
 // API setup
@@ -3375,6 +3410,7 @@ else {
 
 }
 
+        appendSarahRagSources(messageElement, data.i4uRag);
         await revealSarahAnswer(messageElement, incomingMessageDiv, reading);
 
         // add bot chat history

@@ -49,7 +49,7 @@ for(const q of ['',null,'siapa awak','mohon bantuan','spaghetti','emotional','to
 ok(catalog.getSearchInstruction('JPN').includes('tanya sama ada'),'ambiguous JPN clarification');
 // Execute real backend helpers and frontend wrapper with the same classic-script catalog.
 const server=read('api/gemini.js');
-vm.runInContext(server.replace(/^import \{[^\n]+sarah-resilience.js\";\r?\n/m,'').replace(/^import "\.\.\/js\/government-sources.js";\r?\n/m,'').replace('export default function handler','function handler'),ctx);
+vm.runInContext(server.replace(/^import \{[^\n]+sarah-resilience.js\";\r?\n/m,'').replace(/^import "\.\.\/js\/government-sources.js";\r?\n/m,'').replace(/^import \{[^\n]+sarah-rag.js\";\r?\n/m,'').replace('export default function handler','function handler'),ctx);
 const helpers=vm.runInContext('({isGovernmentQuery, getGovernmentTopicInstruction, isAuthoritativeGovernmentHostname, detectGovernmentTopic})',ctx);
 for(const q of ['JDN','JPN Kedah','MITI','MOHE','mohon bantuan']){
  ok(helpers.isGovernmentQuery(q)===catalog.isGovernmentQuery(q),'server shares matcher: '+q);

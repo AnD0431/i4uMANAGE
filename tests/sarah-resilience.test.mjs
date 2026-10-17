@@ -168,7 +168,7 @@ function browserHarness({selectorError=false,networkError=false,responseData=nul
   userData:{message:'pekeliling JDN',file:{data:null,mime_type:null}},chatHistory:history,
   messageInput:input,sendMessageButton:button,chatBody:{scrollTo(){},scrollHeight:0},
   detectRequestedFormats:()=>({}),getAkdSelectionForSarah:async()=>{if(selectorError)throw Error('selector failed');return {mode:false,selectedIds:[]}},
-  trackSarahReading:()=>({showStart(){},dispose(){}}),revealSarahAnswer:async()=>{},
+  appendSarahRagSources(){},trackSarahReading:()=>({showStart(){},dispose(){}}),revealSarahAnswer:async()=>{},
   extractDocumentBody:()=>null,getTextOutsideMarkers:text=>text,
   markdownToChatHtml:text=>text,linkSarahAkdReferences(){if(renderError)throw new Error('render failed')},
   addSarahCopyButton(){},addDownloadButtons(){},

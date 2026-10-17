@@ -1,3 +1,4 @@
+import { isRagConfigured } from "../lib/sarah-rag.js";
 import "../js/government-sources.js";
 
 // =========================================================
@@ -539,6 +540,12 @@ export default async function handler(
 
         }
 
+
+        // RAG retrieves all categories inside /api/gemini; avoid a second paid AI selector.
+        if (isRagConfigured()) {
+            res.setHeader('Cache-Control', 'no-store');
+            return res.status(200).json({success: true, documents: [], totalSelected: 0, retrieval: 'server-rag'});
+        }
 
         // ========================================
         // READ AUTO INDEX

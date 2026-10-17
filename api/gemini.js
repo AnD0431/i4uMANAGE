@@ -11,6 +11,8 @@
 
 import { withSarahRequest, callGeminiReliably, requestFetch, sendSarahError, remainingMs, SarahError } from "../lib/sarah-resilience.js";
 
+import { retrieveSarahKnowledge, ragQuery, ragTypes, appendRagContext, attachRagSources } from "../lib/sarah-rag.js";
+
 const MODEL = "gemini-3.8-flash";
 
 
@@ -6418,6 +6420,13 @@ mahu ia dilabel sebagai cadangan.
                 clientPayload.contents
             );
 
+// Retrieve bounded content once, before model generation. No ingestion occurs here.
+const ragResult = await retrieveSarahKnowledge(
+    ragQuery(clientPayload.contents, latestUserMessage),
+    { types: ragTypes(latestUserMessage) }
+);
+const ragHandlesAkd = ragResult.status === 'ready' && !isAkdCatalogRequest(latestUserMessage);
+
 // ========================================
 // AKD MODE
 // Selection sudah dibuat oleh
@@ -6560,7 +6569,9 @@ const governmentMode =
         // BUILD PAYLOAD
         // ===============================
 
-let payload = appendSystemInstruction({ ...clientPayload }, governmentSources.getLanguageInstruction());
+let payload = appendRagContext(
+    appendSystemInstruction({ ...clientPayload }, governmentSources.getLanguageInstruction()), ragResult
+);
 
 // ========================================
 // LOAD ARAHAN KAWALAN DALAMAN
@@ -6568,11 +6579,12 @@ let payload = appendSystemInstruction({ ...clientPayload }, governmentSources.ge
 
 let akdDocumentsUsed =
     [];
+let akdDocuments = [];
 
 
-if (akdMode) {
+if (akdMode && !ragHandlesAkd) {
 
-    const akdDocuments =
+    akdDocuments =
         await getAkdDocuments();
 
 
@@ -7001,7 +7013,7 @@ if (
                 },
 
                     required:
-                        true,
+                        !ragHandlesAkd,
 
                     audited:
                         akdAudit?.audited ===
@@ -7010,7 +7022,9 @@ if (
                     reason:
                         akdAudit?.reason ||
                         (
-                            akdDocumentsUsed.length === 0
+                            ragHandlesAkd
+                                ? "Content excerpts retrieved; full-document audit not performed."
+                                : akdDocumentsUsed.length === 0
                                 ? "No AKD PDF loaded."
                                 : "Audit was not executed."
                         )
@@ -7025,6 +7039,7 @@ if (
 
 
     requireVisibleAnswer(data);
+    attachRagSources(data, ragResult);
 
     return res
         .status(200)
@@ -7538,6 +7553,8 @@ data.i4uVerification = {
             "no-store"
         );
 
+
+        attachRagSources(data, ragResult);
 
         return res
             .status(200)
