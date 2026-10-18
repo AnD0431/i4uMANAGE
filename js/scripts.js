@@ -1774,7 +1774,8 @@ Ada sebarang dokumen atau tugasan yang ingin saya bantu sediakan sekarang? Sila 
 
     {
         icon: "description",
-        label: "Jana Kertas Kerja",
+        label: "Kertas Kerja 2.0",
+        action: "paper-generator",
         message:
             "Saya nak jana kertas kerja untuk satu program/latihan."
     },
@@ -1861,6 +1862,10 @@ const showQuickReplies = () => {
     </span>
 `;
         btn.addEventListener("click", () => {
+            if (item.action === "paper-generator" && globalThis.SarahPaperGenerator) {
+                globalThis.SarahPaperGenerator.open();
+                return;
+            }
 
     // ========================================
     // CARI DOKUMEN
