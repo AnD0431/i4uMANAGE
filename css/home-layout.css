@@ -1,0 +1,201 @@
+/* Homepage composition only; retain the shared i4uManage visual theme.
+   !important is limited to properties locked by legacy style.css rules. */
+.home-glass .hero-section {
+    padding-bottom: 0;
+}
+
+.home-glass .hero-content {
+    max-width: 1120px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    justify-items: center;
+    gap: 0 !important;
+    padding: 48px 24px 40px !important;
+}
+
+.home-glass .hero-text {
+    max-width: 880px !important;
+    margin: 0 auto !important;
+    text-align: center;
+}
+
+.home-glass .hero-eyebrow {
+    margin: 0 auto 20px !important;
+}
+
+.home-glass .hero-text h2 {
+    max-width: none;
+    font-size: clamp(2.6rem, 4.6vw, 4.5rem) !important;
+    line-height: 1.08 !important;
+    letter-spacing: -1.8px !important;
+}
+
+.home-glass .hero-text h2 > span:first-child {
+    white-space: normal !important;
+}
+
+.home-glass .hero-text h2 .highlight {
+    font-size: 1em;
+    margin-top: 4px !important;
+}
+
+.home-glass .hero-description {
+    max-width: 660px !important;
+    margin: 24px auto 0 !important;
+    font-size: 1rem !important;
+    line-height: 1.75 !important;
+}
+
+.home-glass .hero-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px 24px;
+    margin-top: 24px;
+}
+
+.home-glass .hero-primary-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 48px;
+    padding: 12px 22px;
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    border-radius: 14px;
+    background: linear-gradient(135deg, #f8fbff, #dceaff);
+    box-shadow: 0 8px 24px rgba(0, 15, 40, 0.16);
+    color: #123b70;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.home-glass .hero-primary-link:hover {
+    background: #fff;
+}
+
+.home-glass .hero-actions .hero-faq-link {
+    margin: 0;
+    padding: 12px 0;
+}
+
+.home-glass .hero-actions a:focus-visible {
+    outline: 3px solid #fbbf24;
+    outline-offset: 5px;
+}
+
+.home-glass .hero-features {
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 28px !important;
+}
+
+.home-glass .hero-features > span {
+    font-size: 0.75rem !important;
+}
+
+.home-glass .services-intro {
+    padding: 40px 24px 0;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.home-glass .services-intro-label {
+    justify-content: center;
+}
+
+.home-glass .services-intro-content {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+
+.home-glass .services-count {
+    align-self: center;
+}
+
+.home-glass .services-intro-content p {
+    max-width: 650px;
+    margin-inline: auto;
+}
+
+.home-glass .cards-container {
+    padding: 28px 24px 40px;
+    gap: 24px;
+    scroll-margin-top: calc(var(--home-navbar-height) + 44px);
+}
+
+.home-glass .home-official {
+    max-width: 1200px;
+    margin: 0 auto 48px;
+    padding: 0 24px;
+    color: #fff;
+}
+
+.home-glass .home-official .building-preview {
+    min-height: 260px !important;
+    max-height: none !important;
+    background-position: center 45%;
+}
+
+@media (max-width: 900px) {
+    .home-glass .hero-content {
+        padding: 56px 24px 48px !important;
+    }
+
+    .home-glass .cards-container {
+        grid-template-columns: minmax(0, 1fr);
+        max-width: 650px !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .home-glass .hero-content {
+        padding: 42px 20px 40px !important;
+    }
+
+    .home-glass .hero-text h2 {
+        font-size: clamp(2rem, 8.5vw, 3rem) !important;
+        letter-spacing: -1px !important;
+    }
+
+    .home-glass .hero-description {
+        font-size: 0.9rem !important;
+        margin-top: 20px !important;
+    }
+
+    .home-glass .hero-actions {
+        flex-direction: column;
+        gap: 4px;
+        margin-top: 24px;
+    }
+
+    .home-glass .hero-features {
+        gap: 8px !important;
+        margin-top: 24px !important;
+    }
+
+    .home-glass .hero-features > span {
+        font-size: 0.65rem !important;
+    }
+
+    .home-glass .services-intro {
+        padding: 32px 20px 0;
+    }
+
+    .home-glass .cards-container {
+        padding: 24px 20px 32px;
+        gap: 20px;
+    }
+
+    .home-glass .home-official {
+        padding: 0 20px;
+        margin-bottom: 32px;
+    }
+
+    .home-glass .home-official .building-preview {
+        min-height: 220px !important;
+    }
+}
