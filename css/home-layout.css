@@ -1,5 +1,39 @@
 /* Homepage composition only; retain the shared i4uManage visual theme.
    !important is limited to properties locked by legacy style.css rules. */
+.home-glass {
+    --home-navbar-height: 80px;
+}
+
+.home-glass .navbar {
+    padding-block: 10px;
+}
+
+@media (max-width: 900px) {
+    .home-glass {
+        --home-navbar-height: 74px;
+    }
+}
+
+@media (max-width: 760px) {
+    .home-glass {
+        --home-navbar-height: 64px;
+    }
+
+    .home-glass .navbar {
+        padding-block: 8px;
+    }
+}
+
+@media (max-width: 600px) {
+    .home-glass {
+        --home-navbar-height: 60px;
+    }
+
+    .home-glass .navbar {
+        padding-block: 6px;
+    }
+}
+
 .home-glass .hero-section {
     padding-bottom: 0;
 }
