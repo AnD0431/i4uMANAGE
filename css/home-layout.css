@@ -43,6 +43,17 @@
     background: #17232c url("../image/ENkkm.png") center center / cover no-repeat;
 }
 
+/* Keep the photograph full-height on desktop, including fullscreen windows.
+   A minimum height lets content grow on short screens and at browser zoom. */
+@media (min-width: 1024px) {
+    .home-glass .hero-section {
+        min-height: 100vh !important;
+        min-height: 100svh !important;
+        display: grid;
+        align-items: center;
+    }
+}
+
 /* Darken only the photograph; keep the text and glass navbar crisp. */
 .home-glass .hero-section::before {
     background: linear-gradient(
@@ -184,19 +195,6 @@
     scroll-margin-top: calc(var(--home-navbar-height) + 44px);
 }
 
-.home-glass .home-official {
-    max-width: 1200px;
-    margin: 0 auto 48px;
-    padding: 0 24px;
-    color: #fff;
-}
-
-.home-glass .home-official .building-preview {
-    min-height: 260px !important;
-    max-height: none !important;
-    background-position: center 45%;
-}
-
 @media (max-width: 900px) {
     .home-glass .hero-content {
         padding: 56px 24px 48px !important;
@@ -245,14 +243,5 @@
     .home-glass .cards-container {
         padding: 24px 20px 32px;
         gap: 20px;
-    }
-
-    .home-glass .home-official {
-        padding: 0 20px;
-        margin-bottom: 32px;
-    }
-
-    .home-glass .home-official .building-preview {
-        min-height: 220px !important;
     }
 }
