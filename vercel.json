@@ -1,6 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
+    "api/analyze-document.js": {
+      "maxDuration": 60
+    },
     "api/generate-paper.js": {
       "maxDuration": 60
     },

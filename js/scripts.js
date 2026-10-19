@@ -1752,6 +1752,7 @@ function addSarahCopyButton(
    Tambah/ubah entri di sini untuk tambah quick reply baru.
    ========================================================= */
 const QUICK_REPLIES = [
+    { label: "Analisis Dokumen", icon: "find_in_page", action: "document-analyzer", message: "Saya mahu analisis dokumen." },
 
     {
         icon: "auto_awesome",
@@ -1862,6 +1863,10 @@ const showQuickReplies = () => {
     </span>
 `;
         btn.addEventListener("click", () => {
+            if (item.action === "document-analyzer" && globalThis.SarahDocumentAnalyzer) {
+                globalThis.SarahDocumentAnalyzer.open();
+                return;
+            }
             if (item.action === "paper-generator" && globalThis.SarahPaperGenerator) {
                 globalThis.SarahPaperGenerator.open();
                 return;
