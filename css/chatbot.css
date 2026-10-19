@@ -4871,3 +4871,99 @@ button:not(#send-message) {
 .sarah-rag-sources > summary { cursor: pointer; font-weight: 600; }
 .sarah-rag-sources > a { display: block; margin-top: 10px; color: inherit; }
 .sarah-rag-sources > p { margin: 10px 0 0; font-size: .9em; }
+
+/* Shared Sarah launcher: a visible name and role alongside the larger portrait. */
+#chatbot-toggle.sarah-launcher {
+    width: auto;
+    height: auto;
+    min-height: 100px;
+    max-width: calc(100vw - 24px);
+    right: max(16px, env(safe-area-inset-right));
+    bottom: max(20px, env(safe-area-inset-bottom));
+    gap: 10px;
+    padding: 6px 18px 6px 8px;
+    box-sizing: border-box;
+    border: 1px solid #b8d0ec;
+    border-radius: 24px;
+    background: linear-gradient(135deg, #fff, #e8f2ff);
+    box-shadow: 0 8px 28px rgba(6, 27, 57, 0.22), inset 0 1px 0 #fff;
+    color: #123b70;
+    text-align: left;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#chatbot-toggle.sarah-launcher img {
+    width: 80px;
+    height: 88px;
+    flex: 0 0 auto;
+    object-fit: contain;
+    border-radius: 16px;
+}
+
+.sarah-launcher-label {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.sarah-launcher-name {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: 0.7px;
+}
+
+.sarah-launcher-badge {
+    padding: 3px 5px;
+    border-radius: 5px;
+    background: #123b70;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0;
+}
+
+.sarah-launcher-subtitle {
+    color: #445d79;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+
+body.show-chatbot #chatbot-toggle.sarah-launcher {
+    display: none;
+}
+
+@media (max-width: 600px) {
+    #chatbot-toggle.sarah-launcher {
+        min-height: 78px;
+        right: max(12px, env(safe-area-inset-right));
+        bottom: max(12px, env(safe-area-inset-bottom));
+        gap: 8px;
+        padding: 5px 12px 5px 6px;
+        border-radius: 20px;
+    }
+
+    #chatbot-toggle.sarah-launcher img {
+        width: 60px;
+        height: 68px;
+    }
+
+    .sarah-launcher-name {
+        font-size: 16px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #chatbot-toggle.sarah-launcher {
+        transition: none;
+    }
+
+    #chatbot-toggle.sarah-launcher:hover {
+        transform: none;
+    }
+}
