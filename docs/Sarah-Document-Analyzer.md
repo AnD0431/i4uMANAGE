@@ -34,7 +34,7 @@ Setiap soalan dibaca secara berasingan. Nyatakan subjek dengan jelas; jangan han
 | `js/document-analyzer-core.js` | Membina ID sumber, mengesahkan input, memadankan petikan AI dan menyusun laporan teks. |
 | `api/analyze-document.js` | Prompt server, skema respons JSON, semakan hasil dan pengendalian kegagalan Gemini. |
 | `js/document-analyzer.js` | Dialog, navigasi ringkasan/soal jawab/sumber, pembatalan dan muat turun laporan. |
-| `css/document-analyzer.css` | Paparan desktop dan telefon tanpa glassmorphism baharu. |
+| `css/document-analyzer.css` | Dialog berpusat pada desktop dan telefon, dengan sentuhan glassmorphism ringan. |
 | `js/scripts.js` dan enam HTML | Butang pantas serta pemuatan fail Analyzer. |
 | `vendor/analyzer/` | PDF.js dan Mammoth versi tetap, dihoskan bersama website dan dimuatkan apabila diperlukan. |
 
