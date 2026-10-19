@@ -38,7 +38,19 @@
 }
 
 .home-glass .hero-section {
+    padding-inline: 0;
     padding-bottom: 0;
+    background: #17232c url("../image/ENkkm.png") center center / cover no-repeat;
+}
+
+/* Darken only the photograph; keep the text and glass navbar crisp. */
+.home-glass .hero-section::before {
+    background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0.48),
+        rgba(0, 0, 0, 0.60) 55%,
+        rgba(0, 0, 0, 0.58)
+    );
 }
 
 .home-glass .hero-content {
@@ -60,7 +72,11 @@
 }
 
 .home-glass .hero-text h2 {
-    max-width: none;
+    /* Defeat the old tablet width cap so every line shares the page centre. */
+    max-width: 100% !important;
+    margin-inline: auto !important;
+    text-align: center;
+    text-shadow: 0 2px 16px rgba(0, 0, 0, 0.28);
     font-size: clamp(2.6rem, 4.6vw, 4.5rem) !important;
     line-height: 1.08 !important;
     letter-spacing: -1.8px !important;
@@ -76,6 +92,8 @@
 }
 
 .home-glass .hero-description {
+    color: #f1f5f9;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
     max-width: 660px !important;
     margin: 24px auto 0 !important;
     font-size: 1rem !important;
@@ -113,6 +131,7 @@
 }
 
 .home-glass .hero-actions .hero-faq-link {
+    color: #f1f5f9;
     margin: 0;
     padding: 12px 0;
 }
@@ -129,6 +148,7 @@
 }
 
 .home-glass .hero-features > span {
+    color: #f1f5f9;
     font-size: 0.75rem !important;
 }
 
