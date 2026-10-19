@@ -2,9 +2,12 @@
    !important is limited to properties locked by legacy style.css rules. */
 .home-glass {
     --home-navbar-height: 80px;
+    --home-navbar-gutter: clamp(12px, 4vw, 64px);
 }
 
 .home-glass .navbar {
+    width: calc(100% - var(--home-navbar-gutter) - var(--home-navbar-gutter));
+    margin-inline: auto;
     padding-block: 10px;
 }
 
