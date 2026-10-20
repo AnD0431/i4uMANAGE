@@ -1254,88 +1254,13 @@ async function searchDocumentsForSarah(
     const reading = trackSarahReading();
     try {
 
-       const searchRequest =
-    parseDocumentSearchRequest(
-        userMessage
-    );
-
-
-const params =
-    new URLSearchParams();
-
-
-if (searchRequest.query) {
-
-    params.set(
-        "q",
-        searchRequest.query
-    );
-}
-
-
-if (searchRequest.type) {
-
-    params.set(
-        "type",
-        searchRequest.type
-    );
-}
-
-
-if (searchRequest.category) {
-
-    params.set(
-        "category",
-        searchRequest.category
-    );
-}
-
-
-if (searchRequest.year) {
-
-    params.set(
-        "year",
-        String(
-            searchRequest.year
-        )
-    );
-}
-
-
-const response =
-    await fetch(
-        `${DOCUMENT_SEARCH_API}?${params.toString()}`,
-        {
-            method:
-                "GET",
-
-            cache:
-                "no-store"
-        }
-    );
-
-
-        const data =
-            await response.json();
-
-
-        if (
-            !response.ok ||
-            !data.success
-        ) {
-
-            throw new Error(
-                data.error ||
-                "Document search failed."
-            );
-        }
-
-
-        // Paparkan result
-        renderDocumentSearchResults(
-            messageElement,
-            data
-        );
+        const data = await globalThis.SarahUniversalSearch.search({q: userMessage});
+        globalThis.SarahUniversalSearch.renderInto(messageElement, data);
+        const refine = document.createElement("button");
+        refine.type = "button";
+        refine.textContent = "Tapis / lihat semua hasil";
+        refine.addEventListener("click", () => globalThis.SarahUniversalSearch.open(userMessage));
+        messageElement.appendChild(refine);
 
         await revealSarahAnswer(messageElement, incomingMessageDiv, reading);
 
@@ -1366,7 +1291,7 @@ const response =
             results.length > 0
                 ?
                 `Carian dokumen "${data.query}" menemui ${results.length} dokumen: ${results
-                    .map(item => item.name)
+                    .map(item => item.title)
                     .join(", ")}.`
                 :
                 `Carian dokumen "${data.query}" tidak menemui hasil.`;
@@ -1388,7 +1313,7 @@ const response =
         );
 
         messageElement.textContent =
-            "Maaf, carian dokumen tidak dapat dilakukan sekarang. Sila cuba lagi.";
+            error.message || "Carian belum dapat diselesaikan. Sila cuba semula.";
 
         messageElement.style.color =
             "#ff0000";
@@ -1783,8 +1708,8 @@ Ada sebarang dokumen atau tugasan yang ingin saya bantu sediakan sekarang? Sila 
 
     {
         icon: "search",
-        label: "Cari Dokumen",
-        action: "document-search"
+        label: "Universal Smart Search",
+        action: "universal-search"
     },
 
     {
@@ -1863,6 +1788,10 @@ const showQuickReplies = () => {
     </span>
 `;
         btn.addEventListener("click", () => {
+            if (item.action === "universal-search" && globalThis.SarahUniversalSearch) {
+                globalThis.SarahUniversalSearch.open();
+                return;
+            }
             if (item.action === "document-analyzer" && globalThis.SarahDocumentAnalyzer) {
                 globalThis.SarahDocumentAnalyzer.open();
                 return;
@@ -3947,43 +3876,12 @@ const messageContent =
 // SARAH REQUEST ROUTER
 // ========================================
 
-// AKD diberi keutamaan.
-// Penting supaya ayat seperti
-// "cari dokumen AKD"
-// tidak masuk search-document lama.
-if (
-    isAkdQuery(
-        userData.message
-    )
-) {
-
-    generateBotResponse(
-        incomingMessageDiv
-    );
-
+// Explicit search requests use the unified catalogue; questions and attachments stay with Sarah AI.
+if (!userData.file.data && globalThis.SarahUniversalCore?.isIntent(userData.message)) {
+    searchDocumentsForSarah(userData.message, incomingMessageDiv);
+} else {
+    generateBotResponse(incomingMessageDiv);
 }
-
-else if (
-    isDocumentSearchIntent(
-        userData.message
-    )
-) {
-
-    searchDocumentsForSarah(
-        userData.message,
-        incomingMessageDiv
-    );
-
-}
-
-else {
-
-    generateBotResponse(
-        incomingMessageDiv
-    );
-
-}
-
 
 }, 600);
 }

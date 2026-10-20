@@ -9,6 +9,9 @@
     },
     "api/gemini.js": {
       "maxDuration": 60
+    },
+    "api/universal-search.js": {
+      "maxDuration": 30
     }
   }
 }
