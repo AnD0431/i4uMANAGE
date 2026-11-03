@@ -12,6 +12,12 @@
     },
     "api/universal-search.js": {
       "maxDuration": 30
+    },
+    "api/akd.js": {
+      "maxDuration": 15
+    },
+    "api/akd-selector.js": {
+      "maxDuration": 30
     }
   }
 }

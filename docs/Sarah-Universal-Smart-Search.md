@@ -32,3 +32,7 @@ The search dialog provides source/category/year filters, examples, pagination, a
 ## Validation
 
 Run `node --test tests/*.test.mjs`. Universal-search tests cover ranking, natural queries, synonyms, filters, unsafe URLs, duplicate sources, pagination, public RAG results, source failures/timeouts and simultaneous catalogue loads. UI preview fixtures exercise success/empty/error states without sending private files or calling a production model. Live Apps Script data, production credentials, quotas and deployment require separate verification in the deployed environment.
+
+### Live AKD catalogue (3 November 2026)
+
+An AKD-only query now uses the shared 30-second live catalogue instead of refreshing all 17 source lists. `senaraikan semua AKD` / `list all AKD documents` are catalogue intents; content questions such as `senaraikan tanggungjawab dalam semua dokumen AKD` remain AI questions. A pure AKD listing does not read RAG (`sources.rag: not-needed`). For AKD body search, a RAG excerpt is included only if its URL and update timestamp match a currently listed file. Listing a new file does not claim its text is already in the Python RAG snapshot. See Sarah-RAG.md for the live-PDF answer path and deployment checks.

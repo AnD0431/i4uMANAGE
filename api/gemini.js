@@ -11,6 +11,7 @@
 
 import { withSarahRequest, callGeminiReliably, requestFetch, sendSarahError, remainingMs, SarahError } from "../lib/sarah-resilience.js";
 
+import { akdLibrary, isAkdLiveConfigured, selectLiveAkd, akdTextResponse, formatAkdCatalog } from "../lib/sarah-akd-live.js";
 import { retrieveSarahKnowledge, ragQuery, ragTypes, appendRagContext, attachRagSources } from "../lib/sarah-rag.js";
 
 const MODEL = "gemini-3.8-flash";
@@ -4927,36 +4928,9 @@ function normalizeAkdText(
 // AKD CATALOG REQUEST
 // =========================================================
 
-function isAkdCatalogRequest(
-    message = ""
-) {
-
-    const text =
-        normalizeAkdText(
-            message
-        );
-
-
-    const patterns = [
-
-        "senarai dokumen",
-        "senaraikan dokumen",
-        "semua dokumen",
-        "dokumen tersedia",
-        "dokumen yang ada",
-        "apa dokumen",
-        "list dokumen"
-
-    ];
-
-
-    return patterns.some(
-        pattern =>
-            text.includes(pattern)
-    );
-
+function isAkdCatalogRequest(message = "") {
+    return globalThis.SarahUniversalCore.isCatalogRequest(message);
 }
-
 
 // =========================================================
 // EXPLICIT AKD REQUEST
@@ -5868,7 +5842,7 @@ function getAkdInstruction(
                 )
                 .join("\n")
 
-            : "Tiada PDF perlu dibaca untuk permintaan ini.";
+            : "Tiada PDF berjaya dimuatkan untuk permintaan ini.";
 
 
     return `
@@ -6371,6 +6345,15 @@ mahu ia dilabel sebagai cadangan.
     // API KEY
     // ===============================
 
+    const catalogMessage = getLatestUserMessage(req.body?.contents);
+    if (isAkdQuery(catalogMessage) && isAkdCatalogRequest(catalogMessage) &&
+        !req.body?.contents?.at(-1)?.parts?.some(p => p.inline_data || p.inlineData || p.file_data || p.fileData)) {
+        const catalog = await akdLibrary.catalog();
+        if (catalog.status !== 'ready') return sendSarahError(res, new SarahError('AKD_CATALOG_UNAVAILABLE', 503,
+            'Katalog Drive AKD belum dapat dicapai. Sila cuba semula; senarai tidak dianggap kosong.'));
+        return res.status(200).json(akdTextResponse(formatAkdCatalog(catalog.documents), catalog));
+    }
+
     const API_KEY =
         process.env.GEMINI_API_KEY;
 
@@ -6421,11 +6404,14 @@ mahu ia dilabel sebagai cadangan.
             );
 
 // Retrieve bounded content once, before model generation. No ingestion occurs here.
-const ragResult = await retrieveSarahKnowledge(
+const liveAkdRequest = isAkdLiveConfigured() && (akd_mode === true ||
+    (Array.isArray(akd_selected_ids) && akd_selected_ids.length > 0) || isAkdQuery(latestUserMessage));
+let ragResult = liveAkdRequest && !ragTypes(latestUserMessage).some(t => t !== 'akd')
+    ? {status: 'disabled', passages: []} : await retrieveSarahKnowledge(
     ragQuery(clientPayload.contents, latestUserMessage),
     { types: ragTypes(latestUserMessage) }
 );
-const ragHandlesAkd = ragResult.status === 'ready' && !isAkdCatalogRequest(latestUserMessage);
+
 
 // ========================================
 // AKD MODE
@@ -6468,6 +6454,12 @@ const akdMode =
         latestUserMessage
     );
 
+
+// AKD auto-index and the Python RAG snapshot are separate stores. A ready
+// snapshot must never hide newer Drive files from the live AKD route.
+const useLiveAkd = akdMode && isAkdLiveConfigured();
+const ragHandlesAkd = !useLiveAkd && ragResult.status === 'ready' && !isAkdCatalogRequest(latestUserMessage);
+if (useLiveAkd) ragResult = {...ragResult, passages: ragResult.passages.filter(p => p.type !== 'akd')};
 
 if (akdMode) {
 
@@ -6584,90 +6576,23 @@ let akdDocuments = [];
 
 if (akdMode && !ragHandlesAkd) {
 
-    akdDocuments =
-        await getAkdDocuments();
+    const [catalog, liveIndex] = await Promise.all([akdLibrary.catalog(), akdLibrary.index()]);
+    if (catalog.status !== 'ready') return sendSarahError(res, new SarahError('AKD_CATALOG_UNAVAILABLE', 503,
+        'Katalog Drive AKD belum dapat dicapai. Sila cuba semula.'));
+    akdDocuments = catalog.documents;
 
-
-    if (
-    akdDocuments.length === 0
-) {
-
-    console.error(
-        "AKD mode active but catalog is unavailable."
-    );
-
-
-    return res
-        .status(200)
-        .json({
-
-            candidates: [
-                {
-                    content: {
-                        role:
-                            "model",
-
-                        parts: [
-                            {
-                                text:
-                                    "Maaf, dokumen Arahan Kawalan Dalaman tidak dapat dicapai buat masa ini. Sila cuba lagi sebentar."
-                            }
-                        ]
-                    },
-
-                    finishReason:
-                        "STOP"
-                }
-            ],
-
-            i4uAkd: {
-                mode:
-                    true,
-
-                available:
-                    false
-            }
-
-        });
-
-} else {
+    if (akdDocuments.length === 0) {
+        return res.status(200).json(akdTextResponse(formatAkdCatalog([]), catalog));
+    } else {
 
 // ========================================
 // USE DOCUMENT IDs FROM AI SELECTOR
 // ========================================
 
-let selectedAkdDocuments =
-    [];
-
-
-if (
-    !isAkdCatalogRequest(
-        latestUserMessage
-    )
-) {
-
-    const selectedIds =
-        new Set(
-            selectedAkdIds
-        );
-
-
-    selectedAkdDocuments =
-        akdDocuments
-            .filter(
-                document =>
-                    selectedIds.has(
-                        String(
-                            document.id
-                        )
-                    )
-            )
-            .slice(
-                0,
-                3
-            );
-
-}
+const selectedAkdDocuments = selectLiveAkd(latestUserMessage, akdDocuments, liveIndex.documents, selectedAkdIds);
+if (!selectedAkdDocuments.length) return res.status(200).json(akdTextResponse(
+    'Sarah sudah menyemak katalog AKD semasa. Nyatakan tajuk, nombor AKD atau topik dengan lebih khusus supaya dokumen yang betul dapat dibaca.\n\n' + formatAkdCatalog(akdDocuments),
+    {...catalog, mode: 'needs-document'}));
 
 
 console.log(
@@ -6683,6 +6608,10 @@ const akdPdfs =
         selectedAkdDocuments
     );
 
+
+if (!akdPdfs.length) return res.status(200).json(akdTextResponse(
+    'Dokumen ditemui dalam katalog AKD, tetapi kandungannya belum dapat dibaca. Fail mungkin memerlukan akses Drive, bukan PDF, terlalu besar atau muat turun gagal. Pentadbir perlu menyemak akses dan format fail.\n\n' + formatAkdCatalog(selectedAkdDocuments),
+    {...catalog, mode: 'content-unavailable'}));
 
        if (
     akdPdfs.length > 0

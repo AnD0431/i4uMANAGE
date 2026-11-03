@@ -3,7 +3,7 @@
     'use strict';
     const types = Object.freeze({'akd': 'AKD', 'punca-kuasa': 'Punca kuasa', 'slide-kursus': 'Slaid kursus', 'kertas-kerja': 'Kertas kerja', 'portal': 'Portal rasmi'});
     const categories = Object.freeze({'pembangunan': 'Pembangunan', 'teknologi-maklumat': 'Teknologi maklumat', 'latihan': 'Latihan', 'psikologi-kaunseling': 'Psikologi & kaunseling', 'sumber-manusia': 'Sumber manusia', 'pentadbiran': 'Pentadbiran', 'perolehan-aset': 'Perolehan & aset', 'kewangan': 'Kewangan'});
-    const stop = new Set('saya aku nak mahu tolong boleh untuk tentang mengenai yang dan atau di ke daripada dengan please find search show me the a an for of about tahun year years senarai list berkaitan berkenaan related dapatkan tunjuk cari carikan semua dokumen document documents file fail sarah universal smart'.split(' '));
+    const stop = new Set('saya aku nak mahu tolong boleh untuk tentang mengenai yang dan atau di ke daripada dengan please find search show me the a an for of about tahun year years senarai senaraikan list all available berkaitan berkenaan related dapatkan tunjuk cari carikan semua dokumen document documents file fail sarah universal smart apa apakah ada tersedia tunjukkan paparkan'.split(' '));
     const synonyms = new Map();
     for (const group of ['latihan training course courses kursus', 'cuti leave', 'perolehan procurement purchasing', 'kewangan finance financial', 'aset asset assets', 'pekeliling circular circulars', 'keselamatan safety security', 'maklumat information', 'pentadbiran administration', 'bengkel workshop', 'sumber resources', 'manusia human', 'teknologi technology']) {
         const words = group.split(' ');for (const word of words) synonyms.set(word, words[0]);
@@ -88,6 +88,11 @@
         const facets = Object.fromEntries(Object.keys(types).map(t => [t, all.filter(d => d.type === t).length]));
         return {results: all.filter(d => query.type === 'all' || d.type === query.type), facets};
     }
-    function isIntent(value) {return /\b(cari|carikan|find|search|carian)\b/.test(normalize(root.SarahGovernmentSources?.normalizeForRouting(value) || value));}
-    root.SarahUniversalCore = Object.freeze({types, categories, normalize, words, parse, safeUrl, identity, near, prepared, score, rank, isIntent});
+    function isCatalogRequest(value) {
+        const text = normalize(root.SarahGovernmentSources?.normalizeForRouting(value) || value);
+        if (!/\b(senarai|senaraikan|list|show|tunjuk|tunjukkan|paparkan)\b|^apa(?:kah)? (?:dokumen|fail|akd)\b/.test(text)) return false;
+        try {const q = parse({q: text});return q.type !== 'all' && q.terms.length === 0;} catch {return false;}
+    }
+    function isIntent(value) {return isCatalogRequest(value) || /\b(cari|carikan|find|search|carian)\b/.test(normalize(root.SarahGovernmentSources?.normalizeForRouting(value) || value));}
+    root.SarahUniversalCore = Object.freeze({types, categories, normalize, words, parse, safeUrl, identity, near, prepared, score, rank, isIntent, isCatalogRequest});
 })(globalThis);

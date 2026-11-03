@@ -119,3 +119,26 @@ Selepas deploy, cuba soalan berdasarkan tajuk sebenar koleksi:
 Dalam respons `/api/gemini`, `i4uRag.status` perlu `ready`; `sources` mengandungi rujukan yang dipetik. `ready` sahaja tidak bermaksud jawapan disokong jika `retrievedCount`/`sources` kosong. Ujian tempatan menggunakan model palsu untuk memeriksa aliran kod; ketepatan jawapan model sebenar perlu diuji selepas konfigurasi produksi.
 
 Dokumentasi: [pypdf: batasan ekstrak teks](https://pypdf.readthedocs.io/en/stable/user/extract-text.html), [Apps Script Web Apps](https://developers.google.com/apps-script/guides/web), [Content Service dan redirect](https://developers.google.com/apps-script/guides/content), [Vercel environment variables](https://vercel.com/docs/environment-variables).
+
+## Pembaikan AKD langsung — 3 November 2026
+
+Indeks automatik `/api/akd-index` dan snapshot `index.json` RAG ialah **dua stor berasingan**. Status RAG `ready` tidak membuktikan fail AKD yang baru dimuat naik sudah ada di snapshot itu. Sebelum pembaikan, selector terus melangkau indeks AKD apabila RAG dikonfigurasi; permintaan `senaraikan semua AKD` pula dihantar ke model.
+
+Laluan AKD kini menggunakan `lib/sarah-akd-live.js`:
+
+- Senarai AKD diambil daripada katalog Apps Script `source: akd`, tanpa model, PDF atau snapshot RAG. Arahan senarai dalam chat menggunakan Universal Smart Search dengan pagination; API Gemini turut menyokong klien lama tanpa memerlukan kunci model untuk menyenaraikan fail.
+- Untuk soalan kandungan AKD, katalog semasa menentukan fail yang masih wujud. Tajuk serta metadata daripada `source: akd-index` memilih maksimum tiga fail relevan. Ringkasan indeks hanya digunakan untuk pemilihan jika `updatedAt` sama; ia bukan bukti untuk jawapan.
+- PDF semasa dimuat turun dan dibekalkan kepada model. Petikan AKD daripada snapshot lama tidak dicampurkan dengan PDF semasa. Fail yang tidak dapat dibaca menghasilkan mesej khusus, bukan dakwaan kandungan sudah disemak.
+- Katalog dan metadata indeks dicache 30 saat setiap instance; permintaan serentak berkongsi satu bacaan. Apabila cache luput, permintaan berikutnya membaca semula Apps Script. Ini bukan tugas latar berjadual dan bukan jaminan siap indeks dalam 30 saat. Proses indeks automatik sedia ada masih menentukan bila ringkasan metadata tersedia.
+- Tidak perlu membina semula Python RAG untuk menyenaraikan atau membaca PDF AKD melalui laluan ini. Snapshot RAG bagi carian kandungan umum/koleksi lain masih perlu dikemas kini seperti di atas. Fail bukan PDF masih boleh disenaraikan, tetapi laluan bacaan langsung ini hanya menyokong PDF boleh dicapai oleh server, maksimum 8 MB setiap fail.
+- Jika tajuk/topik terlalu umum atau tidak sepadan, Sarah meminta tajuk/nombor AKD; ia tidak mendakwa membaca semua fail. Dokumen terpilih sahaja dibaca.
+
+### Selepas deploy
+
+Deploy semua fail yang berubah bersama-sama; tiada perubahan `Code.gs`, folder Drive, token atau pemboleh ubah tambahan diperlukan bagi konfigurasi sedia ada. Halaman HTML menggunakan versi aset `akd-live2` untuk memuat kod frontend baharu.
+
+1. Refresh laman dan tanya `senaraikan semua AKD` — senarai perlu memaparkan enam fail semasa, termasuk AKD Bil. 5 Tahun 2026 (bilangan berubah jika folder dikemas kini).
+2. Tanya `Terangkan AKD Bil 5 2026 kawalan perbelanjaan` — jawapan perlu menyertakan rujukan fail baharu yang betul.
+3. Selepas muat naik seterusnya, tunggu cache katalog luput dan semak semula. Jika fail tersenarai tetapi tidak boleh dibaca, semak format/saiz dan akses muat turun yang diluluskan; jangan melonggarkan akses dokumen terhad semata-mata untuk chatbot awam.
+
+Semakan baca sahaja pada 3 November 2026: API produksi menyenaraikan enam AKD, fail baharu berstatus indeks `ready`, dan permintaan byte awal fail baharu mengesahkan tandatangan PDF. Ini tidak menguji jawapan Gemini produksi. Ujian automatik menggunakan model palsu; ujian antaramuka tempatan menggunakan salinan metadata katalog sebenar.

@@ -19,8 +19,9 @@
     function coverage(data) {
         const notes = [];
         if (data.sources.catalog !== 'ready') notes.push(data.sources.catalog === 'disabled' ? 'Katalog dokumen belum dikonfigurasi.' : 'Sebahagian katalog dokumen tidak dapat dicapai.');
-        if (data.sources.rag !== 'ready') notes.push(data.sources.rag === 'disabled' ? 'Carian isi dokumen RAG belum dikonfigurasi.' : 'Indeks kandungan RAG tidak dapat dicapai.');
-        notes.push('Portal rasmi ialah pautan dalam direktori, bukan carian web langsung.');
+        if (!['ready', 'not-needed'].includes(data.sources.rag)) notes.push(data.sources.rag === 'disabled' ? 'Carian isi dokumen RAG belum dikonfigurasi.' : 'Indeks kandungan RAG tidak dapat dicapai.');
+        if (data.filters.type === 'akd' && data.sources.rag === 'not-needed') notes.push('Senarai tajuk dan metadata daripada katalog Drive AKD; kandungan fail belum dibaca.');
+        else notes.push('Portal rasmi ialah pautan dalam direktori, bukan carian web langsung.');
         return notes.join(' ');
     }
     function renderInto(target, data) {

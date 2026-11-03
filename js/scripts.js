@@ -393,6 +393,8 @@ async function getAkdSelectionForSarah(
         );
 
 
+    if (explicitAkd) return {mode: true, selectedIds: []};
+
     const controller =
         new AbortController();
 

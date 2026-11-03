@@ -1,3 +1,4 @@
+import { akdLibrary, selectLiveAkd, isAkdLiveConfigured } from "../lib/sarah-akd-live.js";
 import { isRagConfigured } from "../lib/sarah-rag.js";
 import "../js/government-sources.js";
 
@@ -543,8 +544,15 @@ export default async function handler(
 
         // RAG retrieves all categories inside /api/gemini; avoid a second paid AI selector.
         if (isRagConfigured()) {
+            if (!isAkdLiveConfigured()) {
+                res.setHeader('Cache-Control', 'no-store');
+                return res.status(200).json({success: true, documents: [], totalSelected: 0, retrieval: 'server-rag'});
+            }
+            const [catalog, index] = await Promise.all([akdLibrary.catalog(), akdLibrary.index()]);
+            const documents = selectLiveAkd(query, catalog.documents, index.documents);
             res.setHeader('Cache-Control', 'no-store');
-            return res.status(200).json({success: true, documents: [], totalSelected: 0, retrieval: 'server-rag'});
+            return res.status(200).json({success: true, documents: documents.map(d => ({id: d.id})),
+                totalSelected: documents.length, retrieval: 'server-live-akd', catalogStatus: catalog.status});
         }
 
         // ========================================
