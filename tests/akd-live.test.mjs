@@ -88,7 +88,7 @@ test('ready RAG cannot hide a new AKD: main API reads live PDF and returns its s
 });
 test('selector uses live auto-index metadata even when RAG is configured, without another AI call',async()=>{
     await setup(async(url)=>{assert.ok(String(url).includes('script.google.com'));return Response.json({success:true,documents:[{...entry(),indexStatus:'ready',summary:'Penggunaan kenderaan jabatan.',topics:[],keywords:[]}]})},async()=>{
-        const r=res();await selector({method:'POST',body:{query:'penggunaan kenderaan jabatan'}},r);
+        const r=res();await selector({method:'POST',body:{query:'AKD penggunaan kenderaan jabatan'}},r);
         assert.equal(r.code,200);assert.equal(r.data.retrieval,'server-live-akd');assert.equal(r.data.documents[0].id,'new-akd');
     });
 });

@@ -1081,8 +1081,18 @@ Senarai direktori bukan bukti grounding. Kekalkan carian, semakan sumber rasmi, 
         if (source.states) Object.freeze(source.states);
         Object.freeze(source);
     });
+    // Mentioning an AKD source is deliberate; topical similarity is not consent
+    // to restrict a general question to the internal AKD collection.
+    function isAkdQuery(value) {
+        const text = normalizeForRouting(value);
+        const source = /\b(?:akd|arahan kawalan dalaman)\b/;
+        if (!source.test(text)) return false;
+        const excluded = /\b(?:bukan|tanpa|selain|kecuali|jangan|tak perlu|tidak perlu|do not|don't|not|without)\s+(?:(?:hanya|berdasarkan|guna|gunakan|rujuk|merujuk|kepada|pada|dokumen|use|using|based on|refer to|the)\s+){0,4}(?:akd|arahan kawalan dalaman)\b/;
+        return !excluded.test(text);
+    }
+
     root.SarahGovernmentSources = Object.freeze({
         reviewedAt, sources: Object.freeze(sources), hasKeyword,
-        findSources, isGovernmentQuery, getSearchInstruction, normalizeForRouting, getLanguageInstruction
+        findSources, isGovernmentQuery, getSearchInstruction, normalizeForRouting, getLanguageInstruction, isAkdQuery
     });
 })(globalThis);

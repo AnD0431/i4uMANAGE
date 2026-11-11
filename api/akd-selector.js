@@ -542,6 +542,12 @@ export default async function handler(
         }
 
 
+        // Older clients may still call this endpoint for every message.
+        if (!globalThis.SarahGovernmentSources.isAkdQuery(query)) {
+            res.setHeader('Cache-Control', 'no-store');
+            return res.status(200).json({success: true, documents: [], totalSelected: 0, retrieval: 'not-requested'});
+        }
+
         // RAG retrieves all categories inside /api/gemini; avoid a second paid AI selector.
         if (isRagConfigured()) {
             if (!isAkdLiveConfigured()) {

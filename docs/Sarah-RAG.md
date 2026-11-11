@@ -142,3 +142,11 @@ Deploy semua fail yang berubah bersama-sama; tiada perubahan `Code.gs`, folder D
 3. Selepas muat naik seterusnya, tunggu cache katalog luput dan semak semula. Jika fail tersenarai tetapi tidak boleh dibaca, semak format/saiz dan akses muat turun yang diluluskan; jangan melonggarkan akses dokumen terhad semata-mata untuk chatbot awam.
 
 Semakan baca sahaja pada 3 November 2026: API produksi menyenaraikan enam AKD, fail baharu berstatus indeks `ready`, dan permintaan byte awal fail baharu mengesahkan tandatangan PDF. Ini tidak menguji jawapan Gemini produksi. Ujian automatik menggunakan model palsu; ujian antaramuka tempatan menggunakan salinan metadata katalog sebenar.
+
+## Pemilihan sumber soalan — 11 November 2026
+
+Mod AKD kini ditentukan oleh **soalan pengguna terkini yang menyebut AKD secara jelas**, bukan padanan kata kunci indeks, `akd_mode` daripada klien lama, atau ID dokumen terpilih. Soalan umum seperti `berapa hari cuti rehat tahunan yang layak untuk jawatan gred 41` menggunakan laluan semakan sumber kerajaan yang berkaitan (JPA/MyPPSM). Soalan yang meminta rujukan AKD secara jelas masih menggunakan katalog dan PDF semasa.
+
+Browser tidak lagi memanggil selector AKD untuk setiap mesej. Endpoint selector turut mengembalikan `retrieval: not-requested` tanpa akses rangkaian bagi soalan umum, supaya klien lama tidak memaksa mod AKD. Dalam mod kerajaan umum, petikan AKD yang kebetulan sepadan dikecualikan daripada konteks jawapan. Sejarah jawapan AKD tidak menentukan skop topik baharu. Penafian biasa seperti `jangan guna AKD` juga dihormati.
+
+Ujian regresi menggunakan ayat sebenar daripada laporan pengguna, termasuk keadaan klien menghantar flag AKD lama, ID terpilih, sejarah AKD, dan petikan RAG AKD yang sepadan. Model dan hasil carian rasmi dimock untuk menguji laluan kod; ujian ini tidak mengesahkan kadar cuti sebenar atau jawapan model produksi. Deploy backend dan keenam-enam halaman bersama aset `source-routing1`, kemudian refresh browser.

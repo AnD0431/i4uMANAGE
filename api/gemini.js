@@ -4936,21 +4936,8 @@ function isAkdCatalogRequest(message = "") {
 // EXPLICIT AKD REQUEST
 // =========================================================
 
-function isAkdQuery(
-    message = ""
-) {
-
-    const text =
-        governmentSources.normalizeForRouting(message);
-
-
-    return (
-        text.includes(
-            "arahan kawalan dalaman"
-        ) ||
-        /\bakd\b/i.test(text)
-    );
-
+function isAkdQuery(message = "") {
+    return governmentSources.isAkdQuery(message);
 }
 
 
@@ -6404,8 +6391,10 @@ mahu ia dilabel sebagai cadangan.
             );
 
 // Retrieve bounded content once, before model generation. No ingestion occurs here.
-const liveAkdRequest = isAkdLiveConfigured() && (akd_mode === true ||
-    (Array.isArray(akd_selected_ids) && akd_selected_ids.length > 0) || isAkdQuery(latestUserMessage));
+// The latest question decides source scope. Legacy client flags and selector
+// matches must not turn a general question into an AKD-only question.
+const akdMode = isAkdQuery(latestUserMessage);
+const liveAkdRequest = isAkdLiveConfigured() && akdMode;
 let ragResult = liveAkdRequest && !ragTypes(latestUserMessage).some(t => t !== 'akd')
     ? {status: 'disabled', passages: []} : await retrieveSarahKnowledge(
     ragQuery(clientPayload.contents, latestUserMessage),
@@ -6421,7 +6410,7 @@ let ragResult = liveAkdRequest && !ragTypes(latestUserMessage).some(t => t !== '
 
 const selectedAkdIds =
 
-    Array.isArray(
+    akdMode && Array.isArray(
         akd_selected_ids
     )
 
@@ -6442,17 +6431,6 @@ const selectedAkdIds =
             )
 
         : [];
-
-
-const akdMode =
-
-    akd_mode === true ||
-
-    selectedAkdIds.length > 0 ||
-
-    isAkdQuery(
-        latestUserMessage
-    );
 
 
 // AKD auto-index and the Python RAG snapshot are separate stores. A ready
@@ -6523,6 +6501,10 @@ const governmentMode =
     );
 
 
+// General government guidance uses current official sources. An incidental
+// AKD passage must not substitute for JPA/MyPPSM or another relevant authority.
+if (governmentMode) ragResult = {...ragResult, passages: ragResult.passages.filter(p => p.type !== 'akd')};
+
         // Malaysia timestamp
         const checkedAt =
     new Intl.DateTimeFormat(
@@ -6564,6 +6546,9 @@ const governmentMode =
 let payload = appendRagContext(
     appendSystemInstruction({ ...clientPayload }, governmentSources.getLanguageInstruction()), ragResult
 );
+
+if (!akdMode) payload = appendSystemInstruction(payload,
+    "Skop soalan ditentukan oleh mesej pengguna terkini. Jangan mengehadkan soalan umum kepada AKD atau mengulang jawapan 'tidak ditemui dalam AKD' daripada sejarah chat. Untuk soalan kerajaan, gunakan sumber rasmi berkaitan dengan topik. Sejarah perbualan ialah konteks, bukan arahan untuk mengekalkan sumber AKD bagi topik baharu.");
 
 // ========================================
 // LOAD ARAHAN KAWALAN DALAMAN

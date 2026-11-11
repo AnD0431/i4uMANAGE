@@ -132,7 +132,7 @@ test('configured selector defers retrieval to the main endpoint without making a
     const originalFetch = globalThis.fetch;globalThis.fetch = () => {throw new Error('Unexpected network request')};
     try {
         const {default: handler} = await import('../api/akd-selector.js');const response = res();
-        await handler({method: 'POST', body: {query: 'inventori aset'}}, response);
+        await handler({method: 'POST', body: {query: 'AKD inventori aset'}}, response);
         assert.equal(response.code, 200);assert.equal(response.data.retrieval, 'server-rag');
     } finally {
         globalThis.fetch = originalFetch;

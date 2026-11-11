@@ -72,7 +72,7 @@ for(const q of ['JDN','JPN Kedah','MITI','MOHE','mohon bantuan']){
 ok(/government_mode:\s*isGovernmentQuery\(sentMessage\)/.test(client),'request flag connected');
 for(const page of ['index','puncakuasa','slaid','kerja','document','akd']){
  const html=read(page+'.html');
- const catalogScript=html.indexOf('src="js/government-sources.js"');
+ const catalogScript=html.search(/src="js\/government-sources\.js(?:\?[^"]*)?"/);
  ok(catalogScript>=0 && catalogScript<html.search(/src="js\/scripts\.js(?:\?[^"]*)?"/),page+' load order');
 }
 // Real endpoint transport with a mocked model response: no network / paid API calls.
