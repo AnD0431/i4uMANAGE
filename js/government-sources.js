@@ -450,6 +450,7 @@
             "tbbk",
             "pembantu tadbir",
             "pemangkuan",
+            "kenaikan gaji",
             "skim perkhidmatan",
             "persaraan",
             "pencen"
@@ -947,9 +948,38 @@
         gomen: "kerajaan", gov: "kerajaan",
         slides: "slaid", slide: "slaid", slied: "slaid", slayd: "slaid",
         training: "latihan", course: "kursus", circular: "pekeliling",
-        promotion: "kenaikan pangkat", pencin: "pencen"
+        promotion: "kenaikan pangkat", pencin: "pencen",
+        ak: "aku", sye: "saya", saye: "saya", org: "orang", thn: "tahun", jgn: "jangan", taknak: "tidak mahu",
+        klu: "kalau", klau: "kalau", kalo: "kalau", lau: "kalau",
+        bpe: "berapa", brape: "berapa", camna: "bagaimana", cmne: "bagaimana", camner: "bagaimana", cane: "bagaimana", cmna: "bagaimana",
+        cemana: "bagaimana", cemane: "bagaimana", mcmne: "bagaimana",
+        bley: "boleh", bole: "boleh", leh: "boleh", boley: "boleh",
+        camtu: "macam itu", cmtu: "macam itu", camni: "macam ini", cmni: "macam ini",
+        dpt: "dapat", dpat: "dapat", knp: "kenapa", nape: "kenapa", napa: "kenapa",
+        sbb: "sebab", sbbnya: "sebabnya", sume: "semua", suma: "semua",
+        bnyk: "banyak", skit: "sedikit", skrg: "sekarang", skang: "sekarang",
+        lps: "lepas", pastu: "selepas itu", lpastu: "selepas itu",
+        jap: "sekejap", japgi: "sebentar lagi", jugak: "juga", gak: "juga",
+        pulak: "pula", plak: "pula", lak: "pula", takde: "tiada", takda: "tiada",
+        xde: "tiada", xda: "tiada", takleh: "tidak boleh", xleh: "tidak boleh",
+        xboleh: "tidak boleh", xnak: "tidak mahu", xpayah: "tidak perlu",
+        gune: "guna", pkai: "pakai", pakey: "pakai", rjuk: "rujuk",
+        kontrk: "kontrak",
+        elaung: "elaun", elauan: "elaun"
     });
+    const languageCanonicalWords = new Set(Object.values(languageAliases));
     const languagePhrases = Object.freeze([
+        ["mcm mn", "bagaimana"],
+        ["claim mileage", "tuntutan perjalanan"], ["claim minyak", "tuntutan perjalanan"],
+        ["claim duit minyak", "tuntutan perjalanan"], ["claim perjalanan", "tuntutan perjalanan"],
+        ["claim hotel", "tuntutan hotel"], ["claim makan", "tuntutan elaun makan"],
+        ["claim ot", "tuntutan kerja lebih masa"], ["buat ot", "kerja lebih masa"],
+        ["kerja ot", "kerja lebih masa"], ["ambil mc", "cuti sakit"],
+        ["amik mc", "cuti sakit"], ["cuti mc", "cuti sakit"],
+        ["cuti kawin", "cuti kahwin"], ["naik gaji", "kenaikan gaji"],
+        ["duit pencen", "pencen"], ["time bes", "time based"],
+        ["x perlu", "tidak perlu"], ["x payah", "tidak perlu"],
+        ["tak payah", "tidak perlu"], ["tok sah", "jangan"], ["xyah", "tidak perlu"],
         ["annual leave", "cuti rehat"], ["sick leave", "cuti sakit"],
         ["maternity leave", "cuti bersalin"], ["civil service", "perkhidmatan awam"],
         ["public servant", "penjawat awam"], ["internal control directive", "arahan kawalan dalaman"],
@@ -997,6 +1027,8 @@
                 if (Object.hasOwn(languageAliases, token)) return languageAliases[token];
                 if (token.length < 6 || token.length > 24 || spellingWords.includes(token)) return token;
                 const candidate = token.replace(/([a-z])\1{2,}/g, "$1");
+                if (Object.hasOwn(languageAliases, candidate)) return languageAliases[candidate];
+                if (languageCanonicalWords.has(candidate)) return candidate;
                 const matches = spellingWords.filter(word => word[0] === candidate[0] && oneEditApart(candidate, word));
                 return matches.length === 1 ? matches[0] : token;
             });
@@ -1008,6 +1040,9 @@ Fahami maksud, bukan ejaan sahaja. Terima typo, huruf tertinggal/tertukar/berula
 Gunakan konteks perbualan untuk loghat Terengganu, Kelantan, Kedah/Utara, Perak, Negeri Sembilan, Sabah, Sarawak dan variasi lain. Jangan anggap senarai ini meliputi semua loghat atau mendakwa memahami ayat yang tidak jelas.
 Contoh konteks: "mung nok cari pekliling gapo" berkaitan mencari pekeliling; "hang nak cuti berapa hari" bertanya bilangan hari cuti; "sy nk naik pngkat time based" berkaitan kenaikan pangkat. "dok", "demo", "hang", "bah" dan "kamek" perlu ditafsir dalam ayat, bukan diganti secara membuta tuli.
 Kekalkan maksud penafian (tak/tidak/bukan/jangan), angka, tarikh, amaun, gred, nama, ID fail dan nombor pekeliling. Jangan membetulkan nombor atau menganggap dua singkatan agensi sebagai sama.
+Ayat santai bukan alasan menolak soalan: "sy nk claim minyak, camne?" ialah pertanyaan tuntutan perjalanan, bukan nasihat kenderaan; "cuti aku burn ke kalau tak habis?" bertanya baki cuti, bukan kebakaran; "bos tak approve, camne?" memerlukan konteks permohonan. Jangan anggap semua perkataan English ialah topik baharu.
+Soalan susulan seperti "kalau kontrak pulak?", "yang tu camne?", "tak paham, explain simple skit" merujuk topik terdekat jika jelas. Semak mesej pengguna terdahulu, kekalkan pembetulan terbaru dan jangan anggap jawapan AI terdahulu sebagai fakta yang disahkan. Jika pengguna bertukar topik, ikut topik baharu. Jika pengguna menafikan AKD, jangan paksa rujukan AKD.
+Jika ayat terlalu kabur, tanya SATU soalan khusus dengan pilihan yang munasabah: "Maksud awak tuntutan perjalanan atau tuntutan kerja lebih masa?" Jangan terus beri ralat atau ayat penolakan di luar skop. Jangan ulang soalan tentang maklumat yang sudah diberi. Salam, terima kasih dan permintaan jelaskan jawapan boleh dibalas secara biasa.
 Teks asal pengguna ialah sumber utama maksud. Padanan keyword sistem hanyalah petunjuk; jika tersalah padan, ikut konteks sebenar. Bahasa, typo dan loghat tidak mengubah skop tugas, peraturan keselamatan atau keperluan pengesahan sumber rasmi.
 ${selector
     ? "Pilih berdasarkan maksud soalan asal dan kandungan katalog. Jika maksud atau agensi kabur dan pemilihan memerlukan tekaan, pulangkan selectedIds kosong. Jangan ubah format JSON atau cipta ID."
@@ -1087,12 +1122,44 @@ Senarai direktori bukan bukti grounding. Kekalkan carian, semakan sumber rasmi, 
         const text = normalizeForRouting(value);
         const source = /\b(?:akd|arahan kawalan dalaman)\b/;
         if (!source.test(text)) return false;
-        const excluded = /\b(?:bukan|tanpa|selain|kecuali|jangan|tak perlu|tidak perlu|do not|don't|not|without)\s+(?:(?:hanya|berdasarkan|guna|gunakan|rujuk|merujuk|kepada|pada|dokumen|use|using|based on|refer to|the)\s+){0,4}(?:akd|arahan kawalan dalaman)\b/;
+        const excluded = /\b(?:bukan|tanpa|selain|kecuali|jangan|x|tak|tidak|tak nak|tidak mahu|tak perlu|tidak perlu|do not|don't|not|without)\s+(?:(?:hanya|semua|berdasarkan|guna|gunakan|pakai|rujuk|merujuk|kepada|pada|dokumen|use|using|based on|refer to|the)\s+){0,4}(?:akd|arahan kawalan dalaman)\b/;
         return !excluded.test(text);
+    }
+
+    // Resolve only short, referential follow-ups. Never rewrite model history,
+    // inherit model claims, or carry an old source restriction into a new topic.
+    function isShortFollowUp(value) {
+        const text = normalizeForRouting(value).replace(/[?!.,]+/g, " ").replace(/\s+/g, " ").trim();
+        if (!text || text.length > 180 || text === "pencen") return false;
+        if (/\b(?:bukan|jangan|tanpa|selain|tidak perlu|tidak mahu|tak nak)\b/.test(text)) return false;
+        if (/^(?:yang (?:tu|itu|ni|ini|tadi|tersebut)|(?:terangkan|jelaskan|ringkaskan|explain) (?:itu|tadi|lagi)|(?:tak|tidak) (?:faham|paham)|explain simple|boleh (?:jelaskan|terangkan) lagi)\b/.test(text)) {
+            // A new named topic takes priority over a vague pointer.
+            return !isGovernmentQuery(text) && !/\b(?:akd|kertas kerja|slaid|punca kuasa)\b/.test(text);
+        }
+        return /^(?:(?:kalau|untuk|bagaimana dengan|what about|how about) )?(?:pegawai )?(?:kontrak|tetap|sambilan|pencen|belum sah jawatan|gred [a-z]?\d+|\d+ (?:hari|tahun|orang))(?: (?:pula|tu|itu|ni|ini|ya|ye|eh|macam mana|bagaimana|boleh|ke))*$/.test(text)
+            || /^(?:kenapa|mengapa|bagaimana|macam mana|berapa hari|berapa banyak|boleh ke|layak ke|apa syaratnya)(?: (?:pula|tu|itu|ni|ini))*$/.test(text);
+    }
+
+    function resolveConversationQuery(contents, latest) {
+        const current = String(latest || "");
+        if (!isShortFollowUp(current) || !Array.isArray(contents)) return current;
+        const latestTurn = contents.at(-1);
+        if (latestTurn?.role === "user" && (Array.isArray(latestTurn.parts) ? latestTurn.parts : []).some(p => p?.inline_data || p?.inlineData || p?.file_data || p?.fileData)) return current;
+        const users = contents.slice(-16).filter(turn => turn?.role === "user").map(turn =>
+            (Array.isArray(turn.parts) ? turn.parts : []).filter(p => typeof p?.text === "string").map(p => p.text).join(" ").trim());
+        if (users.at(-1) === current.trim()) users.pop();
+        const context = [];
+        for (const text of users.slice(-4).reverse()) {
+            if (!text || text.length > 1200) break;
+            context.unshift(text);
+            if (!isShortFollowUp(text)) break;
+        }
+        if (!context.length || isShortFollowUp(context[0])) return current;
+        return `${current}\nKonteks soalan pengguna sebelumnya: ${context.join(" | ")}`;
     }
 
     root.SarahGovernmentSources = Object.freeze({
         reviewedAt, sources: Object.freeze(sources), hasKeyword,
-        findSources, isGovernmentQuery, getSearchInstruction, normalizeForRouting, getLanguageInstruction, isAkdQuery
+        findSources, isGovernmentQuery, getSearchInstruction, normalizeForRouting, getLanguageInstruction, isAkdQuery, resolveConversationQuery
     });
 })(globalThis);

@@ -12,7 +12,7 @@
 import { withSarahRequest, callGeminiReliably, requestFetch, sendSarahError, remainingMs, SarahError } from "../lib/sarah-resilience.js";
 
 import { akdLibrary, isAkdLiveConfigured, selectLiveAkd, akdTextResponse, formatAkdCatalog } from "../lib/sarah-akd-live.js";
-import { retrieveSarahKnowledge, ragQuery, ragTypes, appendRagContext, attachRagSources } from "../lib/sarah-rag.js";
+import { retrieveSarahKnowledge, ragTypes, appendRagContext, attachRagSources } from "../lib/sarah-rag.js";
 
 const MODEL = "gemini-3.8-flash";
 
@@ -6385,19 +6385,17 @@ mahu ia dilabel sebagai cadangan.
         // LATEST USER MESSAGE
         // ===============================
 
-        const latestUserMessage =
-            getLatestUserMessage(
-                clientPayload.contents
-            );
+        const originalUserMessage = getLatestUserMessage(clientPayload.contents);
+        const latestUserMessage = governmentSources.resolveConversationQuery(clientPayload.contents, originalUserMessage);
 
 // Retrieve bounded content once, before model generation. No ingestion occurs here.
-// The latest question decides source scope. Legacy client flags and selector
-// matches must not turn a general question into an AKD-only question.
+// The latest question (plus a clear short follow-up) decides source scope.
+// Legacy client flags and selector matches must not force an AKD-only route.
 const akdMode = isAkdQuery(latestUserMessage);
 const liveAkdRequest = isAkdLiveConfigured() && akdMode;
 let ragResult = liveAkdRequest && !ragTypes(latestUserMessage).some(t => t !== 'akd')
     ? {status: 'disabled', passages: []} : await retrieveSarahKnowledge(
-    ragQuery(clientPayload.contents, latestUserMessage),
+    latestUserMessage,
     { types: ragTypes(latestUserMessage) }
 );
 
@@ -7137,7 +7135,8 @@ const currentSourcePayload = {
 };
 
 
-    const currentSourceResult = await callGemini(GOOGLE_URL, currentSourcePayload)
+    const currentSourceResult = await callGemini(GOOGLE_URL,
+        appendSystemInstruction(currentSourcePayload, governmentSources.getLanguageInstruction()))
         .catch(() => ({ response: { ok: false }, data: null }));
 
 

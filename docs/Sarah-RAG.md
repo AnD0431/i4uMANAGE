@@ -150,3 +150,24 @@ Mod AKD kini ditentukan oleh **soalan pengguna terkini yang menyebut AKD secara 
 Browser tidak lagi memanggil selector AKD untuk setiap mesej. Endpoint selector turut mengembalikan `retrieval: not-requested` tanpa akses rangkaian bagi soalan umum, supaya klien lama tidak memaksa mod AKD. Dalam mod kerajaan umum, petikan AKD yang kebetulan sepadan dikecualikan daripada konteks jawapan. Sejarah jawapan AKD tidak menentukan skop topik baharu. Penafian biasa seperti `jangan guna AKD` juga dihormati.
 
 Ujian regresi menggunakan ayat sebenar daripada laporan pengguna, termasuk keadaan klien menghantar flag AKD lama, ID terpilih, sejarah AKD, dan petikan RAG AKD yang sepadan. Model dan hasil carian rasmi dimock untuk menguji laluan kod; ujian ini tidak mengesahkan kadar cuti sebenar atau jawapan model produksi. Deploy backend dan keenam-enam halaman bersama aset `source-routing1`, kemudian refresh browser.
+
+## Slang dan konteks perbualan — 26 November 2026
+
+Maklum balas pengguna: masalah utama ialah bahasa sembang/slang. Pembaikan ini menambah padanan singkatan serta frasa kerja dalam `js/government-sources.js`, membetulkan arahan penolakan dalam `js/scripts.js`, dan menyelaraskan konteks soalan susulan antara API Gemini dan RAG.
+
+- `claim minyak`, `claim mileage`, `claim OT`, `amik MC`, `cuti kawin` dan `time bes` dibaca sebagai petunjuk topik untuk carian, bukan bukti kelayakan atau kadar. Singkatan kabur seperti MC/OT tanpa konteks tidak ditukar secara automatik.
+- `resolveConversationQuery` hanya menyambung soalan susulan pendek yang dikenal pasti (`klu kontrak plak?`, `yang tu camne?`, `gred N41`) kepada maksimum empat mesej pengguna terdahulu dalam 16 giliran terakhir. Teks panjang, lampiran baharu, penafian sumber dan topik baharu tidak mewarisi konteks secara membuta tuli. Jawapan AI terdahulu tidak digunakan untuk menentukan sumber. Mesej asal yang dihantar kepada model tidak diganti.
+- `jgn guna AKD`, `x payah pakai AKD` dan penafian seumpamanya tidak mengaktifkan mod AKD. Susulan yang jelas kepada soalan AKD boleh mengekalkan sumber AKD; ini melanjutkan peraturan 11 November tanpa mengikat topik baharu kepada AKD.
+- Arahan kepada model meminta satu soalan penjelasan khusus apabila maksud kabur, membenarkan balasan salam/terima kasih, dan mengutamakan maksud berbanding ejaan. Keperluan semakan sumber rasmi kekal. Tiada panggilan model tambahan hanya untuk menterjemahkan slang.
+
+Ujian: jalankan `node --test tests/*.test.mjs`. `tests/sarah-conversation.test.mjs` menguji pemilihan agensi, penafian, kesinambungan konteks, sempadan topik, carian petikan RAG dan payload API. Model/carian rangkaian dimock; kelulusan ujian bukan skor kepuasan pengguna atau jaminan semua loghat difahami.
+
+Selepas deploy backend dan keenam-enam halaman dengan aset `conversation2`, refresh dan cuba:
+
+1. `sy nk claim minyak, cmne eh?` — perlu memahami tuntutan perjalanan dan menyemak sumber berkaitan.
+2. `cuti rehat berapa hari?`, kemudian `klu kontrak plak?` — perlu mengekalkan topik cuti serta meminta maklumat penting yang belum ada.
+3. `ringkaskan AKD Bil 5`, kemudian `cuti aku burn ke kalau tak habis?` — soalan baharu perlu menggunakan sumber cuti yang berkaitan.
+4. `jgn guna AKD, rjuk JPA pasal cuti` — jangan masuk mod AKD.
+5. Dalam chat baharu: `yang tu camne?` — minta penjelasan, jangan reka rujukan/topik.
+
+Jawapan sebenar model produksi masih perlu dinilai menggunakan contoh pengguna selepas deploy. Tiada perubahan Code.gs, token, kunci API atau proses indeks diperlukan untuk pembaikan bahasa ini.
